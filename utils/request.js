@@ -10,7 +10,7 @@ import un, {
 // --- 全局路由取消令牌管理 ---
 let currentRouteCancelTokenSource = null;
 
-function setRouteCancelTokenSource(source) {
+export function setRouteCancelTokenSource(source) {
   currentRouteCancelTokenSource = source;
   if (process.env.NODE_ENV === "development") {
     console.log("🔄 设置新的路由取消令牌源:", source.token);
@@ -36,10 +36,86 @@ function processQueue() {
         `🏃‍♂️ 执行队列请求: ${config.url || config.filePath} (当前运行: ${runningRequests}, 队列剩余: ${requestQueue.length})`,
       );
     }
-    // 重新发起这个请求，并将其结果传递回之前等待的 Promise
-    // 注意：这里的 network(config) 会根据 config 的类型（isUpload/isDownload）自动调用对应的 uni 方法
     resolve(network(config));
   }
+}
+
+// --- 错误消息映射表 ---
+const ERROR_MESSAGES = {
+  // HTTP 状态码错误
+  [HttpStatusCode.BadRequest]: "请求参数有误，请检查后重试 (400)",
+  [HttpStatusCode.Unauthorized]: "登录信息已过期，请重新登录 (401)",
+  [HttpStatusCode.Forbidden]: "您没有访问权限 (403)",
+  [HttpStatusCode.NotFound]: "请求的资源不存在 (404)",
+  [HttpStatusCode.MethodNotAllowed]: "请求方法不允许 (405)",
+  [HttpStatusCode.InternalServerError]: "服务器开小差了，请稍后再试 (500)",
+  [HttpStatusCode.BadGateway]: "网关错误 (502)",
+  [HttpStatusCode.ServiceUnavailable]: "服务暂时不可用，请稍后再试 (503)",
+  [HttpStatusCode.GatewayTimeout]: "网络连接超时，请稍后再试 (504)",
+
+  // UnError 内部错误码
+  [UnError.ERR_NETWORK]: "网络连接异常，请检查网络设置",
+  [UnError.ETIMEDOUT]: "请求超时，请检查网络或稍后再试",
+  [UnError.CANCELED]: "请求已取消", // 由 isUnCancel(error) 判断，但这里也做个映射
+
+  // 自定义业务错误码 (假设后端有这样的错误码)
+  BUSINESS_ERROR: "业务处理失败，请稍后再试", // 通用业务错误
+  10001: "用户名或密码错误", // 示例业务码
+  10002: "验证码不正确", // 示例业务码
+  // ... 更多自定义业务码
+};
+
+/**
+ * 获取用户友好的错误提示
+ * @param {Object} error - 错误对象
+ * @param {Object} config - 请求配置对象
+ * @param {Object} responseData - 如果是业务错误，可能包含后端返回的 data
+ * @returns {string} 用户友好的错误提示
+ */
+function getUserFriendlyErrorMessage(error, config, responseData = null) {
+  let message = "未知错误，请联系客服"; // 默认兜底消息
+
+  if (isUnCancel(error)) {
+    // 请求被取消的错误
+    message = ERROR_MESSAGES[UnError.CANCELED] || "请求已取消";
+  } else if (error instanceof UnError) {
+    // uni-network 抛出的 UnError 实例
+    if (error.code === UnError.ERR_NETWORK) {
+      message = ERROR_MESSAGES[UnError.ERR_NETWORK];
+    } else if (error.code === UnError.ETIMEDOUT) {
+      message = ERROR_MESSAGES[UnError.ETIMEDOUT];
+    } else if (error.status) {
+      // 带有 HTTP 状态码的 UnError
+      message = ERROR_MESSAGES[error.status] || `HTTP 错误：${error.status}`;
+    } else if (error.code && ERROR_MESSAGES[error.code]) {
+      // 检查是否是自定义业务错误码（通过 error.code 传递的业务码）
+      message = ERROR_MESSAGES[error.code];
+    } else {
+      // 其他 UnError，尝试使用其 message
+      message = error.message;
+    }
+  } else if (error.statusCode) {
+    // 某些情况下，error 直接是 uni 的响应对象，包含 statusCode
+    message =
+      ERROR_MESSAGES[error.statusCode] || `HTTP 错误：${error.statusCode}`;
+  } else if (responseData && responseData.code) {
+    // 业务错误，从后端返回的数据中获取 code
+    message =
+      ERROR_MESSAGES[responseData.code] ||
+      responseData.msg ||
+      ERROR_MESSAGES.BUSINESS_ERROR;
+  } else if (error.message) {
+    // 最后的兜底，使用 error 对象的 message 属性
+    message = error.message;
+  }
+
+  // 避免显示内部或不友好的错误信息给用户
+  if (message.includes("timeout of") || message.includes("network error")) {
+    message =
+      ERROR_MESSAGES[UnError.ETIMEDOUT] || ERROR_MESSAGES[UnError.ERR_NETWORK];
+  }
+
+  return message;
 }
 
 // --- 网络请求实例创建 ---
@@ -74,21 +150,11 @@ network.interceptors.request.use(
       config.header.Authorization = `Bearer ${token}`;
     }
 
-    // --- 文件上传/下载的特殊处理：进度显示和加载提示 ---
-    // isUpload 和 isDownload 是 uni-network 内部添加的标志
     if (config.isUpload || config.isDownload) {
-      // 文件上传/下载通常有自己的进度条，不适合统一的 showLoading/hideLoading
-      // 如果你需要统一的进度条，可以在这里通过 uni.showLoading({ mask: true }) 显示
-      // 并且需要一个全局状态来跟踪所有上传/下载的进度，或者为每个文件单独显示
-      // 这里的 hideLoading 标志依然有效，可以用来禁用全局加载提示
       if (!config.hideLoading) {
-        // uni.showToast({ title: '开始传输...', icon: 'loading', mask: true }); // 可以改为更具体的 toast
         console.log(`🚀 开始文件传输: ${config.url || config.filePath}`);
       }
 
-      // 统一处理 onProgressUpdate 回调
-      // uni.uploadFile 和 uni.downloadFile 的 onProgressUpdate 是一个函数回调
-      // 我们可以在这里将它包装，以便在拦截器外更容易地获取和处理进度
       const originalOnProgressUpdate = config.onProgressUpdate;
       config.onProgressUpdate = function (res) {
         if (process.env.NODE_ENV === "development") {
@@ -96,8 +162,6 @@ network.interceptors.request.use(
             `📊 传输进度: ${res.progress}% (${res.totalBytesWritten}/${res.totalBytesExpected})`,
           );
         }
-        // 这里可以触发一个全局事件或更新一个全局状态，以便在 UI 中显示进度条
-        // 例如：uni.$emit('network:progress', { configId: config.__id__, progress: res.progress });
         if (
           originalOnProgressUpdate &&
           typeof originalOnProgressUpdate === "function"
@@ -106,7 +170,6 @@ network.interceptors.request.use(
         }
       };
     } else {
-      // 普通请求的加载提示
       if (!config.hideLoading) {
         uni.showLoading({
           title: "加载中...",
@@ -117,7 +180,6 @@ network.interceptors.request.use(
 
     config.currentRetryCount = config.currentRetryCount || 0;
 
-    // --- 路由切换自动取消的核心逻辑 ---
     if (config.cancelToken === undefined && currentRouteCancelTokenSource) {
       config.cancelToken = currentRouteCancelTokenSource.token;
       if (process.env.NODE_ENV === "development") {
@@ -147,7 +209,6 @@ network.interceptors.request.use(
       config.cancelToken.throwIfRequested();
     }
 
-    // --- 并发控制逻辑：检查是否达到并发上限 ---
     if (runningRequests >= network.defaults.maxConcurrentRequests) {
       if (process.env.NODE_ENV === "development") {
         console.log(
@@ -173,15 +234,25 @@ network.interceptors.request.use(
       processQueue();
     }
 
-    // 隐藏加载提示 (如果是非文件传输的请求错误)
     const config = error.config || {};
     if (!config.hideLoading && !config.isUpload && !config.isDownload) {
       uni.hideLoading();
+    } else if (config.isUpload || config.isDownload) {
+      console.error(
+        `❌ 文件传输在请求阶段失败: ${config.url || config.filePath}`,
+      );
     }
 
-    console.error("⚠️ 请求拦截器 -> 请求失败:", error);
+    // 调用新的错误处理函数并显示Toast
+    const errorMessage = getUserFriendlyErrorMessage(error, config);
+    console.error(
+      "⚠️ 请求拦截器 -> 请求失败:",
+      error,
+      "显示消息:",
+      errorMessage,
+    );
     uni.showToast({
-      title: "网络请求失败，请稍后再试！",
+      title: errorMessage,
       icon: "none",
     });
     return Promise.reject(error);
@@ -193,36 +264,31 @@ network.interceptors.response.use(
   function (response) {
     const config = response.config || {};
 
-    // 无论请求成功还是失败，只要完成了，就减少运行数并处理队列
     runningRequests--;
     processQueue();
 
-    // 隐藏加载提示 (针对普通请求，文件传输的进度条由 onProgressUpdate 管理)
     if (!config.hideLoading && !config.isUpload && !config.isDownload) {
       uni.hideLoading();
     } else if (config.isUpload || config.isDownload) {
-      // 文件传输完成，可以关闭进度条或结束提示
-      // uni.hideToast(); // 如果之前显示了 loading toast
       console.log(`✅ 文件传输完成: ${config.url || config.filePath}`);
     }
 
     if (process.env.NODE_ENV === "development") {
-      console.log("✅ 响应拦截器 -> 响应数据:", response.data || response); // 下载可能没有 data 字段
+      console.log("✅ 响应拦截器 -> 响应数据:", response.data || response);
     }
 
-    // --- 文件下载的特殊处理：返回结果 ---
+    // --- 文件下载的特殊处理：返回结果和错误判断 ---
     if (config.isDownload) {
-      // 下载成功，response.tempFilePath 或 response.filePath 才是真正需要的数据
-      // 这里的 response 是 uni-network 包装后的对象，会包含 tempFilePath 等
       if (response.statusCode === HttpStatusCode.Ok) {
         console.log(
           "🎉 文件下载成功，路径:",
           response.tempFilePath || response.filePath,
         );
-        return response; // 返回完整的响应，包含 tempFilePath
+        return response;
       } else {
-        const errorMsg = `文件下载失败，状态码: ${response.statusCode}`;
-        console.error("❌ 下载错误:", errorMsg, response);
+        // 下载失败的错误处理
+        const errorMsg = getUserFriendlyErrorMessage(response, config); // 这里 response 对象就是错误信息来源
+        console.error("❌ 文件下载错误:", errorMsg, response);
         uni.showToast({ title: errorMsg, icon: "none" });
         return Promise.reject(
           new UnError(
@@ -245,15 +311,26 @@ network.interceptors.response.use(
     ) {
       return response;
     } else {
-      const errorMsg = (resData && resData.msg) || "服务器忙，请稍后再试";
+      // 业务错误
+      const errorMessage = getUserFriendlyErrorMessage(
+        new UnError(
+          "业务错误",
+          (resData && resData.code) || "BUSINESS_ERROR",
+          config,
+          response.task,
+          response,
+        ),
+        config,
+        resData, // 传递后端返回的 resData 用于获取业务错误码和消息
+      );
       console.error(
         "❌ 响应拦截器 -> 业务错误:",
-        errorMsg,
+        errorMessage,
         "完整响应:",
         response,
       );
       uni.showToast({
-        title: errorMsg,
+        title: errorMessage,
         icon: "none",
         duration: 2000,
       });
@@ -272,7 +349,7 @@ network.interceptors.response.use(
 
       return Promise.reject(
         new UnError(
-          errorMsg,
+          errorMessage,
           String((resData && resData.code) || "BUSINESS_ERROR"),
           config,
           response.task,
@@ -303,12 +380,9 @@ network.interceptors.response.use(
       processQueue();
     }
 
-    // 隐藏加载提示 (针对普通请求，文件传输的进度条由 onProgressUpdate 管理)
     if (!config.hideLoading && !config.isUpload && !config.isDownload) {
       uni.hideLoading();
     } else if (config.isUpload || config.isDownload) {
-      // 文件传输失败，可以关闭进度条或结束提示
-      // uni.hideToast();
       console.error(`❌ 文件传输失败: ${config.url || config.filePath}`);
     }
 
@@ -331,53 +405,20 @@ network.interceptors.response.use(
     }
     // --- 重试机制逻辑结束 ---
 
-    // --- 请求取消逻辑 ---
+    // 调用新的错误处理函数并显示Toast
+    const errorMessage = getUserFriendlyErrorMessage(error, config);
+    // 如果是取消请求，getUserFriendlyErrorMessage 会返回 '请求已取消'，此时不显示 Toast
     if (isUnCancel(error)) {
       console.warn("⚡️ 请求被取消:", error.message);
       return Promise.reject(error);
     }
-    // --- 请求取消逻辑结束 ---
 
-    let errorMessage = "网络请求失败，请检查网络！";
-    if (error.status) {
-      switch (error.status) {
-        case HttpStatusCode.BadRequest:
-          errorMessage = "请求参数错误 (400)";
-          break;
-        case HttpStatusCode.Unauthorized:
-          errorMessage = "未授权 (401)，请重新登录";
-          break;
-        case HttpStatusCode.Forbidden:
-          errorMessage = "无权限访问 (403)";
-          break;
-        case HttpStatusCode.NotFound:
-          errorMessage = "请求资源不存在 (404)";
-          break;
-        case HttpStatusCode.InternalServerError:
-          errorMessage = "服务器内部错误 (500)";
-          break;
-        case HttpStatusCode.BadGateway:
-          errorMessage = "网关错误 (502)";
-          break;
-        case HttpStatusCode.ServiceUnavailable:
-          errorMessage = "服务不可用 (503)";
-          break;
-        case HttpStatusCode.GatewayTimeout:
-          errorMessage = "网关超时 (504)";
-          break;
-        default:
-          errorMessage = `HTTP 错误：${error.status}`;
-          break;
-      }
-    } else if (error.code === UnError.ETIMEDOUT) {
-      errorMessage = "请求超时，请稍后再试！";
-    } else if (error.code === UnError.ERR_NETWORK) {
-      errorMessage = "网络连接异常，请检查网络设置！";
-    } else if (error.message) {
-      errorMessage = error.message;
-    }
-
-    console.error("🚨 响应拦截器 -> 响应失败:", error);
+    console.error(
+      "🚨 响应拦截器 -> 响应失败:",
+      error,
+      "显示消息:",
+      errorMessage,
+    );
     uni.showToast({
       title: errorMessage,
       icon: "none",
@@ -389,10 +430,4 @@ network.interceptors.response.use(
 
 export default network;
 
-export {
-  isUnCancel,
-  UnError,
-  HttpStatusCode,
-  UnCancelToken,
-  setRouteCancelTokenSource,
-};
+export { isUnCancel, UnError, HttpStatusCode, UnCancelToken };
