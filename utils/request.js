@@ -10,14 +10,34 @@ import un, {
 // --- 全局路由取消令牌管理 ---
 let currentRouteCancelTokenSource = null;
 
-/**
- * 设置当前路由的 CancelTokenSource。由 App.vue 或路由守卫调用。
- * @param {object} source - UnCancelToken.source() 返回的源对象 { token, cancel }
- */
 function setRouteCancelTokenSource(source) {
   currentRouteCancelTokenSource = source;
   if (process.env.NODE_ENV === "development") {
     console.log("🔄 设置新的路由取消令牌源:", source.token);
+  }
+}
+
+// --- 请求队列/并发控制相关变量 ---
+let runningRequests = 0; // 当前正在进行的请求数量
+const requestQueue = []; // 请求队列，存放等待执行的请求
+
+/**
+ * 尝试从队列中取出并执行下一个请求
+ */
+function processQueue() {
+  if (
+    runningRequests < network.defaults.maxConcurrentRequests &&
+    requestQueue.length > 0
+  ) {
+    const { resolve, config } = requestQueue.shift(); // 从队列头部取出一个请求
+    runningRequests++; // 增加正在运行的请求数
+    if (process.env.NODE_ENV === "development") {
+      console.log(
+        `🏃‍♂️ 执行队列请求: ${config.url} (当前运行: ${runningRequests}, 队列剩余: ${requestQueue.length})`,
+      );
+    }
+    // 重新发起这个请求，并将其结果传递回之前等待的 Promise
+    resolve(network(config));
   }
 }
 
@@ -41,6 +61,9 @@ const network = un.create({
 
   retryTimes: 3,
   retryDelay: 1000,
+
+  // --- 新增并发控制配置 ---
+  maxConcurrentRequests: 5, // 最大并发请求数量，默认为 5
 });
 
 // --- 请求拦截器 ---
@@ -62,9 +85,6 @@ network.interceptors.request.use(
     config.currentRetryCount = config.currentRetryCount || 0;
 
     // --- 路由切换自动取消的核心逻辑 ---
-    // 默认将请求绑定到当前的路由取消令牌
-    // 如果 config.cancelToken 明确设置为 null，则表示该请求不被路由取消
-    // 如果 config.cancelToken 已经是一个自定义的 UnCancelToken 实例，则使用自定义的
     if (config.cancelToken === undefined && currentRouteCancelTokenSource) {
       config.cancelToken = currentRouteCancelTokenSource.token;
       if (process.env.NODE_ENV === "development") {
@@ -75,30 +95,48 @@ network.interceptors.request.use(
       config.cancelToken !== null &&
       config.cancelToken instanceof UnCancelToken
     ) {
-      // 用户传入了自定义的 cancelToken，使用用户的
       if (process.env.NODE_ENV === "development") {
         console.log("🔗 请求绑定到自定义取消令牌:", config.url);
       }
     } else if (config.cancelToken === null) {
-      // 用户明确设置为 null，表示不取消
       if (process.env.NODE_ENV === "development") {
         console.log("❌ 请求禁用路由取消:", config.url);
       }
     }
 
     if (config.cancelToken) {
-      // 在请求发送前检查是否已存在 cancelToken，如果已被取消，则直接抛出错误
-      // 避免发送已被取消的请求
       config.cancelToken.throwIfRequested();
     }
 
-    if (process.env.NODE_ENV === "development") {
-      console.log("🚀 请求拦截器 -> 请求配置:", config);
+    // --- 并发控制逻辑：检查是否达到并发上限 ---
+    if (runningRequests >= network.defaults.maxConcurrentRequests) {
+      if (process.env.NODE_ENV === "development") {
+        console.log(
+          `⏸️ 请求进入队列: ${config.url} (当前运行: ${runningRequests}, 队列: ${requestQueue.length})`,
+        );
+      }
+      return new Promise((resolve) => {
+        // 将请求信息和 Promise 的 resolve 函数存入队列
+        requestQueue.push({ resolve, config });
+      });
+    } else {
+      runningRequests++; // 增加正在运行的请求数
+      if (process.env.NODE_ENV === "development") {
+        console.log(
+          `⬆️ 请求立即执行: ${config.url} (当前运行: ${runningRequests})`,
+        );
+      }
+      return config; // 直接放行
     }
-
-    return config;
   },
   function (error) {
+    // 请求发起前的错误，需要减少运行数并处理队列
+    if (runningRequests > 0) {
+      // 确保只对已经增加运行数的请求进行减操作
+      runningRequests--;
+      processQueue(); // 尝试处理队列中的下一个请求
+    }
+
     uni.hideLoading();
     console.error("⚠️ 请求拦截器 -> 请求失败:", error);
     uni.showToast({
@@ -113,6 +151,11 @@ network.interceptors.request.use(
 network.interceptors.response.use(
   function (response) {
     const config = response.config || {};
+
+    // 无论请求成功还是失败，只要完成了，就减少运行数并处理队列
+    runningRequests--;
+    processQueue(); // 尝试处理队列中的下一个请求
+
     if (!config.hideLoading) {
       uni.hideLoading();
     }
@@ -167,29 +210,40 @@ network.interceptors.response.use(
   },
   function (error) {
     const config = error.config || {};
-    if (!config.hideLoading) {
-      uni.hideLoading();
-    }
 
-    // --- 重试机制逻辑 ---
+    // 无论请求成功还是失败，只要完成了，就减少运行数并处理队列
+    // 注意：重试机制会重新发起请求，这里需要确保在最终失败时才释放名额
+    // 如果是重试，则不立即减少 runningRequests，而是等待重试完成或最终失败
     const maxRetryTimes =
       typeof config.retryTimes === "number"
         ? config.retryTimes
         : network.defaults.retryTimes;
     const currentRetryCount = config.currentRetryCount || 0;
-    const retryDelay =
-      typeof config.retryDelay === "number"
-        ? config.retryDelay
-        : network.defaults.retryDelay;
-
     const shouldRetry =
-      !isUnCancel(error) && // 确保不是取消请求
+      !isUnCancel(error) &&
       currentRetryCount < maxRetryTimes &&
       (error.code === UnError.ERR_NETWORK ||
         error.code === UnError.ETIMEDOUT ||
         (error.status &&
           error.status >= HttpStatusCode.InternalServerError &&
           error.status < 600));
+
+    if (!shouldRetry) {
+      // 只有当不进行重试时才释放名额
+      runningRequests--;
+      processQueue(); // 尝试处理队列中的下一个请求
+    }
+
+    if (!config.hideLoading) {
+      uni.hideLoading();
+    }
+
+    // --- 重试机制逻辑 ---
+    // ... (重试逻辑保持不变，它会在 shouldRetry 为 true 时返回一个 Promise，不会立即进入 finally)
+    const retryDelay =
+      typeof config.retryDelay === "number"
+        ? config.retryDelay
+        : network.defaults.retryDelay;
 
     if (shouldRetry) {
       config.currentRetryCount++;
@@ -205,16 +259,15 @@ network.interceptors.response.use(
     }
     // --- 重试机制逻辑结束 ---
 
-    // 如果不重试，则处理并抛出错误
-    let errorMessage = "网络请求失败，请检查网络！";
     // --- 请求取消逻辑 ---
-    // 如果是取消请求，直接返回 Promise.reject(error)，不再显示 toast
     if (isUnCancel(error)) {
       console.warn("⚡️ 请求被取消:", error.message);
-      return Promise.reject(error); // 继续向下传递取消信息
+      return Promise.reject(error);
     }
     // --- 请求取消逻辑结束 ---
-    else if (error.status) {
+
+    let errorMessage = "网络请求失败，请检查网络！";
+    if (error.status) {
       switch (error.status) {
         case HttpStatusCode.BadRequest:
           errorMessage = "请求参数错误 (400)";
@@ -262,10 +315,8 @@ network.interceptors.response.use(
   },
 );
 
-// 4. 导出配置好的网络请求实例和 UnCancelToken
 export default network;
 
-// 导出 UnCancelToken 和 setRouteCancelTokenSource，供 App.vue 使用
 export {
   isUnCancel,
   UnError,
