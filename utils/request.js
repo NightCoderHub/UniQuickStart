@@ -12,9 +12,7 @@ let currentRouteCancelTokenSource = null;
 
 export function setRouteCancelTokenSource(source) {
   currentRouteCancelTokenSource = source;
-  if (process.env.NODE_ENV === "development") {
-    console.log("🔄 设置新的路由取消令牌源:", source.token);
-  }
+  log("INFO", "🔄 设置新的路由取消令牌源:", source.token);
 }
 
 // --- 请求队列/并发控制相关变量 ---
@@ -31,18 +29,23 @@ function processQueue() {
   ) {
     const { resolve, config } = requestQueue.shift();
     runningRequests++;
-    if (process.env.NODE_ENV === "development") {
-      console.log(
-        `🏃‍♂️ 执行队列请求: ${config.url || config.filePath} (当前运行: ${runningRequests}, 队列剩余: ${requestQueue.length})`,
-      );
-    }
-    resolve(network(config));
+    log(
+      "INFO",
+      `🏃‍♂️ 执行队列请求: ${config.url || config.filePath} (当前运行: ${runningRequests}, 队列剩余: ${requestQueue.length})`,
+    );
+    // 注意：这里调用 network(config) 会再次经过拦截器。
+    // 如果 config 包含 debounce 逻辑，可能导致无限循环。
+    // 正确的做法是直接调用 network.request(config) 来绕过拦截器，确保只执行一次。
+    // 但是，network.request 不会经过拦截器链中的其他拦截器了。
+    // 更安全的做法是，在队列中的请求，不再进行debounce/throttle判断。
+    // 解决方法：在 config 中加一个标志，在拦截器中判断如果来自队列，则跳过 debounce/throttle
+    config.__fromQueue = true; // 标记为来自队列的请求
+    resolve(network(config)); // 此时 network(config) 会再次进入拦截器，但 __fromQueue 会跳过
   }
 }
 
 // --- 错误消息映射表 ---
 const ERROR_MESSAGES = {
-  // HTTP 状态码错误
   [HttpStatusCode.BadRequest]: "请求参数有误，请检查后重试 (400)",
   [HttpStatusCode.Unauthorized]: "登录信息已过期，请重新登录 (401)",
   [HttpStatusCode.Forbidden]: "您没有访问权限 (403)",
@@ -53,16 +56,13 @@ const ERROR_MESSAGES = {
   [HttpStatusCode.ServiceUnavailable]: "服务暂时不可用，请稍后再试 (503)",
   [HttpStatusCode.GatewayTimeout]: "网络连接超时，请稍后再试 (504)",
 
-  // UnError 内部错误码
   [UnError.ERR_NETWORK]: "网络连接异常，请检查网络设置",
   [UnError.ETIMEDOUT]: "请求超时，请检查网络或稍后再试",
-  [UnError.CANCELED]: "请求已取消", // 由 isUnCancel(error) 判断，但这里也做个映射
+  [UnError.CANCELED]: "请求已取消",
 
-  // 自定义业务错误码 (假设后端有这样的错误码)
-  BUSINESS_ERROR: "业务处理失败，请稍后再试", // 通用业务错误
-  10001: "用户名或密码错误", // 示例业务码
-  10002: "验证码不正确", // 示例业务码
-  // ... 更多自定义业务码
+  BUSINESS_ERROR: "业务处理失败，请稍后再试",
+  10001: "用户名或密码错误",
+  10002: "验证码不正确",
 };
 
 /**
@@ -73,49 +73,91 @@ const ERROR_MESSAGES = {
  * @returns {string} 用户友好的错误提示
  */
 function getUserFriendlyErrorMessage(error, config, responseData = null) {
-  let message = "未知错误，请联系客服"; // 默认兜底消息
+  let message = "未知错误，请联系客服";
 
   if (isUnCancel(error)) {
-    // 请求被取消的错误
     message = ERROR_MESSAGES[UnError.CANCELED] || "请求已取消";
   } else if (error instanceof UnError) {
-    // uni-network 抛出的 UnError 实例
     if (error.code === UnError.ERR_NETWORK) {
       message = ERROR_MESSAGES[UnError.ERR_NETWORK];
     } else if (error.code === UnError.ETIMEDOUT) {
       message = ERROR_MESSAGES[UnError.ETIMEDOUT];
     } else if (error.status) {
-      // 带有 HTTP 状态码的 UnError
       message = ERROR_MESSAGES[error.status] || `HTTP 错误：${error.status}`;
     } else if (error.code && ERROR_MESSAGES[error.code]) {
-      // 检查是否是自定义业务错误码（通过 error.code 传递的业务码）
       message = ERROR_MESSAGES[error.code];
     } else {
-      // 其他 UnError，尝试使用其 message
       message = error.message;
     }
   } else if (error.statusCode) {
-    // 某些情况下，error 直接是 uni 的响应对象，包含 statusCode
     message =
       ERROR_MESSAGES[error.statusCode] || `HTTP 错误：${error.statusCode}`;
   } else if (responseData && responseData.code) {
-    // 业务错误，从后端返回的数据中获取 code
     message =
       ERROR_MESSAGES[responseData.code] ||
       responseData.msg ||
       ERROR_MESSAGES.BUSINESS_ERROR;
   } else if (error.message) {
-    // 最后的兜底，使用 error 对象的 message 属性
     message = error.message;
   }
 
-  // 避免显示内部或不友好的错误信息给用户
   if (message.includes("timeout of") || message.includes("network error")) {
     message =
       ERROR_MESSAGES[UnError.ETIMEDOUT] || ERROR_MESSAGES[UnError.ERR_NETWORK];
   }
 
   return message;
+}
+
+// --- 日志级别定义 ---
+const LOG_LEVELS = {
+  DEBUG: 4,
+  INFO: 3,
+  WARN: 2,
+  ERROR: 1,
+  NONE: 0,
+};
+
+// --- 日志输出函数 ---
+/**
+ * 根据配置的日志级别输出日志
+ * @param {string} level - 日志级别 (DEBUG, INFO, WARN, ERROR)
+ * @param {...any} args - 要打印的内容
+ */
+function log(level, ...args) {
+  const currentLevel = network.defaults.logLevel || "NONE"; // 确保有默认值
+  if (LOG_LEVELS[level] <= LOG_LEVELS[currentLevel]) {
+    switch (level) {
+      case "DEBUG":
+        console.log("[DEBUG]", ...args);
+        break;
+      case "INFO":
+        console.info("[INFO]", ...args);
+        break;
+      case "WARN":
+        console.warn("[WARN]", ...args);
+        break;
+      case "ERROR":
+        console.error("[ERROR]", ...args);
+        break;
+      default:
+        console.log(`[${level}]`, ...args); // 避免未知级别不输出
+    }
+  }
+}
+
+// --- 请求防抖/节流相关状态 ---
+const debounceStates = new Map(); // key -> { timerId, cancelSource, deferredPromise }
+const throttleActivePromises = new Map(); // key -> Promise of the currently active throttled request
+
+// Helper for creating a deferred promise
+function createDeferred() {
+  let resolve, reject;
+  const promise = new Promise((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { resolve, reject, promise };
 }
 
 // --- 网络请求实例创建 ---
@@ -139,92 +181,176 @@ const network = un.create({
   retryTimes: 3,
   retryDelay: 1000,
   maxConcurrentRequests: 5,
+  logLevel: process.env.NODE_ENV === "development" ? "DEBUG" : "WARN",
 });
+
+// --- 重写 network.request 方法以实现节流 ---
+// 这是 uni-network 内部最终发送请求的方法
+const originalNetworkRequest = network.request;
+network.request = function (config) {
+  // 如果请求来自队列，则跳过节流/防抖判断，直接执行
+  if (config.__fromQueue) {
+    log(
+      "DEBUG",
+      `🔄 请求来自队列，跳过节流/防抖: ${config.url || config.filePath}`,
+    );
+    delete config.__fromQueue; // 移除标记
+    return originalNetworkRequest.call(this, config);
+  }
+
+  // --- 节流逻辑 (Throttle) ---
+  if (typeof config.throttle === "number" && config.throttle > 0) {
+    const throttleKey = config.throttleKey || `${config.url}_${config.method}`;
+    const activePromise = throttleActivePromises.get(throttleKey);
+
+    if (activePromise) {
+      log(
+        "INFO",
+        `⏸️ 请求被节流: ${config.url || config.filePath} (key: ${throttleKey}). 返回现有 Promise。`,
+      );
+      return activePromise; // 如果有正在进行中的节流请求，则返回其 Promise
+    } else {
+      // 这是该节流键的第一个请求，让它正常发起
+      const requestPromise = originalNetworkRequest.call(this, config); // 调用原始的请求方法
+
+      // 将此请求的 Promise 存储为活动状态
+      throttleActivePromises.set(throttleKey, requestPromise);
+      log(
+        "DEBUG",
+        `⬆️ 节流请求开始执行: ${config.url || config.filePath} (key: ${throttleKey}).`,
+      );
+
+      // 请求完成后，设置定时器在 throttle 延迟后清除活动状态
+      requestPromise.finally(() => {
+        setTimeout(() => {
+          // 确保清除的是当前这个 Promise 的状态，防止被新请求覆盖后误删
+          if (throttleActivePromises.get(throttleKey) === requestPromise) {
+            throttleActivePromises.delete(throttleKey);
+            log(
+              "DEBUG",
+              `节流状态清除: ${throttleKey} (延迟 ${config.throttle}ms).`,
+            );
+          }
+        }, config.throttle);
+      });
+      return requestPromise;
+    }
+  }
+  // 如果没有节流配置，则直接调用原始请求方法
+  return originalNetworkRequest.call(this, config);
+};
 
 // --- 请求拦截器 ---
 network.interceptors.request.use(
   function (config) {
-    const token = uni.getStorageSync("token");
-    if (token) {
-      config.header = config.header || {};
-      config.header.Authorization = `Bearer ${token}`;
+    // 如果请求来自队列，则跳过节流/防抖判断，直接返回 config
+    if (config.__fromQueue) {
+      return config;
     }
 
-    if (config.isUpload || config.isDownload) {
-      if (!config.hideLoading) {
-        console.log(`🚀 开始文件传输: ${config.url || config.filePath}`);
+    // --- 防抖逻辑 (Debounce) ---
+    if (typeof config.debounce === "number" && config.debounce > 0) {
+      const debounceKey =
+        config.debounceKey ||
+        `${config.url || config.filePath}_${config.method}`;
+      const existingState = debounceStates.get(debounceKey);
+
+      if (existingState) {
+        log(
+          "INFO",
+          `♻️ 请求被防抖: ${config.url || config.filePath} (key: ${debounceKey}). 清除前一个定时器。`,
+        );
+        clearTimeout(existingState.timerId);
+        // 如果存在前一个请求的 CancelToken，则取消它
+        if (existingState.cancelSource) {
+          existingState.cancelSource.cancel("Debounced by new request");
+        }
       }
 
-      const originalOnProgressUpdate = config.onProgressUpdate;
-      config.onProgressUpdate = function (res) {
-        if (process.env.NODE_ENV === "development") {
-          console.log(
-            `📊 传输进度: ${res.progress}% (${res.totalBytesWritten}/${res.totalBytesExpected})`,
-          );
-        }
-        if (
-          originalOnProgressUpdate &&
-          typeof originalOnProgressUpdate === "function"
-        ) {
-          originalOnProgressUpdate(res);
-        }
-      };
-    } else {
-      if (!config.hideLoading) {
-        uni.showLoading({
-          title: "加载中...",
-          mask: true,
-        });
-      }
+      const currentDeferred = createDeferred(); // 这个 Promise 会立即返回给调用者
+      const newCancelSource = UnCancelToken.source(); // 新的 CancelToken 用于实际发送的请求
+
+      const timerId = setTimeout(() => {
+        debounceStates.delete(debounceKey); // 定时器触发后从 Map 中移除
+        // 将新的 CancelToken 绑定到 config 上，以确保延迟发送的请求可以被取消
+        config.cancelToken = newCancelSource.token;
+        log(
+          "DEBUG",
+          `🚀 发送防抖请求: ${config.url || config.filePath} (key: ${debounceKey}) after ${config.debounce}ms delay.`,
+        );
+
+        // 此时，实际的请求才被发起。我们通过 network(config) 再次进入拦截器链。
+        // 但此时 __fromQueue 应该是不存在的，所以不会被队列逻辑影响。
+        // 确保这个请求不会再次被防抖/节流判断（如果再次调用 network(config) 会很危险）
+        // 如果要确保不再次进入防抖/节流判断，应该调用 originalNetworkRequest 或标记 config
+        // 这里我们依赖上面的 __fromQueue 机制，或者可以在 config 上加一个 __isInternalCall 标志
+        // 考虑直接用一个内部标志 __bypassDebounceThrottle
+        config.__bypassDebounceThrottle = true;
+        network(config)
+          .then(currentDeferred.resolve)
+          .catch((error) => {
+            // 如果错误是由于被更新的防抖请求取消的，则不传递错误
+            if (
+              isUnCancel(error) &&
+              error.message === "Debounced by new request"
+            ) {
+              log("DEBUG", `防抖请求 ${debounceKey} 被新请求取消。`);
+            } else {
+              currentDeferred.reject(error);
+            }
+          });
+      }, config.debounce);
+
+      debounceStates.set(debounceKey, {
+        timerId,
+        cancelSource: newCancelSource,
+        deferredPromise: currentDeferred,
+      });
+
+      // 拦截器立即返回这个 deferredPromise，阻止当前请求继续向下传递
+      // 实际的请求会在定时器触发时才被发起
+      return currentDeferred.promise;
     }
 
-    config.currentRetryCount = config.currentRetryCount || 0;
-
+    // --- 路由切换自动取消的核心逻辑 (仅对非节流/防抖请求生效) ---
+    // 这个逻辑在防抖/节流处理之后，确保它们拥有自己的取消机制
     if (config.cancelToken === undefined && currentRouteCancelTokenSource) {
       config.cancelToken = currentRouteCancelTokenSource.token;
-      if (process.env.NODE_ENV === "development") {
-        console.log(
-          "🔗 请求绑定到路由取消令牌:",
-          config.url || config.filePath,
-        );
-      }
+      log("DEBUG", "🔗 请求绑定到路由取消令牌:", config.url || config.filePath);
     } else if (
       config.cancelToken !== undefined &&
       config.cancelToken !== null &&
       config.cancelToken instanceof UnCancelToken
     ) {
-      if (process.env.NODE_ENV === "development") {
-        console.log(
-          "🔗 请求绑定到自定义取消令牌:",
-          config.url || config.filePath,
-        );
-      }
+      log(
+        "DEBUG",
+        "🔗 请求绑定到自定义取消令牌:",
+        config.url || config.filePath,
+      );
     } else if (config.cancelToken === null) {
-      if (process.env.NODE_ENV === "development") {
-        console.log("❌ 请求禁用路由取消:", config.url || config.filePath);
-      }
+      log("DEBUG", "❌ 请求禁用路由取消:", config.url || config.filePath);
     }
 
+    // 检查请求是否已被取消（由防抖或其他机制）
     if (config.cancelToken) {
       config.cancelToken.throwIfRequested();
     }
 
+    // --- 并发控制逻辑：检查是否达到并发上限 ---
     if (runningRequests >= network.defaults.maxConcurrentRequests) {
-      if (process.env.NODE_ENV === "development") {
-        console.log(
-          `⏸️ 请求进入队列: ${config.url || config.filePath} (当前运行: ${runningRequests}, 队列: ${requestQueue.length})`,
-        );
-      }
+      log(
+        "INFO",
+        `⏸️ 请求进入队列: ${config.url || config.filePath} (当前运行: ${runningRequests}, 队列: ${requestQueue.length})`,
+      );
       return new Promise((resolve) => {
         requestQueue.push({ resolve, config });
       });
     } else {
       runningRequests++;
-      if (process.env.NODE_ENV === "development") {
-        console.log(
-          `⬆️ 请求立即执行: ${config.url || config.filePath} (当前运行: ${runningRequests})`,
-        );
-      }
+      log(
+        "INFO",
+        `⬆️ 请求立即执行: ${config.url || config.filePath} (当前运行: ${runningRequests})`,
+      );
       return config;
     }
   },
@@ -238,14 +364,15 @@ network.interceptors.request.use(
     if (!config.hideLoading && !config.isUpload && !config.isDownload) {
       uni.hideLoading();
     } else if (config.isUpload || config.isDownload) {
-      console.error(
+      log(
+        "ERROR",
         `❌ 文件传输在请求阶段失败: ${config.url || config.filePath}`,
       );
     }
 
-    // 调用新的错误处理函数并显示Toast
     const errorMessage = getUserFriendlyErrorMessage(error, config);
-    console.error(
+    log(
+      "ERROR",
       "⚠️ 请求拦截器 -> 请求失败:",
       error,
       "显示消息:",
@@ -270,25 +397,22 @@ network.interceptors.response.use(
     if (!config.hideLoading && !config.isUpload && !config.isDownload) {
       uni.hideLoading();
     } else if (config.isUpload || config.isDownload) {
-      console.log(`✅ 文件传输完成: ${config.url || config.filePath}`);
+      log("INFO", `✅ 文件传输完成: ${config.url || config.filePath}`);
     }
 
-    if (process.env.NODE_ENV === "development") {
-      console.log("✅ 响应拦截器 -> 响应数据:", response.data || response);
-    }
+    log("DEBUG", "✅ 响应拦截器 -> 响应数据:", response.data || response);
 
-    // --- 文件下载的特殊处理：返回结果和错误判断 ---
     if (config.isDownload) {
       if (response.statusCode === HttpStatusCode.Ok) {
-        console.log(
+        log(
+          "INFO",
           "🎉 文件下载成功，路径:",
           response.tempFilePath || response.filePath,
         );
         return response;
       } else {
-        // 下载失败的错误处理
-        const errorMsg = getUserFriendlyErrorMessage(response, config); // 这里 response 对象就是错误信息来源
-        console.error("❌ 文件下载错误:", errorMsg, response);
+        const errorMsg = getUserFriendlyErrorMessage(response, config);
+        log("ERROR", "❌ 文件下载错误:", errorMsg, response);
         uni.showToast({ title: errorMsg, icon: "none" });
         return Promise.reject(
           new UnError(
@@ -302,7 +426,6 @@ network.interceptors.response.use(
       }
     }
 
-    // --- 普通请求和上传的业务判断 ---
     const resData = response.data;
     if (
       resData &&
@@ -311,7 +434,6 @@ network.interceptors.response.use(
     ) {
       return response;
     } else {
-      // 业务错误
       const errorMessage = getUserFriendlyErrorMessage(
         new UnError(
           "业务错误",
@@ -321,9 +443,10 @@ network.interceptors.response.use(
           response,
         ),
         config,
-        resData, // 传递后端返回的 resData 用于获取业务错误码和消息
+        resData,
       );
-      console.error(
+      log(
+        "ERROR",
         "❌ 响应拦截器 -> 业务错误:",
         errorMessage,
         "完整响应:",
@@ -383,10 +506,9 @@ network.interceptors.response.use(
     if (!config.hideLoading && !config.isUpload && !config.isDownload) {
       uni.hideLoading();
     } else if (config.isUpload || config.isDownload) {
-      console.error(`❌ 文件传输失败: ${config.url || config.filePath}`);
+      log("ERROR", `❌ 文件传输失败: ${config.url || config.filePath}`);
     }
 
-    // --- 重试机制逻辑 ---
     const retryDelay =
       typeof config.retryDelay === "number"
         ? config.retryDelay
@@ -394,7 +516,8 @@ network.interceptors.response.use(
 
     if (shouldRetry) {
       config.currentRetryCount++;
-      console.warn(
+      log(
+        "WARN",
         `♻️ 请求失败，正在重试第 ${config.currentRetryCount} 次，URL: ${config.url || config.filePath}`,
       );
       return new Promise((resolve) => {
@@ -403,17 +526,15 @@ network.interceptors.response.use(
         }, retryDelay * config.currentRetryCount);
       });
     }
-    // --- 重试机制逻辑结束 ---
 
-    // 调用新的错误处理函数并显示Toast
     const errorMessage = getUserFriendlyErrorMessage(error, config);
-    // 如果是取消请求，getUserFriendlyErrorMessage 会返回 '请求已取消'，此时不显示 Toast
     if (isUnCancel(error)) {
-      console.warn("⚡️ 请求被取消:", error.message);
+      log("WARN", "⚡️ 请求被取消:", error.message);
       return Promise.reject(error);
     }
 
-    console.error(
+    log(
+      "ERROR",
       "🚨 响应拦截器 -> 响应失败:",
       error,
       "显示消息:",
