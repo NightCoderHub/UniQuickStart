@@ -8,9 +8,8 @@ import un, {
   HttpStatusCode,
 } from "@uni-helper/uni-network";
 
-// 我们可以创建一个新的实例，或者直接使用默认的 'un' 实例
-// 通常建议创建一个新的实例，这样可以为你的应用配置特定的 baseURL 和拦截器，
-// 避免与其他可能也使用 'un' 的库产生冲突（尽管可能性较小）
+// 1. 创建网络请求实例
+// network 是一个 un 的实例，它提供了 get, post 等方法
 const network = un.create({
   // 根据你的后端 API 调整 baseURL
   // 在 uni-app 中，建议使用环境变量来管理不同环境的 baseURL
@@ -32,6 +31,10 @@ const network = un.create({
       status === HttpStatusCode.NotModified
     );
   },
+
+  // 默认重试配置
+  retryTimes: 3, // 默认重试 3 次
+  retryDelay: 1000, // 默认重试间隔 1 秒（毫秒）
 });
 
 // 2. 添加请求拦截器
@@ -41,19 +44,22 @@ network.interceptors.request.use(
     // - 添加 token 到请求头
     const token = uni.getStorageSync("token");
     if (token) {
-      // 这里的 config.header 可能是 undefined，需要安全地赋值
+      // 这里的 config.header 可能是 undefined，需要安全地初始化
       config.header = config.header || {};
       config.header.Authorization = `Bearer ${token}`;
     }
 
-    // - 显示加载提示
-    // 假设你在 config 中添加一个自定义字段 hideLoading 来控制
+    // - 显示加载提示 (假设你在 config 中添加一个自定义字段 hideLoading 来控制)
     if (!config.hideLoading) {
       uni.showLoading({
         title: "加载中...",
         mask: true, // 显示透明蒙层，防止触摸穿透
       });
     }
+
+    // 初始化重试次数
+    // 如果 config.currentRetryCount 已经存在，则保持不变，否则初始化为 0
+    config.currentRetryCount = config.currentRetryCount || 0;
 
     // - 打印请求信息 (开发环境)
     if (process.env.NODE_ENV === "development") {
@@ -77,7 +83,6 @@ network.interceptors.request.use(
 // 3. 添加响应拦截器
 network.interceptors.response.use(
   function (response) {
-    // 隐藏加载提示
     // 这里的 response.config 是原始请求配置
     const config = response.config || {};
     if (!config.hideLoading) {
@@ -129,8 +134,7 @@ network.interceptors.response.use(
         });
       }
 
-      // 抛出业务错误，让 Promise chain 进入 catch 块
-      // 这里的错误可以是 UnError 或其他错误
+      // 业务错误不进行重试，直接抛出
       // 这里的 UnError 构造函数参数是 (message, code, config, task, response)
       return Promise.reject(
         new UnError(
@@ -151,11 +155,53 @@ network.interceptors.response.use(
       uni.hideLoading();
     }
 
-    // 对响应错误（网络错误、超时等）做些什么
+    // *** 重试机制逻辑开始 ***
+    // 获取当前请求的重试次数和最大重试次数
+    // 从 config 中获取，如果 config 中没有，则回退到 network.defaults
+    const maxRetryTimes =
+      typeof config.retryTimes === "number"
+        ? config.retryTimes
+        : network.defaults.retryTimes;
+    const currentRetryCount = config.currentRetryCount || 0;
+    const retryDelay =
+      typeof config.retryDelay === "number"
+        ? config.retryDelay
+        : network.defaults.retryDelay;
+
+    // 判断是否需要重试：
+    // 1. 不是取消请求 (isUnCancel(error) 是 @uni-helper/uni-network 提供的判断取消错误的方法)
+    // 2. 当前重试次数小于最大重试次数
+    // 3. 错误类型是网络错误、超时错误或服务器错误（HTTP 5xx）
+    const shouldRetry =
+      !isUnCancel(error) &&
+      currentRetryCount < maxRetryTimes &&
+      (error.code === UnError.ERR_NETWORK || // 网络错误（例如断网）
+        error.code === UnError.ETIMEDOUT || // 超时错误
+        (error.status &&
+          error.status >= HttpStatusCode.InternalServerError &&
+          error.status < 600)); // 5xx 服务器错误
+
+    if (shouldRetry) {
+      config.currentRetryCount++; // 增加重试计数
+      console.warn(
+        `♻️ 请求失败，正在重试第 ${config.currentRetryCount} 次，URL: ${config.url}`,
+      );
+
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          // 延迟后重新发起请求
+          // 调用 network(config) 会再次进入请求拦截器和响应拦截器
+          resolve(network(config));
+        }, retryDelay * config.currentRetryCount); // 简单指数退避
+      });
+    }
+    // *** 重试机制逻辑结束 ***
+
+    // 如果不重试，则处理并抛出错误
     let errorMessage = "网络请求失败，请检查网络！";
 
+    // 如果是用户主动取消的请求，通常不需要显示错误提示
     if (isUnCancel(error)) {
-      // 如果是取消请求，通常不需要显示错误提示给用户，只需在控制台打印
       console.warn("⚡️ 请求被取消:", error.message);
       return Promise.reject(error); // 继续向下传递取消信息
     } else if (error.status) {
