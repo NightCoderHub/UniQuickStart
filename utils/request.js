@@ -18,8 +18,8 @@ function setRouteCancelTokenSource(source) {
 }
 
 // --- 请求队列/并发控制相关变量 ---
-let runningRequests = 0; // 当前正在进行的请求数量
-const requestQueue = []; // 请求队列，存放等待执行的请求
+let runningRequests = 0;
+const requestQueue = [];
 
 /**
  * 尝试从队列中取出并执行下一个请求
@@ -29,14 +29,15 @@ function processQueue() {
     runningRequests < network.defaults.maxConcurrentRequests &&
     requestQueue.length > 0
   ) {
-    const { resolve, config } = requestQueue.shift(); // 从队列头部取出一个请求
-    runningRequests++; // 增加正在运行的请求数
+    const { resolve, config } = requestQueue.shift();
+    runningRequests++;
     if (process.env.NODE_ENV === "development") {
       console.log(
-        `🏃‍♂️ 执行队列请求: ${config.url} (当前运行: ${runningRequests}, 队列剩余: ${requestQueue.length})`,
+        `🏃‍♂️ 执行队列请求: ${config.url || config.filePath} (当前运行: ${runningRequests}, 队列剩余: ${requestQueue.length})`,
       );
     }
     // 重新发起这个请求，并将其结果传递回之前等待的 Promise
+    // 注意：这里的 network(config) 会根据 config 的类型（isUpload/isDownload）自动调用对应的 uni 方法
     resolve(network(config));
   }
 }
@@ -61,9 +62,7 @@ const network = un.create({
 
   retryTimes: 3,
   retryDelay: 1000,
-
-  // --- 新增并发控制配置 ---
-  maxConcurrentRequests: 5, // 最大并发请求数量，默认为 5
+  maxConcurrentRequests: 5,
 });
 
 // --- 请求拦截器 ---
@@ -75,11 +74,45 @@ network.interceptors.request.use(
       config.header.Authorization = `Bearer ${token}`;
     }
 
-    if (!config.hideLoading) {
-      uni.showLoading({
-        title: "加载中...",
-        mask: true,
-      });
+    // --- 文件上传/下载的特殊处理：进度显示和加载提示 ---
+    // isUpload 和 isDownload 是 uni-network 内部添加的标志
+    if (config.isUpload || config.isDownload) {
+      // 文件上传/下载通常有自己的进度条，不适合统一的 showLoading/hideLoading
+      // 如果你需要统一的进度条，可以在这里通过 uni.showLoading({ mask: true }) 显示
+      // 并且需要一个全局状态来跟踪所有上传/下载的进度，或者为每个文件单独显示
+      // 这里的 hideLoading 标志依然有效，可以用来禁用全局加载提示
+      if (!config.hideLoading) {
+        // uni.showToast({ title: '开始传输...', icon: 'loading', mask: true }); // 可以改为更具体的 toast
+        console.log(`🚀 开始文件传输: ${config.url || config.filePath}`);
+      }
+
+      // 统一处理 onProgressUpdate 回调
+      // uni.uploadFile 和 uni.downloadFile 的 onProgressUpdate 是一个函数回调
+      // 我们可以在这里将它包装，以便在拦截器外更容易地获取和处理进度
+      const originalOnProgressUpdate = config.onProgressUpdate;
+      config.onProgressUpdate = function (res) {
+        if (process.env.NODE_ENV === "development") {
+          console.log(
+            `📊 传输进度: ${res.progress}% (${res.totalBytesWritten}/${res.totalBytesExpected})`,
+          );
+        }
+        // 这里可以触发一个全局事件或更新一个全局状态，以便在 UI 中显示进度条
+        // 例如：uni.$emit('network:progress', { configId: config.__id__, progress: res.progress });
+        if (
+          originalOnProgressUpdate &&
+          typeof originalOnProgressUpdate === "function"
+        ) {
+          originalOnProgressUpdate(res);
+        }
+      };
+    } else {
+      // 普通请求的加载提示
+      if (!config.hideLoading) {
+        uni.showLoading({
+          title: "加载中...",
+          mask: true,
+        });
+      }
     }
 
     config.currentRetryCount = config.currentRetryCount || 0;
@@ -88,7 +121,10 @@ network.interceptors.request.use(
     if (config.cancelToken === undefined && currentRouteCancelTokenSource) {
       config.cancelToken = currentRouteCancelTokenSource.token;
       if (process.env.NODE_ENV === "development") {
-        console.log("🔗 请求绑定到路由取消令牌:", config.url);
+        console.log(
+          "🔗 请求绑定到路由取消令牌:",
+          config.url || config.filePath,
+        );
       }
     } else if (
       config.cancelToken !== undefined &&
@@ -96,11 +132,14 @@ network.interceptors.request.use(
       config.cancelToken instanceof UnCancelToken
     ) {
       if (process.env.NODE_ENV === "development") {
-        console.log("🔗 请求绑定到自定义取消令牌:", config.url);
+        console.log(
+          "🔗 请求绑定到自定义取消令牌:",
+          config.url || config.filePath,
+        );
       }
     } else if (config.cancelToken === null) {
       if (process.env.NODE_ENV === "development") {
-        console.log("❌ 请求禁用路由取消:", config.url);
+        console.log("❌ 请求禁用路由取消:", config.url || config.filePath);
       }
     }
 
@@ -112,32 +151,34 @@ network.interceptors.request.use(
     if (runningRequests >= network.defaults.maxConcurrentRequests) {
       if (process.env.NODE_ENV === "development") {
         console.log(
-          `⏸️ 请求进入队列: ${config.url} (当前运行: ${runningRequests}, 队列: ${requestQueue.length})`,
+          `⏸️ 请求进入队列: ${config.url || config.filePath} (当前运行: ${runningRequests}, 队列: ${requestQueue.length})`,
         );
       }
       return new Promise((resolve) => {
-        // 将请求信息和 Promise 的 resolve 函数存入队列
         requestQueue.push({ resolve, config });
       });
     } else {
-      runningRequests++; // 增加正在运行的请求数
+      runningRequests++;
       if (process.env.NODE_ENV === "development") {
         console.log(
-          `⬆️ 请求立即执行: ${config.url} (当前运行: ${runningRequests})`,
+          `⬆️ 请求立即执行: ${config.url || config.filePath} (当前运行: ${runningRequests})`,
         );
       }
-      return config; // 直接放行
+      return config;
     }
   },
   function (error) {
-    // 请求发起前的错误，需要减少运行数并处理队列
     if (runningRequests > 0) {
-      // 确保只对已经增加运行数的请求进行减操作
       runningRequests--;
-      processQueue(); // 尝试处理队列中的下一个请求
+      processQueue();
     }
 
-    uni.hideLoading();
+    // 隐藏加载提示 (如果是非文件传输的请求错误)
+    const config = error.config || {};
+    if (!config.hideLoading && !config.isUpload && !config.isDownload) {
+      uni.hideLoading();
+    }
+
     console.error("⚠️ 请求拦截器 -> 请求失败:", error);
     uni.showToast({
       title: "网络请求失败，请稍后再试！",
@@ -154,16 +195,48 @@ network.interceptors.response.use(
 
     // 无论请求成功还是失败，只要完成了，就减少运行数并处理队列
     runningRequests--;
-    processQueue(); // 尝试处理队列中的下一个请求
+    processQueue();
 
-    if (!config.hideLoading) {
+    // 隐藏加载提示 (针对普通请求，文件传输的进度条由 onProgressUpdate 管理)
+    if (!config.hideLoading && !config.isUpload && !config.isDownload) {
       uni.hideLoading();
+    } else if (config.isUpload || config.isDownload) {
+      // 文件传输完成，可以关闭进度条或结束提示
+      // uni.hideToast(); // 如果之前显示了 loading toast
+      console.log(`✅ 文件传输完成: ${config.url || config.filePath}`);
     }
 
     if (process.env.NODE_ENV === "development") {
-      console.log("✅ 响应拦截器 -> 响应数据:", response.data);
+      console.log("✅ 响应拦截器 -> 响应数据:", response.data || response); // 下载可能没有 data 字段
     }
 
+    // --- 文件下载的特殊处理：返回结果 ---
+    if (config.isDownload) {
+      // 下载成功，response.tempFilePath 或 response.filePath 才是真正需要的数据
+      // 这里的 response 是 uni-network 包装后的对象，会包含 tempFilePath 等
+      if (response.statusCode === HttpStatusCode.Ok) {
+        console.log(
+          "🎉 文件下载成功，路径:",
+          response.tempFilePath || response.filePath,
+        );
+        return response; // 返回完整的响应，包含 tempFilePath
+      } else {
+        const errorMsg = `文件下载失败，状态码: ${response.statusCode}`;
+        console.error("❌ 下载错误:", errorMsg, response);
+        uni.showToast({ title: errorMsg, icon: "none" });
+        return Promise.reject(
+          new UnError(
+            errorMsg,
+            String(response.statusCode),
+            config,
+            response.task,
+            response,
+          ),
+        );
+      }
+    }
+
+    // --- 普通请求和上传的业务判断 ---
     const resData = response.data;
     if (
       resData &&
@@ -211,9 +284,6 @@ network.interceptors.response.use(
   function (error) {
     const config = error.config || {};
 
-    // 无论请求成功还是失败，只要完成了，就减少运行数并处理队列
-    // 注意：重试机制会重新发起请求，这里需要确保在最终失败时才释放名额
-    // 如果是重试，则不立即减少 runningRequests，而是等待重试完成或最终失败
     const maxRetryTimes =
       typeof config.retryTimes === "number"
         ? config.retryTimes
@@ -229,17 +299,20 @@ network.interceptors.response.use(
           error.status < 600));
 
     if (!shouldRetry) {
-      // 只有当不进行重试时才释放名额
       runningRequests--;
-      processQueue(); // 尝试处理队列中的下一个请求
+      processQueue();
     }
 
-    if (!config.hideLoading) {
+    // 隐藏加载提示 (针对普通请求，文件传输的进度条由 onProgressUpdate 管理)
+    if (!config.hideLoading && !config.isUpload && !config.isDownload) {
       uni.hideLoading();
+    } else if (config.isUpload || config.isDownload) {
+      // 文件传输失败，可以关闭进度条或结束提示
+      // uni.hideToast();
+      console.error(`❌ 文件传输失败: ${config.url || config.filePath}`);
     }
 
     // --- 重试机制逻辑 ---
-    // ... (重试逻辑保持不变，它会在 shouldRetry 为 true 时返回一个 Promise，不会立即进入 finally)
     const retryDelay =
       typeof config.retryDelay === "number"
         ? config.retryDelay
@@ -248,9 +321,8 @@ network.interceptors.response.use(
     if (shouldRetry) {
       config.currentRetryCount++;
       console.warn(
-        `♻️ 请求失败，正在重试第 ${config.currentRetryCount} 次，URL: ${config.url}`,
+        `♻️ 请求失败，正在重试第 ${config.currentRetryCount} 次，URL: ${config.url || config.filePath}`,
       );
-
       return new Promise((resolve) => {
         setTimeout(() => {
           resolve(network(config));
