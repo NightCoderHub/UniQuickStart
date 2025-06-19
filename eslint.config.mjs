@@ -30,18 +30,18 @@ export default defineConfig([
   {
     files: ["**/*.{js,mjs,cjs,vue}"], // 明确指定这些规则适用于哪些文件
     plugins: {
-      js: js // 这里的 key 'js' 对应你在 extends 中引用的 "js/recommended"
+      js: js, // 这里的 key 'js' 对应你在 extends 中引用的 "js/recommended"
     },
     extends: [
       "js/recommended", // ESLint 推荐的 JavaScript 规则
     ],
     languageOptions: {
       ecmaVersion: "latest", // 建议明确指定 ECMAScript 版本
-      sourceType: "module",  // 建议明确指定模块类型
+      sourceType: "module", // 建议明确指定模块类型
       globals: {
         ...globals.browser, // 浏览器环境全局变量
         // ...globals.node, // 如果你也有 Node.js 环境的代码，可以加上
-        uni: true,          // UniApp 全局对象
+        uni: true, // UniApp 全局对象
         // 如果你的 UniApp 项目还涉及到其他小程序平台特有的全局变量，例如：
         wx: true,
         // tt: true,
@@ -53,7 +53,7 @@ export default defineConfig([
     },
     rules: {
       // 在这里添加适用于 JS/Vue 的通用规则
-    }
+    },
   },
 
   // 3. Vue 特定配置
@@ -70,15 +70,15 @@ export default defineConfig([
           order: [
             "template",
             "script:not([setup])", // 传统的 <script> 标签
-            "script[setup]",       // <script setup> 标签
+            "script[setup]", // <script setup> 标签
             "style:not([scoped])", // 非 scoped 的 <style> 标签
-            "style[scoped]",       // scoped 的 <style> 标签
+            "style[scoped]", // scoped 的 <style> 标签
           ],
         },
       ],
       "vue/multi-word-component-names": "off", // 或者 0
-      "vue/require-default-prop": "off",       // 或者 0
-      "vue/valid-v-for": "off",                // 或者 0 (注意：禁用这个规则可能会错过潜在的错误)
+      "vue/require-default-prop": "off", // 或者 0
+      "vue/valid-v-for": "off", // 或者 0 (注意：禁用这个规则可能会错过潜在的错误)
       // 建议：如果你在使用 Vue 3，可以考虑启用一些新的 Vue 3 相关的规则，例如：
       // "vue/component-api-style": ["error", ["script-setup", "composition"]], // 强制使用 Composition API 风格
       // "vue/no-v-html": "off", // 如果你需要禁用 v-html 警告
@@ -107,5 +107,4 @@ export default defineConfig([
   //     },
   //   },
   // },
-
 ]);
