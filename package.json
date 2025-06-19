@@ -23,10 +23,15 @@
     "globals": "^16.2.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.2",
-    "prettier": "3.5.3"
+    "prettier": "3.5.3",
+    "vite-plugin-compression": "^0.5.1",
+    "vite-plugin-vue-devtools": "^7.7.7"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,vue,json,css,scss,less,html,md}": "prettier --write",
     "*.{js,jsx,ts,tsx,vue}": "pnpm lint"
+  },
+  "dependencies": {
+    "wot-design-uni": "^1.9.1"
   }
 }

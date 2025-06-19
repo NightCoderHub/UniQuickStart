@@ -49,6 +49,7 @@ export default defineConfig([
         // swan: true,
         // jd: true,
         // qq: true
+        process: true,
       },
     },
     rules: {
