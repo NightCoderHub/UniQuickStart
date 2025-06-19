@@ -106,6 +106,7 @@ const ERROR_MESSAGES = {
   BUSINESS_ERROR: "业务处理失败，请稍后再试",
   10001: "用户名或密码错误",
   10002: "验证码不正确",
+  // ... 其他业务错误码
 };
 
 /**
@@ -202,6 +203,10 @@ function createDeferred() {
   });
   return { resolve, reject, promise };
 }
+
+// --- Token 刷新相关变量 ---
+let _isRefreshingToken = false; // 标记是否正在刷新 Token
+let _requestsQueue = []; // 存储因 Token 过期而暂停的请求
 
 // --- 网络请求实例创建 ---
 const network = un.create({
@@ -395,145 +400,18 @@ network.interceptors.request.use(
     }
   },
   function (error) {
-    if (runningRequests > 0) {
-      runningRequests--;
-      processQueue();
-    }
-
-    const config = error.config || {};
-    if (!config.hideLoading && !config.isUpload && !config.isDownload) {
-      uni.hideLoading();
-    } else if (config.isUpload || config.isDownload) {
-      log(
-        "ERROR",
-        `❌ 文件传输在请求阶段失败: ${config.url || config.filePath}`,
-      );
-    }
-
-    const errorMessage = getUserFriendlyErrorMessage(error, config);
-    if (isUnCancel(error)) {
-      log("WARN", "⚡️ 请求被取消:", error.message);
-      return Promise.reject(error);
-    }
-
-    log(
-      "ERROR",
-      "🚨 请求拦截器 -> 请求失败:",
-      error,
-      "显示消息:",
-      errorMessage,
-    );
-    uni.showToast({
-      title: errorMessage,
-      icon: "none",
-    });
-    return Promise.reject(error);
-  },
-);
-
-// --- 响应拦截器 ---
-network.interceptors.response.use(
-  function (response) {
-    const config = response.config || {};
-
-    runningRequests--;
-    processQueue();
-
-    if (!config.hideLoading && !config.isUpload && !config.isDownload) {
-      uni.hideLoading();
-    } else if (config.isUpload || config.isDownload) {
-      log("INFO", `✅ 文件传输完成: ${config.url || config.filePath}`);
-    }
-
-    log("DEBUG", "✅ 响应拦截器 -> 响应数据:", response.data || response);
-
-    if (config.isDownload) {
-      if (response.statusCode === HttpStatusCode.Ok) {
-        log(
-          "INFO",
-          "🎉 文件下载成功，路径:",
-          response.tempFilePath || response.filePath,
-        );
-        return response;
-      } else {
-        const errorMsg = getUserFriendlyErrorMessage(response, config);
-        log("ERROR", "❌ 文件下载错误:", errorMsg, response);
-        uni.showToast({ title: errorMsg, icon: "none" });
-        return Promise.reject(
-          new UnError(
-            errorMsg,
-            String(response.statusCode),
-            config,
-            response.task,
-            response,
-          ),
-        );
-      }
-    }
-
-    const resData = response.data;
-    if (
-      resData &&
-      typeof resData === "object" &&
-      (resData.code === 200 || resData.code === HttpStatusCode.Ok)
-    ) {
-      return response;
-    } else {
-      const errorMessage = getUserFriendlyErrorMessage(
-        new UnError(
-          "业务错误",
-          (resData && resData.code) || "BUSINESS_ERROR",
-          config,
-          response.task,
-          response,
-        ),
-        config,
-        resData,
-      );
-      log(
-        "ERROR",
-        "❌ 响应拦截器 -> 业务错误:",
-        errorMessage,
-        "完整响应:",
-        response,
-      );
-      uni.showToast({
-        title: errorMessage,
-        icon: "none",
-        duration: 2000,
-      });
-
-      if (resData && resData.code === 401) {
-        uni.removeStorageSync("token");
-        uni.showToast({
-          title: "登录过期，请重新登录",
-          icon: "none",
-          duration: 1500,
-          complete: function () {
-            uni.navigateTo({ url: "/pages/login/login" });
-          },
-        });
-      }
-
-      return Promise.reject(
-        new UnError(
-          errorMessage,
-          String((resData && resData.code) || "BUSINESS_ERROR"),
-          config,
-          response.task,
-          response,
-        ),
-      );
-    }
-  },
-  function (error) {
     const config = error.config || {};
 
+    // --- 请求重试逻辑（在 Token 刷新之前处理，避免重试失效 Token 的请求）---
     const maxRetryTimes =
       typeof config.retryTimes === "number"
         ? config.retryTimes
         : network.defaults.retryTimes;
     const currentRetryCount = config.currentRetryCount || 0;
+    const retryDelay =
+      typeof config.retryDelay === "number"
+        ? config.retryDelay
+        : network.defaults.retryDelay;
     const shouldRetry =
       !isUnCancel(error) &&
       currentRetryCount < maxRetryTimes &&
@@ -543,7 +421,14 @@ network.interceptors.response.use(
           error.status >= HttpStatusCode.InternalServerError &&
           error.status < 600));
 
-    if (!shouldRetry) {
+    // 如果不应该重试，或者请求是 401 且不属于 Token 刷新请求，才递减并发计数并处理队列
+    if (
+      !shouldRetry &&
+      !(
+        error.status === HttpStatusCode.Unauthorized &&
+        !config.__isRefreshTokenRequest
+      )
+    ) {
       runningRequests--;
       processQueue();
     }
@@ -551,14 +436,139 @@ network.interceptors.response.use(
     if (!config.hideLoading && !config.isUpload && !config.isDownload) {
       uni.hideLoading();
     } else if (config.isUpload || config.isDownload) {
-      log("ERROR", `❌ 文件传输失败: ${config.url || config.filePath}`);
+      log(
+        "ERROR",
+        `❌ 文件传输在请求阶段失败: ${config.url || config.filePath}`,
+      );
     }
 
-    const retryDelay =
-      typeof config.retryDelay === "number"
-        ? config.retryDelay
-        : network.defaults.retryDelay;
+    // --- 凭证刷新逻辑 ---
+    // 只有在收到 401 错误，且不是刷新 Token 本身失败的请求时才触发
+    if (
+      error.status === HttpStatusCode.Unauthorized &&
+      !config.__isRefreshTokenRequest
+    ) {
+      log("WARN", "⚠️ 收到 401 Unauthorized 错误，尝试刷新 Token...", error);
+      // 如果正在刷新 Token，则将当前请求加入队列
+      const originalRequest = config; // 保存原始请求配置
+      const originalRequestDeferred = createDeferred(); // 创建一个 Promise 来控制原始请求的后续
+      _requestsQueue.push({
+        config: originalRequest,
+        deferred: originalRequestDeferred,
+      });
 
+      if (!_isRefreshingToken) {
+        _isRefreshingToken = true;
+        log("INFO", "🔒 锁定刷新 Token 流程，开始请求新的 Access Token...");
+
+        // 执行刷新 Token 的请求
+        // 注意：这个刷新请求本身不应该被 Token 刷新机制拦截
+        // 确保刷新 Token 的请求不带旧的 Authorization 头，或者带 Refresh Token
+        // 这里我们假设后端刷新接口不要求 Access Token，或者会使用 Refresh Token
+        const refreshToken = uni.getStorageSync("refreshToken");
+        if (!refreshToken) {
+          log(
+            "ERROR",
+            "❌ 刷新 Token 失败：未找到 Refresh Token，强制重新登录。",
+          );
+          _isRefreshingToken = false;
+          clearAuthAndRedirectToLogin();
+          // 拒绝所有排队等待的请求
+          _requestsQueue.forEach((req) =>
+            req.deferred.reject(
+              new UnError("刷新Token失败", "TOKEN_REFRESH_FAILED", req.config),
+            ),
+          );
+          _requestsQueue = [];
+          return Promise.reject(error); // 继续传递原始 401 错误
+        }
+
+        // 发起刷新 Token 的请求
+        // !!! 替换为你的刷新 Token 接口地址和参数 !!!
+        // 这里的 network.post 是直接调用的，它会再次经过拦截器，
+        // 但因为 config.__isRefreshTokenRequest，它不会再次触发刷新逻辑
+        network
+          .post(
+            "/auth/refresh_token",
+            { refreshToken },
+            {
+              __isRefreshTokenRequest: true,
+              hideLoading: true,
+              logLevel: "INFO",
+            },
+          )
+          .then((refreshResponse) => {
+            const newAccessToken = refreshResponse.data.accessToken;
+            const newRefreshToken = refreshResponse.data.refreshToken; // 如果刷新 Token 也更新
+
+            if (newAccessToken) {
+              uni.setStorageSync("token", newAccessToken);
+              if (newRefreshToken) {
+                uni.setStorageSync("refreshToken", newRefreshToken);
+              }
+              log("INFO", "✨ Access Token 刷新成功，新 Token 已存储。");
+
+              // 重新发起所有排队等待的请求
+              _requestsQueue.forEach((req) => {
+                // 更新 Access Token
+                req.config.header = req.config.header || {};
+                req.config.header.Authorization = `Bearer ${newAccessToken}`;
+                // 重新发起请求，并解析到对应的 deferredPromise
+                // 标记为内部调用，绕过拦截器的防抖/节流/优先级/并发逻辑
+                req.config.__isInternalCall = true;
+                network(req.config)
+                  .then(req.deferred.resolve)
+                  .catch(req.deferred.reject);
+              });
+              _requestsQueue = []; // 清空队列
+              _isRefreshingToken = false; // 解锁
+              log("INFO", "🚀 所有排队请求已重新发起。");
+            } else {
+              log(
+                "ERROR",
+                "❌ 刷新 Token 失败：后端未返回新 Access Token。强制重新登录。",
+              );
+              clearAuthAndRedirectToLogin();
+              _requestsQueue.forEach((req) =>
+                req.deferred.reject(
+                  new UnError(
+                    "刷新Token失败",
+                    "TOKEN_MISSING_NEW_ACCESS_TOKEN",
+                    req.config,
+                  ),
+                ),
+              );
+              _requestsQueue = [];
+            }
+          })
+          .catch((refreshError) => {
+            log(
+              "ERROR",
+              "❌ 刷新 Token 接口请求失败或后端返回错误:",
+              refreshError,
+            );
+            clearAuthAndRedirectToLogin();
+            // 拒绝所有排队等待的请求
+            _requestsQueue.forEach((req) =>
+              req.deferred.reject(
+                new UnError(
+                  "刷新Token失败",
+                  "TOKEN_REFRESH_API_FAILED",
+                  req.config,
+                ),
+              ),
+            );
+            _requestsQueue = [];
+          })
+          .finally(() => {
+            _isRefreshingToken = false; // 确保在所有情况下都解锁
+          });
+      }
+      // 对于当前 401 业务请求，返回其 deferredPromise，让它等待 Token 刷新完成
+      return originalRequestDeferred.promise;
+    }
+
+    // --- 请求重试逻辑 (在 Token 刷新之后处理) ---
     if (shouldRetry) {
       config.currentRetryCount++;
       log(
@@ -572,6 +582,7 @@ network.interceptors.response.use(
       });
     }
 
+    // --- 其他错误处理 ---
     const errorMessage = getUserFriendlyErrorMessage(error, config);
     if (isUnCancel(error)) {
       log("WARN", "⚡️ 请求被取消:", error.message);
@@ -593,6 +604,24 @@ network.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+
+/**
+ * 清除所有认证信息并跳转到登录页
+ */
+function clearAuthAndRedirectToLogin() {
+  uni.removeStorageSync("token");
+  uni.removeStorageSync("refreshToken");
+  log("INFO", "🗑️ 认证信息已清除。");
+  uni.showToast({
+    title: "登录过期，请重新登录",
+    icon: "none",
+    duration: 1500,
+    complete: function () {
+      // 使用 redirectTo 以关闭当前所有页面，跳转到登录页
+      uni.redirectTo({ url: "/pages/login/login" });
+    },
+  });
+}
 
 export default network;
 
