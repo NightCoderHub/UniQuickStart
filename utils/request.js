@@ -17,7 +17,56 @@ export function setRouteCancelTokenSource(source) {
 
 // --- 请求队列/并发控制相关变量 ---
 let runningRequests = 0;
-const requestQueue = [];
+const requestQueue = []; // 现在这是一个优先级队列
+
+// --- 请求优先级定义 ---
+const PRIORITY_LEVELS = {
+  HIGH: 3,
+  NORMAL: 2, // 默认优先级
+  LOW: 1,
+};
+
+/**
+ * 将请求添加到请求队列，根据优先级插入
+ * @param {Object} item - 包含 resolve 和 config 的请求项
+ */
+function addRequestToQueue(item) {
+  // 获取请求的优先级，默认为 NORMAL
+  const requestPriority =
+    PRIORITY_LEVELS[item.config.priority] || PRIORITY_LEVELS.NORMAL;
+
+  let inserted = false;
+  // 遍历队列，找到第一个优先级低于当前请求的位置，并在其之前插入
+  for (let i = 0; i < requestQueue.length; i++) {
+    const existingItemPriority =
+      PRIORITY_LEVELS[requestQueue[i].config.priority] ||
+      PRIORITY_LEVELS.NORMAL;
+    if (requestPriority > existingItemPriority) {
+      requestQueue.splice(i, 0, item); // 插入到当前位置之前
+      inserted = true;
+      break;
+    }
+  }
+  // 如果没有找到更低优先级的，或者队列为空，则插入到队尾
+  if (!inserted) {
+    requestQueue.push(item);
+  }
+  log(
+    "INFO",
+    `➡️ 请求进入队列: ${item.config.url || item.config.filePath} (优先级: ${item.config.priority || "NORMAL"}, 队列长度: ${requestQueue.length})`,
+  );
+  // 仅在 DEBUG 模式下打印队列顺序，可能包含敏感信息，生产环境应避免
+  if (LOG_LEVELS[network.defaults.logLevel || "NONE"] >= LOG_LEVELS.DEBUG) {
+    log(
+      "DEBUG",
+      "当前队列顺序:",
+      requestQueue.map((q) => ({
+        url: q.config.url ? q.config.url.split("?")[0] : q.config.filePath,
+        priority: q.config.priority || "NORMAL",
+      })),
+    );
+  }
+}
 
 /**
  * 尝试从队列中取出并执行下一个请求
@@ -27,20 +76,14 @@ function processQueue() {
     runningRequests < network.defaults.maxConcurrentRequests &&
     requestQueue.length > 0
   ) {
-    const { resolve, config } = requestQueue.shift();
+    const { resolve, config } = requestQueue.shift(); // 始终从队列头部取出请求（已保证是最高优先级）
     runningRequests++;
     log(
       "INFO",
       `🏃‍♂️ 执行队列请求: ${config.url || config.filePath} (当前运行: ${runningRequests}, 队列剩余: ${requestQueue.length})`,
     );
-    // 注意：这里调用 network(config) 会再次经过拦截器。
-    // 如果 config 包含 debounce 逻辑，可能导致无限循环。
-    // 正确的做法是直接调用 network.request(config) 来绕过拦截器，确保只执行一次。
-    // 但是，network.request 不会经过拦截器链中的其他拦截器了。
-    // 更安全的做法是，在队列中的请求，不再进行debounce/throttle判断。
-    // 解决方法：在 config 中加一个标志，在拦截器中判断如果来自队列，则跳过 debounce/throttle
-    config.__fromQueue = true; // 标记为来自队列的请求
-    resolve(network(config)); // 此时 network(config) 会再次进入拦截器，但 __fromQueue 会跳过
+    config.__fromQueue = true; // 标记为来自队列的请求，以便跳过防抖/节流判断
+    resolve(network(config));
   }
 }
 
@@ -185,7 +228,6 @@ const network = un.create({
 });
 
 // --- 重写 network.request 方法以实现节流 ---
-// 这是 uni-network 内部最终发送请求的方法
 const originalNetworkRequest = network.request;
 network.request = function (config) {
   // 如果请求来自队列，则跳过节流/防抖判断，直接执行
@@ -195,6 +237,8 @@ network.request = function (config) {
       `🔄 请求来自队列，跳过节流/防抖: ${config.url || config.filePath}`,
     );
     delete config.__fromQueue; // 移除标记
+    // 标记为内部调用，以防止队列发出的请求再次被拦截器的防抖逻辑处理
+    config.__isInternalCall = true;
     return originalNetworkRequest.call(this, config);
   }
 
@@ -211,6 +255,8 @@ network.request = function (config) {
       return activePromise; // 如果有正在进行中的节流请求，则返回其 Promise
     } else {
       // 这是该节流键的第一个请求，让它正常发起
+      // 标记为内部调用，以防止再次进入拦截器的防抖逻辑
+      config.__isInternalCall = true;
       const requestPromise = originalNetworkRequest.call(this, config); // 调用原始的请求方法
 
       // 将此请求的 Promise 存储为活动状态
@@ -243,8 +289,9 @@ network.request = function (config) {
 // --- 请求拦截器 ---
 network.interceptors.request.use(
   function (config) {
-    // 如果请求来自队列，则跳过节流/防抖判断，直接返回 config
-    if (config.__fromQueue) {
+    // 如果是内部调用（来自队列或节流逻辑），则跳过防抖/优先级/并发判断，直接返回 config
+    if (config.__fromQueue || config.__isInternalCall) {
+      if (config.__isInternalCall) delete config.__isInternalCall; // 移除内部调用标记
       return config;
     }
 
@@ -274,18 +321,14 @@ network.interceptors.request.use(
         debounceStates.delete(debounceKey); // 定时器触发后从 Map 中移除
         // 将新的 CancelToken 绑定到 config 上，以确保延迟发送的请求可以被取消
         config.cancelToken = newCancelSource.token;
+        // 标记为内部调用，以防止延迟发起的请求再次被防抖/节流处理
+        config.__isInternalCall = true;
         log(
           "DEBUG",
           `🚀 发送防抖请求: ${config.url || config.filePath} (key: ${debounceKey}) after ${config.debounce}ms delay.`,
         );
 
-        // 此时，实际的请求才被发起。我们通过 network(config) 再次进入拦截器链。
-        // 但此时 __fromQueue 应该是不存在的，所以不会被队列逻辑影响。
-        // 确保这个请求不会再次被防抖/节流判断（如果再次调用 network(config) 会很危险）
-        // 如果要确保不再次进入防抖/节流判断，应该调用 originalNetworkRequest 或标记 config
-        // 这里我们依赖上面的 __fromQueue 机制，或者可以在 config 上加一个 __isInternalCall 标志
-        // 考虑直接用一个内部标志 __bypassDebounceThrottle
-        config.__bypassDebounceThrottle = true;
+        // 此时，实际的请求才被发起。
         network(config)
           .then(currentDeferred.resolve)
           .catch((error) => {
@@ -336,14 +379,11 @@ network.interceptors.request.use(
       config.cancelToken.throwIfRequested();
     }
 
-    // --- 并发控制逻辑：检查是否达到并发上限 ---
+    // --- 并发控制与优先级逻辑：检查是否达到并发上限 ---
     if (runningRequests >= network.defaults.maxConcurrentRequests) {
-      log(
-        "INFO",
-        `⏸️ 请求进入队列: ${config.url || config.filePath} (当前运行: ${runningRequests}, 队列: ${requestQueue.length})`,
-      );
+      // 达到并发上限，将请求添加到优先级队列
       return new Promise((resolve) => {
-        requestQueue.push({ resolve, config });
+        addRequestToQueue({ resolve, config }); // 使用优先级队列添加函数
       });
     } else {
       runningRequests++;
@@ -371,9 +411,14 @@ network.interceptors.request.use(
     }
 
     const errorMessage = getUserFriendlyErrorMessage(error, config);
+    if (isUnCancel(error)) {
+      log("WARN", "⚡️ 请求被取消:", error.message);
+      return Promise.reject(error);
+    }
+
     log(
       "ERROR",
-      "⚠️ 请求拦截器 -> 请求失败:",
+      "🚨 请求拦截器 -> 请求失败:",
       error,
       "显示消息:",
       errorMessage,
