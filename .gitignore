@@ -12,7 +12,7 @@ node_modules/
 /build/
 /dist/
 /out/
-
+unpackage
 # Vite specific
 .vite/
 .rollup.cache # Rollup 缓存 (Vite 内部使用)
