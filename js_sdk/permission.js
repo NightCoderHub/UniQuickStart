@@ -3,15 +3,11 @@
  * https://ext.dcloud.net.cn/plugin?id=594
  */
 
-var isIos;
-// #ifdef APP-PLUS
-isIos = plus.os.name == "iOS";
-// #endif
-// 修正导出语句，正确导出变量 isIos
-export { isIos };
+const isIos = plus.os.name == "iOS";
+
 var viewShow = true;
 // 判断推送权限是否开启
-export  function judgeIosPermissionPush() {
+export function judgeIosPermissionPush() {
   var result = false;
   var UIApplication = plus.ios.import("UIApplication");
   var app = UIApplication.sharedApplication();
@@ -43,7 +39,7 @@ export  function judgeIosPermissionPush() {
 }
 
 // 判断定位权限是否开启
-export  function judgeIosPermissionLocation() {
+export function judgeIosPermissionLocation() {
   var result = false;
   var cllocationManger = plus.ios.import("CLLocationManager");
   var status = cllocationManger.authorizationStatus();
@@ -65,7 +61,7 @@ export  function judgeIosPermissionLocation() {
 }
 
 // 判断麦克风权限是否开启
-export  function judgeIosPermissionRecord() {
+export function judgeIosPermissionRecord() {
   var result = false;
   var avaudiosession = plus.ios.import("AVAudioSession");
   var avaudio = avaudiosession.sharedInstance();
@@ -82,7 +78,7 @@ export  function judgeIosPermissionRecord() {
 }
 
 // 判断相机权限是否开启
-export  function judgeIosPermissionCamera() {
+export function judgeIosPermissionCamera() {
   var result = false;
   var AVCaptureDevice = plus.ios.import("AVCaptureDevice");
   var authStatus = AVCaptureDevice.authorizationStatusForMediaType("vide");
@@ -98,7 +94,7 @@ export  function judgeIosPermissionCamera() {
 }
 
 // 判断相册权限是否开启
-export  function judgeIosPermissionPhotoLibrary() {
+export function judgeIosPermissionPhotoLibrary() {
   var result = false;
   var PHPhotoLibrary = plus.ios.import("PHPhotoLibrary");
   var authStatus = PHPhotoLibrary.authorizationStatus();
@@ -114,7 +110,7 @@ export  function judgeIosPermissionPhotoLibrary() {
 }
 
 // 判断通讯录权限是否开启
-export  function judgeIosPermissionContact() {
+export function judgeIosPermissionContact() {
   var result = false;
   var CNContactStore = plus.ios.import("CNContactStore");
   var cnAuthStatus = CNContactStore.authorizationStatusForEntityType(0);
@@ -129,7 +125,7 @@ export  function judgeIosPermissionContact() {
 }
 
 // 判断日历权限是否开启
-export  function judgeIosPermissionCalendar() {
+export function judgeIosPermissionCalendar() {
   var result = false;
   var EKEventStore = plus.ios.import("EKEventStore");
   var ekAuthStatus = EKEventStore.authorizationStatusForEntityType(0);
@@ -144,7 +140,7 @@ export  function judgeIosPermissionCalendar() {
 }
 
 // 判断备忘录权限是否开启
-export  function judgeIosPermissionMemo() {
+export function judgeIosPermissionMemo() {
   var result = false;
   var EKEventStore = plus.ios.import("EKEventStore");
   var ekAuthStatus = EKEventStore.authorizationStatusForEntityType(1);
@@ -159,7 +155,7 @@ export  function judgeIosPermissionMemo() {
 }
 
 // Android权限查询
-export  function requestAndroidPermission(permissionID) {
+export function requestAndroidPermission(permissionID) {
   return new Promise((resolve) => {
     plus.android.requestPermissions(
       permissionID.split(","),
@@ -199,7 +195,7 @@ export  function requestAndroidPermission(permissionID) {
 }
 
 // 使用一个方法，根据参数判断权限
-export  function judgeIosPermission(permissionID) {
+export function judgeIosPermission(permissionID) {
   if (permissionID == "location") {
     return judgeIosPermissionLocation();
   } else if (permissionID == "camera") {
@@ -222,7 +218,7 @@ export  function judgeIosPermission(permissionID) {
 
 // 检查系统的设备服务是否开启
 // var checkSystemEnableLocation = async function () {
-  export  function checkSystemEnableLocation() {
+export function checkSystemEnableLocation() {
   if (isIos) {
     let result = false;
     var cllocationManger = plus.ios.import("CLLocationManager");
@@ -232,7 +228,9 @@ export  function judgeIosPermission(permissionID) {
     return result;
   } else {
     var context = plus.android.importClass("android.content.Context");
-    var locationManager = plus.android.importClass("android.location.LocationManager");
+    var locationManager = plus.android.importClass(
+      "android.location.LocationManager",
+    );
     var main = plus.android.runtimeMainActivity();
     var mainSvr = main.getSystemService(context.LOCATION_SERVICE);
     var result = mainSvr.isProviderEnabled(locationManager.GPS_PROVIDER);
@@ -241,7 +239,7 @@ export  function judgeIosPermission(permissionID) {
   }
 }
 
-let permissionMap = {
+const permissionMap = {
   android: {
     CAMERA_EXTERNAL_STORAGE: {
       name: "android.permission.READ_EXTERNAL_STORAGE,android.permission.WRITE_EXTERNAL_STORAGE,android.permission.CAMERA",
@@ -252,7 +250,8 @@ let permissionMap = {
     CAMERA: {
       name: "android.permission.CAMERA",
       title: "相机权限说明",
-      content: "便于您使用该功能拍照更换头像、意见反馈上传图片、与客服沟通等场景中发送拍摄图片",
+      content:
+        "便于您使用该功能拍照更换头像、意见反馈上传图片、与客服沟通等场景中发送拍摄图片",
     },
     EXTERNAL_STORAGE: {
       name: "android.permission.READ_EXTERNAL_STORAGE,android.permission.WRITE_EXTERNAL_STORAGE",
@@ -263,7 +262,8 @@ let permissionMap = {
     ACCESS_FINE_LOCATION: {
       name: "android.permission.ACCESS_FINE_LOCATION",
       title: "定位权限说明",
-      content: "便于您使用该功能拍照更换头像、意见反馈上传图片、与客服沟通等场景中发送拍摄图片",
+      content:
+        "便于您使用该功能拍照更换头像、意见反馈上传图片、与客服沟通等场景中发送拍摄图片",
     },
   },
   ios: {},
@@ -271,7 +271,7 @@ let permissionMap = {
 
 let view = null;
 const { statusBarHeight, windowWidth } = uni.getSystemInfoSync();
-export  function showViewDesc(permission) {
+export function showViewDesc(permission) {
   let plat = isIos ? "ios" : "android";
   view = new plus.nativeObj.View("per-modal", {
     top: "0px",
@@ -326,7 +326,7 @@ export  function showViewDesc(permission) {
   }, 200);
 }
 
-export  function premissionCheck(permission) {
+export function premissionCheck(permission) {
   return new Promise((resolve) => {
     let plat = isIos ? "ios" : "android";
     if (isIos) {
@@ -353,30 +353,34 @@ export  function premissionCheck(permission) {
       if (flag == false) {
         // 未完全授权
         showViewDesc(permission);
-        requestAndroidPermission(permissionMap[plat][permission]["name"]).then((res) => {
-          viewShow = false;
-          setTimeout(() => {
-            viewShow = true;
-          }, 120);
-          view.close();
-          if (res == -1) {
-            uni.showModal({
-              title: "提示",
-              content: "操作权限已被拒绝，请手动前往设置",
-              confirmText: "立即设置",
-              success: (res) => {
-                if (res.confirm) {
-                  uni.openAppAuthorizeSetting();
-                }
-              },
-            });
-          }
-          console.log("res", res);
-          resolve(res);
-        });
+        requestAndroidPermission(permissionMap[plat][permission]["name"]).then(
+          (res) => {
+            viewShow = false;
+            setTimeout(() => {
+              viewShow = true;
+            }, 120);
+            view.close();
+            if (res == -1) {
+              uni.showModal({
+                title: "提示",
+                content: "操作权限已被拒绝，请手动前往设置",
+                confirmText: "立即设置",
+                success: (res) => {
+                  if (res.confirm) {
+                    uni.openAppAuthorizeSetting();
+                  }
+                },
+              });
+            }
+            console.log("res", res);
+            resolve(res);
+          },
+        );
       } else {
         resolve(1);
       }
     }
   });
 }
+
+export { isIos, permissionMap };

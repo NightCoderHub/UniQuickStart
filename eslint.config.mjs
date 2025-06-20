@@ -50,7 +50,7 @@ export default defineConfig([
         // jd: true,
         // qq: true
         process: true,
-        plus: true
+        plus: true,
       },
     },
     rules: {
