@@ -1,8 +1,5 @@
 <template>
   <view class="login-container">
-    <wd-toast />
-    <wd-message-box />
-
     <view class="login-header">
       <text class="title">欢迎登录</text>
     </view>
@@ -47,82 +44,56 @@
 
 <script setup>
 import { reactive, ref } from "vue";
-import { useToast, useMessage } from "wot-design-uni";
-
-// 获取 toast 和 message 实例
-const toast = useToast();
-const message = useMessage();
+import { login } from "@/api/auth"; // 引入 login 接口
 
 const loginForm = reactive({
-  username: "",
-  password: "",
+  username: "admin",
+  password: "admin123",
 });
 
 const isLoggingIn = ref(false);
 
 const handleLogin = async () => {
   if (!loginForm.username) {
-    toast.error("请输入用户名");
+    uni.showToast({
+      title: "请输入用户名",
+      icon: "none",
+    });
     return;
   }
   if (!loginForm.password) {
-    toast.error("请输入密码");
+    uni.showToast({
+      title: "请输入密码",
+      icon: "none",
+    });
     return;
   }
 
-  isLoggingIn.value = true;
+  isLoggingIn.value = true; // 设置登录中状态
 
   try {
-    // 模拟网络请求
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // 模拟登录成功与失败
-    if (loginForm.username === "test" && loginForm.password === "123456") {
-      uni.setStorageSync("simulatedUser", {
-        username: loginForm.username,
-        avatarUrl:
-          "https://cdn-app.gitee.com/upload/20210202/202102021102401612234560759_thumbnail.jpeg",
-      });
-
-      message
-        .alert({
-          title: "登录成功",
-          msg: "欢迎回来！",
-          confirmButtonText: "确定",
-        })
-        .then(() => {
-          // 登录成功后，通知其他页面（例如“我的”页面）更新状态
-          uni.$emit("loginSuccess", { username: loginForm.username });
-
-          // 根据实际情况选择跳转方式：
-          // 如果首页是tabbar页面，使用switchTab。
-          uni.switchTab({
-            url: "/pages/index/index",
-          });
-          // 如果目标页面不是tabbar页面，且要清空所有历史记录并跳转，可以使用 uni.reLaunch
-          // uni.reLaunch({
-          //   url: '/pages/index/index'
-          // });
-        });
-    } else {
-      toast.error("用户名或密码错误");
-    }
-  } catch (error) {
-    toast.error("登录失败，请稍后再试");
-    console.error("登录请求失败:", error);
+    // 调用后端登录接口
+    const res = await login({
+      username: loginForm.username,
+      password: loginForm.password,
+    });
+    uni.setStorageSync("token", res.access_token);
+    uni.setStorageSync("refreshToken", res.refresh_token);
+    // uni.$emit("loginSuccess", { username: res.data.user.username });
+    uni.switchTab({
+      url: "/pages/index/index",
+    });
   } finally {
-    isLoggingIn.value = false;
+    isLoggingIn.value = false; // 无论成功失败，都解除登录中状态
   }
 };
 
-// **修复点：将 uni.redirectTo 修改为 uni.navigateTo**
 const goToRegister = () => {
   uni.navigateTo({
     url: "/pages/register/register",
   });
 };
 
-// **修复点：将 uni.redirectTo 修改为 uni.navigateTo**
 const goToForgotPassword = () => {
   uni.navigateTo({
     url: "/pages/forgotPassword/forgotPassword",
