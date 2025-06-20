@@ -220,12 +220,12 @@ const throttleActivePromises = new Map(); // key -> Promise of the currently act
 
 // --- 网络请求实例创建 ---
 const network = un.create({
-  baseURL:
+  baseUrl:
     process.env.NODE_ENV === "development"
-      ? "http://localhost:3000/api" // 开发环境 API 地址
+      ? "http://localhost:3000" // 开发环境 API 地址
       : "https://prod.api.yourdomain.com/api", // 生产环境 API 地址
   timeout: 10000, // 请求超时时间
-  header: {
+  headers: {
     "Content-Type": "application/json;charset=UTF-8",
   },
   validateStatus: function (status) {
@@ -431,6 +431,7 @@ network.interceptors.request.use(
   },
   // 请求拦截器错误处理
   function (error) {
+    console.log("error", error);
     const config = error.config || {};
 
     // 隐藏加载提示 (非文件传输请求)
