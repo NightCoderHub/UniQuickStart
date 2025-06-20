@@ -1,7 +1,9 @@
 <script>
+import { setupUpdateManager } from "@/utils/updateManager.js";
 export default {
   onLaunch: function () {
     console.log("App Launch");
+    setupUpdateManager();
   },
   onShow: function () {
     console.log("App Show");
