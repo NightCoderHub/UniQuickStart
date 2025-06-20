@@ -1,9 +1,8 @@
 /* eslint-disable no-unreachable */
 // utils/permissionManager.js
 
-// --- 导入您的 js_sdk/permission.js 中的函数 ---
-// 请根据您实际的文件路径调整导入路径 '@/js_sdk/permission.js'
-// 确保您在 js_sdk/permission.js 中已将这些函数 'export' 出来。
+// --- APP-PLUS 平台的条件导入 ---
+// 这些导入只会在编译到 App 平台时包含。
 // #ifdef APP-PLUS
 import {
   isIos,
@@ -15,128 +14,127 @@ import {
   judgeIosPermissionRecord,
   judgeIosPermissionCalendar,
   judgeIosPermissionMemo,
-  requestAndroidPermission, // 负责发起 Android 权限请求的 Promise 函数
-  checkSystemEnableLocation, // 检查系统 GPS 状态的函数
-  permissionMap,
-  // 如果您的 permission.js 中有全局的 permissionMap 和 showViewDesc，
-  // 并且它们是为 requestAndroidPermission 的内部逻辑服务的，通常不需要在这里导入。
-  // 如果它们需要被外部直接访问，或者 permissionManager.js 需要使用它们来构建提示，则需要导入。
-  // 在这里，我将 permissionMap 视为配置，在当前文件定义，showViewDesc 假设是 js_sdk/permission.js 内部调用。
-} from "@/js_sdk/permission.js"; // 导入路径需根据您的项目实际情况调整
+  requestAndroidPermission, // 处理发起 Android 权限请求 (Promise 函数)
+  checkSystemEnableLocation, // 检查系统 GPS 状态
+  permissionMap, // 假设 permissionMap 正确导出并包含 Android 权限字符串。
+} from "@/js_sdk/permission.js"; // 根据你的项目结构调整导入路径
 
-// 由于 Android 的 showViewDesc 依赖 Native View，其生命周期和全局变量管理复杂。
-// 假设您的 showViewDesc 及其依赖（view, statusBarHeight, windowWidth, permissionMap）
-// 都在 js_sdk/permission.js 内部被正确管理，且 requestAndroidPermission 调用它。
-// 如果 showViewDesc 是单独导出的，请在这里导入并确保其逻辑正确。
-// 为了简化，这里不再从 js_sdk 导入 permissionMap 和 showViewDesc。
-// Android 的权限描述信息将直接在当前文件配置，或者在调用时动态生成。
-// 鉴于您 showViewDesc 的复杂性，此处假设它在 `js_sdk/permission.js` 内部被 `requestAndroidPermission` 调用。
-// 或者您需要将其重新定义在此文件，并处理 Native View 生命周期。
-// 对于本例，我将简化处理 Android 权限描述弹窗，主要聚焦于权限请求逻辑。
-// 如果您坚持使用 `plus.nativeObj.View`，请确保其生命周期和作用域在您的 `js_sdk/permission.js` 中得到良好管理。
-
-// 简化 Android 权限描述弹窗处理，仅作演示
-// 实际生产环境，请根据您的 `js_sdk/permission.js` 中的 `showViewDesc` 逻辑进行适配
+// 简化的 Android 权限说明对话框。
+// 在生产环境中，如果需要复杂的原生 View 弹窗，请根据你的 `js_sdk/permission.js` 中的 `showViewDesc` 逻辑进行调整。
+// 本示例使用 `uni.showModal` 进行演示。
 const showAndroidPermissionRationale = (permissionKey, permissionName) => {
-  // 这是一个简化版本，如果您有复杂的原生 View 弹窗，请保持在 js_sdk/permission.js 中实现。
-  // 这里仅使用 uni.showModal 进行模拟提示。
-  let content = `为了提供${permissionName}功能，我们需要相关权限。`;
+  let content = `为提供${permissionName}功能，我们需要相关权限。`;
   const androidPermissionConfig =
     {
       CAMERA: "用于拍照或录像",
       EXTERNAL_STORAGE: "用于读写相册或文件",
-      ACCESS_FINE_LOCATION: "用于获取精准地理位置信息",
+      ACCESS_FINE_LOCATION: "用于获取精确地理位置信息",
       RECORD_AUDIO: "用于录音或语音输入",
       // ... 其他 Android 权限描述
     }[permissionKey] || "";
 
   if (androidPermissionConfig) {
-    content = `为了提供${permissionName}功能，${androidPermissionConfig}。请您授权。`;
+    content = `为提供${permissionName}功能，${androidPermissionConfig}。请授予权限。`;
   }
 
   return new Promise((resolve) => {
     uni.showModal({
       title: "权限说明",
       content: content,
-      confirmText: "我知道了",
+      confirmText: "知道了",
       showCancel: false,
       success: () => resolve(true),
     });
   });
 };
-
 // #endif
 
-// --- 统一的权限映射表 ---
-// 将统一的 'scope.xxx' 标识符映射到不同平台对应的权限键或判断函数。
+// --- 统一权限映射表 ---
+// 将统一的 'scope.xxx' 标识符映射到平台特定的权限键或判断函数。
 const PERMISSION_MAP = {
   "scope.userInfo": {
-    // 小程序特有
+    // 小程序特定
     mp: "scope.userInfo",
     name: "用户信息",
   },
   "scope.userLocation": {
     mp: "scope.userLocation",
+    // #ifdef APP-PLUS
     iosFunc: judgeIosPermissionLocation, // 对应 js_sdk/permission.js 中的函数
-    androidKey: "ACCESS_FINE_LOCATION", // 对应 Android 权限字符串（在 Android 请求时使用）
+    androidKey: "ACCESS_FINE_LOCATION", // 对应 Android 权限字符串 (在 Android 请求时使用)
+    // #endif
     name: "地理位置",
   },
   "scope.camera": {
     mp: "scope.camera",
+    // #ifdef APP-PLUS
     iosFunc: judgeIosPermissionCamera,
     androidKey: "CAMERA",
+    // #endif
     name: "相机",
   },
   "scope.writePhotosAlbum": {
     mp: "scope.writePhotosAlbum",
+    // #ifdef APP-PLUS
     iosFunc: judgeIosPermissionPhotoLibrary,
-    androidKey: "WRITE_EXTERNAL_STORAGE", // 通常保存图片需要写权限，对应 Android Manifest 中的权限
+    androidKey: "WRITE_EXTERNAL_STORAGE", // 通常需要写入权限才能保存图片，对应 Android Manifest 权限
+    // #endif
     name: "相册",
   },
   "scope.record": {
     mp: "scope.record",
+    // #ifdef APP-PLUS
     iosFunc: judgeIosPermissionRecord,
     androidKey: "RECORD_AUDIO",
+    // #endif
     name: "麦克风",
   },
   "scope.push": {
-    // App 平台特有
+    // App 平台特定
+    // #ifdef APP-PLUS
     iosFunc: judgeIosPermissionPush,
     androidKey: "POST_NOTIFICATIONS", // Android 13+ 推送权限，之前无需运行时权限
+    // #endif
     name: "消息推送",
   },
   "scope.contacts": {
+    // #ifdef APP-PLUS
     iosFunc: judgeIosPermissionContact,
-    androidKey: "READ_CONTACTS", // Android 通讯录读取权限
+    androidKey: "READ_CONTACTS", // Android 联系人读取权限
+    // #endif
     name: "通讯录",
   },
   "scope.calendar": {
+    // #ifdef APP-PLUS
     iosFunc: judgeIosPermissionCalendar,
     androidKey: "READ_CALENDAR", // Android 日历读取权限
+    // #endif
     name: "日历",
   },
   "scope.memo": {
+    // #ifdef APP-PLUS
     iosFunc: judgeIosPermissionMemo,
-    // Android 暂时没有直接对应备忘录的系统权限，或需特定 SDK
+    // Android 目前没有直接的备忘录系统权限，或者可能需要特定的 SDK。
+    // #endif
     name: "备忘录",
   },
 };
 
 /**
  * 统一的权限检查和请求方法。
- * 根据当前运行平台智能选择权限处理逻辑（小程序、App-iOS、App-Android、H5）。
- * 成功时 resolve(true)，失败时 reject(Error)。
+ * 根据当前运行平台（小程序、App-iOS、App-Android、H5）智能选择权限处理逻辑。
+ * 成功时解析为 `true`，失败时拒绝并带有 `Error` 对象。
  *
- * @param {string} scope - 统一的权限标识符，例如 'scope.userLocation', 'scope.camera'。
+ * @param {string} scope - 统一权限标识符，例如 'scope.userLocation', 'scope.camera'。
  * @param {string} [name='所需功能'] - 权限的友好名称，用于用户提示。
- * @returns {Promise<boolean>} Promise 结果：成功返回 true，失败返回 Error 对象。
+ * @returns {Promise<boolean>} Promise 结果: 成功返回 `true`，失败返回 `Error` 对象。
  */
 export async function checkAndRequestPermission(scope, name = "所需功能") {
   const permissionConfig = PERMISSION_MAP[scope];
 
   if (!permissionConfig) {
-    console.warn(`[PermissionManager] 未知的权限 scope: ${scope}`);
-    return Promise.reject(new Error(`未知权限类型: ${scope}`));
+    console.warn(`[PermissionManager] 未知的权限范围: ${scope}`);
+    throw new Error(`未知的权限类型: ${scope}`);
   }
 
   const permissionName = permissionConfig.name || name;
@@ -146,7 +144,7 @@ export async function checkAndRequestPermission(scope, name = "所需功能") {
   const mpScope = permissionConfig.mp;
   if (!mpScope) {
     console.warn(`[PermissionManager] 小程序平台不支持 ${scope} 权限`);
-    return Promise.reject(new Error(`小程序平台不支持该权限: ${scope}`));
+    throw new Error(`小程序平台不支持此权限: ${scope}`);
   }
 
   try {
@@ -157,66 +155,40 @@ export async function checkAndRequestPermission(scope, name = "所需功能") {
       // 已经授权
       return true;
     } else if (authStatus === false) {
-      // 曾经拒绝授权，引导用户进入设置页面
-      await new Promise((resolveModal, rejectModal) => {
-        uni.showModal({
-          title: "授权提示",
-          content: `亲爱的用户，为了能让您使用${permissionName}功能，请您前往小程序右上角的设置项，把${permissionName}开启后再试试哦。`,
-          confirmText: "去设置",
-          confirmColor: "#465CFF",
-          cancelText: "取消",
-          success: (res) => {
-            if (res.confirm) {
-              uni.openSetting({
-                success: (settingRes) => {
-                  if (settingRes.authSetting[mpScope]) {
-                    resolveModal(true); // 用户在设置页开启了权限
-                  } else {
-                    console.warn(`[${permissionName}] 用户未在设置页打开权限`);
-                    rejectModal(new Error("用户未在设置页打开权限"));
-                  }
-                },
-                fail: (err) => {
-                  console.error(`[${permissionName}] 打开设置页失败`, err);
-                  rejectModal(new Error("打开设置页失败"));
-                },
-              });
-            } else {
-              console.warn(`[${permissionName}] 用户取消进入设置页`);
-              rejectModal(new Error("用户取消进入设置页"));
-            }
-          },
-          fail: (err) => {
-            console.error(`[${permissionName}] 显示授权提示模态框失败`, err);
-            rejectModal(new Error("显示授权提示模态框失败"));
-          },
-        });
+      // 之前拒绝授权，引导用户进入设置页面
+      const modalRes = await uni.showModal({
+        title: "授权提示",
+        content: `亲爱的用户，为了使用${permissionName}功能，请到小程序右上角设置中开启${permissionName}。`,
+        confirmText: "去设置",
+        confirmColor: "#465CFF",
+        cancelText: "取消",
       });
-      return true; // 如果 Promise 成功，意味着权限已获取或用户已去设置
+
+      if (modalRes.confirm) {
+        const settingRes = await uni.openSetting();
+        if (settingRes.authSetting[mpScope]) {
+          return true; // 用户在设置页面中开启了权限
+        } else {
+          console.warn(`[${permissionName}] 用户未在设置页面中开启权限`);
+          throw new Error("用户未在设置页面中开启权限");
+        }
+      } else {
+        console.warn(`[${permissionName}] 用户取消进入设置页面`);
+        throw new Error("用户取消进入设置页面");
+      }
     } else {
-      // 首次授权或未曾请求授权，直接请求授权
-      await new Promise((resolveAuth, rejectAuth) => {
-        uni.authorize({
-          scope: mpScope,
-          success: () => {
-            resolveAuth(true); // 授权成功
-          },
-          fail: (err) => {
-            console.warn(
-              `[${permissionName}] 小程序授权失败，用户可能拒绝`,
-              err,
-            );
-            rejectAuth(new Error("用户拒绝授权或授权失败")); // 授权失败 (用户点击了拒绝)
-          },
-        });
-      });
-      return true;
+      // 首次授权或从未请求过授权，直接请求授权
+      try {
+        await uni.authorize({ scope: mpScope });
+        return true; // 授权成功
+      } catch (err) {
+        console.warn(`[${permissionName}] 小程序授权失败，用户可能已拒绝`, err);
+        throw new Error("用户拒绝授权或授权失败"); // 授权失败 (用户点击拒绝)
+      }
     }
   } catch (error) {
     console.error(`[${permissionName}] 获取小程序授权状态或请求失败`, error);
-    return Promise.reject(
-      new Error(`获取小程序授权状态或请求失败: ${error.message}`),
-    );
+    throw new Error(`获取小程序授权状态或请求失败: ${error.message}`);
   }
   // #endif
 
@@ -226,75 +198,57 @@ export async function checkAndRequestPermission(scope, name = "所需功能") {
     const iosFunc = permissionConfig.iosFunc;
     if (!iosFunc || typeof iosFunc !== "function") {
       console.warn(
-        `[PermissionManager] iOS 平台没有为 ${scope} 配置有效的权限判断函数`,
+        `[PermissionManager] iOS 平台未配置 ${scope} 权限的有效判断函数`,
       );
-      return Promise.reject(
-        new Error(`iOS 平台不支持 ${scope} 权限检查或未配置`),
-      );
+      throw new Error(`iOS 平台不支持 ${scope} 权限检查或未配置`);
     }
 
-    let hasPermission = iosFunc(); // 调用 js_sdk/permission.js 中的 iOS 原生判断函数
+    const hasPermission = iosFunc(); // 调用 js_sdk/permission.js 中的 iOS 原生判断函数
     if (hasPermission) {
       return true;
     } else {
-      // 权限未开启，引导用户去系统设置
-      await new Promise((resolveModal, rejectModal) => {
-        uni.showModal({
-          title: "授权提示",
-          content: `亲爱的用户，为了能让您使用${permissionName}功能，请您前往设备的系统设置中，把${permissionName}权限开启后再试试哦。`,
-          confirmText: "去设置",
-          confirmColor: "#465CFF",
-          cancelText: "取消",
-          success: (res) => {
-            if (res.confirm) {
-              uni.openAppAuthorizeSetting({
-                success: () => {
-                  // 用户去设置了。这里假定用户会开启，后续操作继续。
-                  // 如果需要严格判断，可以在 openAppAuthorizeSetting 回调后再次调用 iosFunc() 检查
-                  resolveModal(true);
-                },
-                fail: (err) => {
-                  console.error(`[${permissionName}] 打开App系统设置失败`, err);
-                  rejectModal(new Error("打开App系统设置失败"));
-                },
-              });
-            } else {
-              console.warn(`[${permissionName}] 用户取消打开App系统设置`);
-              rejectModal(new Error("用户取消打开App系统设置"));
-            }
-          },
-          fail: (err) => {
-            console.error(`[${permissionName}] 显示授权提示模态框失败`, err);
-            rejectModal(new Error("显示授权提示模态框失败"));
-          },
-        });
+      // 权限未开启，引导用户进入系统设置
+      const modalRes = await uni.showModal({
+        title: "授权提示",
+        content: `亲爱的用户，为了使用${permissionName}功能，请到设备系统设置中开启${permissionName}权限。`,
+        confirmText: "去设置",
+        confirmColor: "#465CFF",
+        cancelText: "取消",
       });
-      return true; // 假定用户选择去设置后可能成功
+
+      if (modalRes.confirm) {
+        try {
+          await uni.openAppAuthorizeSetting();
+          // 假设用户进入设置后会开启。
+          // 如果需要严格验证，可以在 openAppAuthorizeSetting 回调后再次调用 iosFunc()。
+          return true;
+        } catch (err) {
+          console.error(`[${permissionName}] 打开 App 系统设置失败`, err);
+          throw new Error("打开 App 系统设置失败");
+        }
+      } else {
+        console.warn(`[${permissionName}] 用户取消打开 App 系统设置`);
+        throw new Error("用户取消打开 App 系统设置");
+      }
     }
   } else {
     // Android 权限判断和请求
     const androidKey = permissionConfig.androidKey;
     if (!androidKey) {
-      console.warn(
-        `[PermissionManager] Android 平台没有为 ${scope} 配置权限键`,
-      );
-      return Promise.reject(
-        new Error(`Android 平台不支持 ${scope} 权限检查或未配置`),
-      );
+      console.warn(`[PermissionManager] Android 平台未配置 ${scope} 权限键`);
+      throw new Error(`Android 平台不支持 ${scope} 权限检查或未配置`);
     }
 
-    // 从您的 permissionMap 中获取 Android 权限字符串
+    // 从你的 permissionMap 中获取 Android 权限字符串
     const androidPermissionStrings = permissionMap.android[androidKey]?.name;
     if (!androidPermissionStrings) {
       console.warn(
-        `[PermissionManager] Android 权限映射表中未找到 ${androidKey} 的具体权限字符串`,
+        `[PermissionManager] Android 权限映射表中不包含 ${androidKey} 的特定权限字符串`,
       );
-      return Promise.reject(
-        new Error(`Android 权限映射配置错误: ${androidKey}`),
-      );
+      throw new Error(`Android 权限映射配置错误: ${androidKey}`);
     }
 
-    // 检查当前权限状态 (不会触发系统弹窗)
+    // 检查当前权限状态 (不会触发系统对话框)
     let isFullyGranted = true;
     const permissionArray = androidPermissionStrings.split(",");
     for (const perm of permissionArray) {
@@ -306,56 +260,50 @@ export async function checkAndRequestPermission(scope, name = "所需功能") {
     }
 
     if (isFullyGranted) {
-      return true; // 已完全授权
+      return true; // 完全授权
     } else {
-      // 未完全授权，先显示权限说明弹窗（可以根据您的 js_sdk/permission.js 中的 showViewDesc）
-      // 这里用一个简化的 uni.showModal 代替您的 `plus.nativeObj.View` 弹窗
-      // **重要：** 如果您希望使用 `plus.nativeObj.View` 的原生弹窗，
-      // 您需要在 `js_sdk/permission.js` 中确保 `showViewDesc` 可被调用，
-      // 并且处理其生命周期（如 `view.close()`）。
-      // 鉴于 `plus.nativeObj.View` 的复杂性，此处使用 `uni.showModal` 模拟。
-      await showAndroidPermissionRationale(androidKey, permissionName); // 简化的提示
+      // 未完全授权，首先显示权限解释对话框 (可以基于你的 js_sdk/permission.js 中的 showViewDesc)
+      // 这里使用简化的 `uni.showModal` 而不是你的 `plus.nativeObj.View` 对话框。
+      // **重要提示:** 如果你想使用 `plus.nativeObj.View` 原生对话框，
+      // 你需要确保 `showViewDesc` 可以在 `js_sdk/permission.js` 中被调用
+      // 并处理其生命周期 (例如 `view.close()`)。
+      // 考虑到 `plus.nativeObj.View` 的复杂性，此处模拟 `uni.showModal`。
+      await showAndroidPermissionRationale(androidKey, permissionName); // 简化提示
 
       // 然后发起 Android 权限请求
       const requestResult = await requestAndroidPermission(
         androidPermissionStrings,
       ); // 调用 js_sdk/permission.js 中的函数
 
-      // 如果有原生 view 需要关闭，在这里处理。
-      // 例如：if (view && view.close) view.close(); // 这取决于您的 js_sdk/permission.js 内部实现
+      // 如果有需要关闭的原生视图，在这里处理。
+      // 例如：if (view && view.close) view.close(); // 这取决于你的 js_sdk/permission.js 内部实现
 
       if (requestResult === 1) {
         return true; // 授权成功
       } else if (requestResult === -1) {
-        // 永久拒绝，引导用户去应用设置
-        await new Promise((resolveModal, rejectModal) => {
-          uni.showModal({
-            title: "提示",
-            content: `操作权限已被拒绝，请手动前往设置页面开启${permissionName}权限。`,
-            confirmText: "立即设置",
-            success: (res) => {
-              if (res.confirm) {
-                uni.openAppAuthorizeSetting({
-                  success: () => resolveModal(true), // 用户去设置了，假设会开启
-                  fail: () => rejectModal(new Error("打开App设置失败")),
-                });
-              } else {
-                rejectModal(new Error("用户取消进入设置"));
-              }
-            },
-            fail: (err) => {
-              console.error("显示模态框失败", err);
-              rejectModal(new Error("显示模态框失败"));
-            },
-          });
+        // 永久拒绝，引导用户进入应用设置
+        const modalRes = await uni.showModal({
+          title: "提示",
+          content: `操作权限已被拒绝。请手动前往设置页开启${permissionName}权限。`,
+          confirmText: "现在去设置",
         });
-        return true; // 假定用户选择去设置后可能成功
+
+        if (modalRes.confirm) {
+          try {
+            await uni.openAppAuthorizeSetting();
+            return true; // 用户进入设置，假设他们会开启
+          } catch (err) {
+            throw new Error("打开 App 设置失败", err);
+          }
+        } else {
+          throw new Error("用户取消进入设置");
+        }
       } else {
         // 本次拒绝或请求失败
         console.warn(
-          `[${permissionName}] Android 权限请求失败或被拒绝，结果：${requestResult}`,
+          `[${permissionName}] Android 权限请求失败或被拒绝，结果: ${requestResult}`,
         );
-        return Promise.reject(new Error("用户拒绝或权限请求失败"));
+        throw new Error("用户拒绝或权限请求失败");
       }
     }
   }
@@ -364,24 +312,24 @@ export async function checkAndRequestPermission(scope, name = "所需功能") {
   // --- H5 平台逻辑 ---
   // #ifdef H5
   console.warn(
-    `[PermissionManager] H5 端权限处理受浏览器限制，无法主动请求或引导用户。`,
+    `[PermissionManager] H5 权限处理受浏览器限制，无法主动请求或引导用户。`,
   );
-  // H5 权限通常由浏览器在使用 API 时自动弹窗。这里乐观地返回 true。
+  // H5 权限通常在使用 API 时由浏览器自动提示。这里乐观地返回 true。
   return true;
   // #endif
 }
 
 /**
- * 获取用户地理位置信息的完整流程。
- * 包含平台权限授权、设备定位服务检查和详细错误处理。
+ * 获取用户地理位置信息的综合流程。
+ * 包括平台权限授权、设备定位服务检查和详细的错误处理。
  *
- * @returns {Promise<Object>} 成功时返回位置数据，失败时拒绝 Error 对象。
+ * @returns {Promise<Object>} 成功时解析为位置数据，失败时拒绝并带有 Error 对象。
  */
 export function getAccurateUserLocationExt() {
-  // 移除外部函数的 async 关键字
+  // 移除executor函数的async关键字
   return new Promise((resolve, reject) => {
-    // 将异步逻辑封装在内部 async 函数中
-    async function main() {
+    // 使用立即执行的async函数包裹异步逻辑
+    (async () => {
       try {
         const authSuccess = await checkAndRequestPermission(
           "scope.userLocation",
@@ -398,7 +346,7 @@ export function getAccurateUserLocationExt() {
         if (!systemLocationEnabled) {
           uni.showModal({
             title: "定位失败",
-            content: "手机定位服务未开启，请前往手机系统设置开启。",
+            content: "手机定位服务未开启。请前往手机系统设置中开启。",
             confirmText: "去开启",
             cancelText: "取消",
             success: (modalRes) => {
@@ -417,13 +365,12 @@ export function getAccurateUserLocationExt() {
         // #endif
 
         uni.showLoading({
-          title: "获取位置中...",
+          title: "正在获取位置...",
           mask: true,
         });
 
         uni.getLocation({
           type: "gcj02",
-          geocode: true,
           success: (res) => {
             uni.hideLoading();
             resolve(res);
@@ -445,11 +392,11 @@ export function getAccurateUserLocationExt() {
                 err.errMsg.includes("fail:system permission denied") ||
                 err.errMsg.includes("fail gps closed")
               ) {
-                errorMessage = "手机定位服务未开启或被禁用";
+                errorMessage = "手机定位服务未开启或已禁用";
                 uni.showModal({
                   title: "定位失败",
                   content:
-                    "手机定位服务未开启或被禁用，请前往手机系统设置开启定位服务。",
+                    "手机定位服务未开启或已禁用。请前往手机系统设置中开启定位服务。",
                   confirmText: "去开启",
                   cancelText: "取消",
                   success: (modalRes) => {
@@ -478,9 +425,6 @@ export function getAccurateUserLocationExt() {
         console.error("[getAccurateUserLocationExt] 流程中断:", error);
         reject(error);
       }
-    }
-
-    // 执行内部 async 函数并捕获错误
-    main().catch(reject);
+    })(); // 立即执行async函数
   });
 }

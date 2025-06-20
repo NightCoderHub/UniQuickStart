@@ -47,7 +47,18 @@
       "urlCheck": false,
       "minified": true
     },
-    "usingComponents": true
+    "usingComponents": true,
+    "permission": {
+      "scope.userLocation": {
+        "desc": "获取位置信息"
+      }
+    },
+    "requiredPrivateInfos": [
+      "getLocation",
+      "onLocationChange",
+      "startLocationUpdateBackground",
+      "chooseAddress"
+    ]
   },
   "mp-alipay": {
     "usingComponents": true
