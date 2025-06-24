@@ -35,6 +35,13 @@
       "style": {
         "navigationBarTitleText": "忘记密码"
       }
+    },
+    {
+      "path": "pages/privacy/privacy",
+      "style": {
+        "navigationBarTitleText": "隐私政策",
+        "navigationStyle": "custom"
+      }
     }
   ],
   "globalStyle": {
