@@ -51,6 +51,7 @@ export default defineConfig([
         // qq: true
         process: true,
         plus: true,
+        getCurrentPages: true,
       },
     },
     rules: {
