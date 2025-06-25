@@ -3,7 +3,6 @@
 import un, {
   HttpStatusCode, // HTTP 状态码枚举
 } from "@uni-helper/uni-network";
-
 // 扩展的错误消息映射表
 const HttpStatusMessages = {
   // 客户端错误
@@ -52,7 +51,25 @@ const HttpStatusMessages = {
   // 默认错误
   DEFAULT_ERROR: "请求失败，请检查网络或联系管理员",
 };
-
+// 网络相关的错误
+const ErrorCodeMessages = {
+  ERR_FR_TOO_MANY_REDIRECTS: "重定向次数过多，无法完成请求",
+  ERR_BAD_OPTION_VALUE: "配置选项值无效",
+  ERR_BAD_OPTION: "无效的配置选项",
+  ERR_NETWORK: "网络错误，请检查您的网络连接", // 这是最常见的网络断开或服务器不可达错误
+  ERR_DEPRECATED: "使用了已废弃的功能或选项",
+  ERR_BAD_RESPONSE: "服务器响应数据无效或损坏",
+  ERR_BAD_REQUEST: "请求无效或格式不正确",
+  ERR_NOT_SUPPORT: "当前操作或功能不被支持",
+  ERR_INVALID_URL: "请求的 URL 无效",
+  ERR_CANCELED: "请求已被取消",
+  ECONNABORTED: "连接已中止，可能是请求超时或网络中断", // 通常表示请求超时
+  ETIMEDOUT: "连接超时，无法连接到服务器", // 另一个常见的超时错误
+  // 默认错误消息
+  UNKNOWN_ERROR: "发生未知错误，请稍后再试",
+};
+// 服务器响应成功的状态码
+const ResponseSuccessStatusCode = 200;
 /**
  * 清除认证信息并重定向到登录页面。
  * 通常在 401 认证过期时调用。
@@ -66,7 +83,9 @@ function clearAuthAndRedirectToLogin() {
     duration: 1500,
   });
   setTimeout(() => {
-    uni.redirectTo({ url: "/pages/login/login" }); // 重定向到登录页
+    uni.redirectTo({
+      url: "/pages/login/login",
+    }); // 重定向到登录页
   }, 1500);
 }
 
@@ -93,7 +112,7 @@ const network = un.create({
 
 // --- 请求拦截器 ---
 network.interceptors.request.use(
-  function (config) {
+  async function (config) {
     const token = uni.getStorageSync("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -109,40 +128,47 @@ network.interceptors.request.use(
 network.interceptors.response.use(
   function (response) {
     console.log("响应拦截器 (成功回调)", response.data);
-    if (
-      response.data &&
-      response.data.code !== 0 &&
-      response.data.code !== 200
-    ) {
-      const errorMessage =
-        response.data.msg ||
-        response.data.message ||
-        "业务处理失败，请稍后再试";
+    if (response.data && response.data.code !== ResponseSuccessStatusCode) {
       uni.showToast({
-        title: errorMessage,
+        title:
+          response.data.msg ||
+          response.data.message ||
+          "业务处理失败，请稍后再试",
         icon: "none",
-        duration: 2000,
+        duration: 3000,
       });
-      return Promise.reject(errorMessage);
+      // 实例的catch会收到这个reject参数
+      return Promise.reject(response.data);
     }
     return response.data.data;
   },
-  // 响应拦截器的错误回调
+  // 响应拦截器的错误回调，error是UnError类型，需调用toJSON方法
   function (error) {
     const errorResponse = error.toJSON();
-    const statusCode = errorResponse.status;
-    const errorMessage =
-      HttpStatusMessages[statusCode] || HttpStatusMessages.DEFAULT_ERROR;
-    uni.showToast({
-      title: errorMessage,
-      icon: "none",
-      duration: 2000,
-    });
-    if (error.status === HttpStatusCode.Unauthorized) {
-      clearAuthAndRedirectToLogin();
-      return Promise.reject(error);
+    const { status: errorResponseStatus, code: errorResponseCode } =
+      errorResponse;
+    console.log("响应拦截器的错误回调的error", errorResponse);
+    // 优先判断code然后判断status
+    let displayMessage = ErrorCodeMessages.UNKNOWN_ERROR;
+    if (errorResponseCode) {
+      displayMessage =
+        ErrorCodeMessages[errorResponseCode] || ErrorCodeMessages.UNKNOWN_ERROR;
+    } else if (errorResponseStatus) {
+      displayMessage =
+        HttpStatusMessages[errorResponseStatus] ||
+        HttpStatusMessages.DEFAULT_ERROR;
     }
-    return Promise.reject(error);
+    uni.showToast({
+      title: displayMessage,
+      icon: "none",
+      duration: 3000,
+    });
+
+    if (errorResponseStatus === HttpStatusCode.Unauthorized) {
+      clearAuthAndRedirectToLogin();
+      return Promise.reject(errorResponse);
+    }
+    return Promise.reject(errorResponse);
   },
 );
 
