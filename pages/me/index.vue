@@ -1,219 +1,332 @@
 <template>
-  <view class="me-container">
-    <wd-toast />
-    <wd-message-box />
-    <view class="user-info">
-      <wd-img
-        width="120rpx"
-        height="120rpx"
-        round
-        :src="userInfo.avatarUrl"
-        custom-class="avatar"
-      />
-      <view class="username">{{ userInfo.username || "点击登录" }}</view>
-      <view v-if="userInfo.username" class="welcome-text"
-        >欢迎回来，{{ userInfo.username }}！</view
-      >
-      <wd-button
-        v-if="!userInfo.username"
-        type="primary"
-        size="small"
-        round
-        custom-class="login-btn"
-        @click="goToLogin"
-      >
-        立即登录
-      </wd-button>
+  <view class="profile-page">
+    <!-- 用户信息区域 -->
+    <view class="user-section">
+      <view class="user-info">
+        <image
+          class="avatar"
+          src="/static/default_avator.webp"
+          mode="aspectFill"
+        ></image>
+        <view class="user-details">
+          <view class="user-name">张妈</view>
+          <!--    <view class="service-tags">
+            <wd-tag type="success" plain size="small">冰箱维修</wd-tag>
+            <wd-tag type="warning" plain size="small">彩电维修</wd-tag>
+          </view> -->
+          <view class="rating-info">
+            <text class="rating"
+              >星级评分 <text style="font-weight: bold">5.0</text></text
+            >
+            <text class="divider">|</text>
+            <text class="completion"
+              >完单率 <text style="font-weight: bold">优秀</text></text
+            >
+          </view>
+        </view>
+      </view>
+      <view class="settings-icon">
+        <text class="iconfont icon-setting1"></text>
+      </view>
     </view>
 
-    <view class="function-list">
-      <wd-cell-group title="常用功能">
-        <wd-cell
-          title="我的订单"
-          icon="order"
-          is-link
-          @click="handleGoToPage('myOrders')"
-        />
-        <wd-cell
-          title="我的收藏"
-          icon="star"
-          is-link
-          @click="handleGoToPage('myFavorites')"
-        />
-        <wd-cell
-          title="收货地址"
-          icon="location"
-          is-link
-          @click="handleGoToPage('addressManagement')"
-        />
-        <wd-cell
-          title="优惠券"
-          icon="coupon"
-          is-link
-          @click="handleGoToPage('myCoupons')"
-        />
-      </wd-cell-group>
+    <!-- 功能菜单区域 -->
+    <view class="menu-section">
+      <!-- 第一行菜单 -->
+      <wd-card class="menu-card">
+        <view class="dashboard-grid">
+          <view class="service-item" @click="handleMenuClick('balance')">
+            <text class="item-text">余额</text>
+            <text class="iconfont icon-yue item-icon"></text>
+          </view>
+          <view class="service-item" @click="handleMenuClick('commission')">
+            <text class="item-text">推广佣金</text>
+            <text class="iconfont icon-tuiguangyongjin item-icon"></text>
+          </view>
+          <view class="service-item" @click="handleMenuClick('invoice')">
+            <text class="item-text">发票报销</text>
+            <text class="iconfont icon-fapiaobaoxiao item-icon"></text>
+          </view>
+          <view class="service-item" @click="handleMenuClick('service')">
+            <text class="item-text">客服</text>
+            <text class="iconfont icon-kefu item-icon"></text>
+          </view>
+          <image
+            class="divide-vertical-line top"
+            src="/static/divide-vertical-line.svg"
+            mode="heightFix"
+          ></image>
+          <image
+            class="divide-vertical-line bottom"
+            src="/static/divide-vertical-line.svg"
+            mode="heightFix"
+          ></image>
+          <image
+            class="divide-horizontal-line left"
+            src="/static/divide-horizontal-line.webp"
+            mode="widthFix"
+          ></image>
+          <image
+            class="divide-horizontal-line right"
+            src="/static/divide-horizontal-line.webp"
+            mode="widthFix"
+          ></image>
+        </view>
+      </wd-card>
 
-      <wd-cell-group title="设置与帮助" custom-class="mt30">
-        <wd-cell
-          title="帮助与反馈"
-          icon="question"
-          is-link
-          @click="handleGoToPage('helpFeedback')"
-        />
-        <wd-cell
-          title="关于我们"
-          icon="info"
-          is-link
-          @click="handleGoToPage('aboutUs')"
-        />
-        <wd-cell
-          title="隐私政策"
-          icon="lock"
-          is-link
-          @click="handleGoToPage('privacyPolicy')"
-        />
-      </wd-cell-group>
+      <!-- 第二行菜单 -->
+      <wd-card class="menu-card">
+        <view class="menu-grid">
+          <view class="menu-item" @click="handleMenuClick('orders')">
+            <text class="iconfont icon-dingdan menu-icon"></text>
+            <text class="menu-text">订单</text>
+          </view>
+          <view class="menu-item" @click="handleMenuClick('info')">
+            <text class="iconfont icon-xinxi menu-icon"></text>
+            <text class="menu-text">信息</text>
+          </view>
+          <view class="menu-item" @click="handleMenuClick('address')">
+            <text class="iconfont icon-dizhibao menu-icon"></text>
+            <text class="menu-text">地址薄</text>
+          </view>
+          <view class="menu-item" @click="handleMenuClick('favorite')">
+            <text class="iconfont icon-shoucangshifu menu-icon"></text>
+            <text class="menu-text">收藏师傅</text>
+          </view>
+        </view>
+      </wd-card>
+
+      <!-- 第三行菜单 -->
+      <wd-card class="menu-card">
+        <view class="menu-grid">
+          <view class="menu-item" @click="handleMenuClick('expert')">
+            <text class="iconfont icon-zhuanjiajiaru menu-icon"></text>
+            <text class="menu-text">专家加入</text>
+          </view>
+          <view class="menu-item" @click="handleMenuClick('enterprise')">
+            <text class="iconfont icon-qiyeyongren2 menu-icon"></text>
+            <text class="menu-text">企业用人</text>
+          </view>
+          <view class="menu-item" @click="handleMenuClick('regional')">
+            <text class="iconfont icon-quyuhezuo2 menu-icon"></text>
+            <text class="menu-text">区域合作</text>
+          </view>
+          <view class="menu-item" @click="handleMenuClick('community')">
+            <text class="iconfont icon-quyuhezuo1 menu-icon"></text>
+            <text class="menu-text">社区合作</text>
+          </view>
+          <view class="menu-item" @click="handleMenuClick('share')">
+            <text class="iconfont icon-fenxianghuanqian menu-icon"></text>
+            <text class="menu-text">分享换钱</text>
+          </view>
+          <view class="menu-item" @click="handleMenuClick('invite')">
+            <text class="iconfont icon-yaoqingdeyongjin menu-icon"></text>
+            <text class="menu-text">邀请得现金</text>
+          </view>
+          <view class="menu-item" @click="handleMenuClick('feedback')">
+            <text class="iconfont icon-yijianfankui menu-icon"></text>
+            <text class="menu-text">意见反馈</text>
+          </view>
+          <view class="menu-item" @click="handleMenuClick('master')">
+            <text class="iconfont icon-shifuduan menu-icon"></text>
+            <text class="menu-text">师傅端</text>
+          </view>
+        </view>
+      </wd-card>
     </view>
-
-    <wd-button
-      v-if="userInfo.username"
-      type="danger"
-      size="large"
-      custom-class="logout-button"
-      @click="handleLogout"
-    >
-      退出登录
-    </wd-button>
   </view>
 </template>
 
-<script setup>
-import { reactive, onMounted, onUnmounted } from "vue";
-import { useToast, useMessage } from "wot-design-uni";
-
-// 获取 toast 和 message 实例
-// 现在我们明确知道它们返回的是实例，我们来命名它们，而不是直接解构函数
-const toast = useToast();
-const message = useMessage();
-
-const userInfo = reactive({
-  username: "",
-  avatarUrl:
-    "https://cdn-app.gitee.com/upload/20210202/202102021102401612234560759_thumbnail.jpeg",
-});
-
-const checkLoginStatus = () => {
-  const simulatedUser = uni.getStorageSync("simulatedUser");
-  if (simulatedUser) {
-    userInfo.username = simulatedUser.username;
-    userInfo.avatarUrl = simulatedUser.avatarUrl;
-  } else {
-    userInfo.username = "";
-    userInfo.avatarUrl =
-      "https://cdn-app.gitee.com/upload/20210202/202102021102401612234560759_thumbnail.jpeg";
-  }
+<script>
+export default {
+  methods: {
+    handleMenuClick(type) {
+      console.log("点击菜单:", type);
+      // 处理菜单点击事件
+      switch (type) {
+        case "balance":
+          uni.navigateTo({ url: "/pages/balance/balance" });
+          break;
+        case "orders":
+          uni.navigateTo({ url: "/pages/orders/orders" });
+          break;
+        case "commission":
+          uni.navigateTo({ url: "/pages/commission/commission" });
+          break;
+        case "service":
+          uni.navigateTo({ url: "/pages/service/service" });
+          break;
+        // 其他菜单项处理...
+        default:
+          uni.showToast({
+            title: `点击了${type}`,
+            icon: "none",
+          });
+      }
+    },
+  },
 };
-
-const goToLogin = () => {
-  uni.navigateTo({
-    url: "/pages/login/index",
-  });
-};
-
-const handleGoToPage = (pageName) => {
-  // 调用 toast 实例上的 show 方法
-  toast.show({ msg: `您点击了 ${pageName}`, type: "info" });
-};
-
-const handleLogout = () => {
-  // 调用 message 实例上的 confirm 方法
-  message
-    .confirm({
-      title: "提示",
-      msg: "确定要退出登录吗？",
-      showCancelButton: true,
-    })
-    .then(() => {
-      uni.removeStorageSync("simulatedUser");
-      userInfo.username = "";
-      userInfo.avatarUrl =
-        "https://cdn-app.gitee.com/upload/20210202/202102021102401612234560759_thumbnail.jpeg";
-      toast.success("已退出登录"); // 调用 toast 实例上的 success 方法
-    })
-    .catch(() => {
-      // 用户取消
-    });
-};
-
-onMounted(() => {
-  checkLoginStatus();
-  uni.$on("loginSuccess", (data) => {
-    console.log("Login successful, received data:", data);
-    checkLoginStatus();
-  });
-});
-
-onUnmounted(() => {
-  uni.$off("loginSuccess");
-});
 </script>
 
 <style lang="scss" scoped>
-.me-container {
+.profile-page {
   min-height: 100vh;
-  background-color: #f7f7f7;
-  padding-bottom: 40rpx;
+  // background: linear-gradient(180deg, #a8e6cf 0%, #88d8a3 100%);
+  background: linear-gradient(0deg, #f2f3f8 0%, rgba(64, 195, 147, 0.5) 100%);
 }
 
-.user-info {
+.user-section {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: 60rpx 0 40rpx;
-  background-color: #fff;
-  margin-bottom: 20rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.03);
+  padding: 40rpx;
 
-  .avatar {
-    margin-bottom: 20rpx;
-    border: 4rpx solid #eee;
+  .user-info {
+    display: flex;
+    align-items: center;
+    flex: 1;
+
+    .avatar {
+      width: 152rpx;
+      height: 152rpx;
+      border-radius: 50%;
+      margin-right: 30rpx;
+      border: 4rpx solid rgba(255, 255, 255, 0.8);
+    }
+
+    .user-details {
+      .user-name {
+        font-size: 48rpx;
+        font-weight: 600;
+        color: $color-gray-800;
+        margin-bottom: 10rpx;
+      }
+
+      .service-tags {
+        display: flex;
+        gap: 20rpx;
+        margin-bottom: 15rpx;
+      }
+
+      .rating-info {
+        display: flex;
+        align-items: center;
+        gap: 20rpx;
+        color: $color-gray-800;
+        font-size: 24rpx;
+
+        .divider {
+          color: $color-gray-800;
+        }
+      }
+    }
   }
 
-  .username {
-    font-size: 36rpx;
-    font-weight: bold;
-    color: #333;
-  }
-
-  .welcome-text {
-    font-size: 28rpx;
-    color: #666;
-    margin-bottom: 20rpx;
-  }
-
-  .login-btn {
-    width: 200rpx;
+  .settings-icon {
+    .iconfont {
+      font-size: 44rpx;
+      color: #333333;
+    }
   }
 }
 
-.function-list {
-  padding: 0 20rpx;
-  margin-bottom: 40rpx;
+.menu-section {
+  // padding: 0 24rpx;
+  .dashboard-grid {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-evenly;
+    gap: 40rpx;
+    .service-item {
+      width: 40%;
+      height: 80rpx;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 28rpx;
+      color: $color-text-heading;
+      font-weight: 600;
+      .iconfont {
+        font-size: 48rpx;
 
-  .wd-cell-group {
-    background-color: #fff;
-    border-radius: 16rpx;
+        &.icon-yue {
+          color: #fdd650;
+        }
+        &.icon-tuiguangyongjin {
+          color: #fe7742;
+        }
+        &.icon-fapiaobaoxiao {
+          color: #fe862b;
+        }
+        &.icon-kefu {
+          color: #40c393;
+        }
+      }
+    }
+    .divide-vertical-line {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1;
+      height: 100rpx;
+      &.top {
+        top: -10rpx;
+      }
+      &.bottom {
+        bottom: -10rpx;
+      }
+    }
+    .divide-horizontal-line {
+      position: absolute;
+      top: 50%;
+      transform: translateY(50%);
+      z-index: 1;
+      width: 250rpx;
+      opacity: 0.3;
+      &.left {
+        left: 0;
+      }
+      &.right {
+        right: 0;
+      }
+    }
+  }
+  .menu-card {
+    margin-bottom: 30rpx;
+    border-radius: 24rpx;
     overflow: hidden;
-  }
+    box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
 
-  .mt30 {
-    margin-top: 30rpx;
-  }
-}
+    .menu-grid {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 30rpx;
+      .menu-item {
+        width: calc((100% - 90rpx) / 4);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: background-color 0.3s;
 
-.logout-button {
-  margin: 0 40rpx;
-  margin-top: 40rpx;
+        &:active {
+          background-color: #f5f5f5;
+        }
+
+        .menu-icon {
+          font-size: 48rpx;
+          margin-bottom: 5rpx;
+          color: $color-primary;
+        }
+
+        .menu-text {
+          font-size: 24rpx;
+          color: $color-text-primary;
+        }
+      }
+    }
+  }
 }
 </style>

@@ -43,6 +43,14 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
 /*每个页面公共css */
+@import "@/style/iconfont/iconfont.css";
+@import "@/style/wot-ui-variable.scss";
+/* 添加这段样式后，默认 Button 底色会变成绿色 */
+:root,
+page {
+  background-color: $background-color-content;
+  color: $color-gray-800;
+}
 </style>
