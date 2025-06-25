@@ -16,11 +16,14 @@
         style="width: 100%; height: 300px"
       ></map>
     </view>
+    <!-- #ifdef MP-WEIXIN -->
+    <privacy-popup />
+    <!-- #endif -->
   </view>
 </template>
 
 <script>
-import { getAccurateUserLocationExt } from "@/utils/permissionManager.js";
+import { getLocationAndPermission } from "@/utils/getLocationAndPermission.js";
 
 export default {
   data() {
@@ -36,34 +39,21 @@ export default {
   onReady() {
     // 创建地图上下文
     this.mapContext = uni.createMapContext("myMap", this);
+    this.getLocation();
   },
   methods: {
     async getLocation() {
       try {
         this.locationText = "正在获取位置...";
-        const location = await getAccurateUserLocationExt();
+        const location = await getLocationAndPermission();
         this.latitude = location.latitude;
         this.longitude = location.longitude;
-
-        // 使用$nextTick确保DOM更新后再执行地图操作
-        this.$nextTick(() => {
-          this.mapContext.moveToLocation({
-            latitude: location.latitude,
-            longitude: location.longitude,
-          });
-          // 在nextTick中恢复scale初始值
-          this.mapScale = 16;
-        });
-
-        this.locationText = `当前位置：${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`;
+        this.locationText =
+          "获取地理位置成功：" + this.latitude + ", " + this.longitude;
+      } catch (message) {
+        this.locationText = `获取位置失败：${message}`;
         uni.showToast({
-          title: "获取位置成功",
-          icon: "success",
-        });
-      } catch (error) {
-        this.locationText = `获取位置失败：${error.message}`;
-        uni.showToast({
-          title: `错误：${error.message}`,
+          title: `错误：${message}`,
           icon: "none",
           duration: 3000,
         });

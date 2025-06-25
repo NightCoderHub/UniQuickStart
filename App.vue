@@ -5,6 +5,7 @@ export default {
     console.log("App Launch");
     setupUpdateManager();
     const privacyAgreed = uni.getStorageSync("privacy_policy_agreed");
+    // #ifdef APP-PLUS
     if (privacyAgreed) {
       console.log("用户已同意隐私协议，直接进入主界面。");
       // 检查当前页面是否是隐私协议页面，如果是，则导航回主页
@@ -22,10 +23,10 @@ export default {
         url: "/pages/privacy/privacy",
       });
     }
+    // #endif
   },
   onShow: function () {
     console.log("App Show");
-    console.log("plus.runtime", plus.runtime);
   },
   onHide: function () {
     console.log("App Hide");

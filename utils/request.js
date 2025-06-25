@@ -1,9 +1,7 @@
 // src/utils/request.js
-
-// 导入 uni-network 库及其核心功能
+// 需要完善的功能：1 Token 过期自动刷新与请求重试；2路由切换请求取消；3请求防抖与节流；4并发控制与优先级队列
 import un, {
   HttpStatusCode, // HTTP 状态码枚举
-  // UnCancelToken, // 已移除: 不再需要取消令牌
 } from "@uni-helper/uni-network";
 
 // 扩展的错误消息映射表
@@ -62,6 +60,11 @@ const HttpStatusMessages = {
 function clearAuthAndRedirectToLogin() {
   uni.removeStorageSync("token"); // 移除 Access Token
   uni.removeStorageSync("refreshToken"); // 移除 Refresh Token
+  uni.showToast({
+    title: "登录过期，请重新登录",
+    icon: "none",
+    duration: 1500,
+  });
   setTimeout(() => {
     uni.redirectTo({ url: "/pages/login/login" }); // 重定向到登录页
   }, 1500);
