@@ -230,6 +230,9 @@ export default {
     },
     requestService() {
       console.log("我需要服务");
+      uni.navigateTo({
+        url: "/pages/service-detail/service-detail",
+      });
     },
     handleServiceClick(service) {
       console.log("点击服务:", service.name);

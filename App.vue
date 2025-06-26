@@ -53,7 +53,8 @@ export default {
   height: 0;
   color: transparent;
 }
-view {
+view,
+scroll-view {
   box-sizing: border-box;
 }
 :root,

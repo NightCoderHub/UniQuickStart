@@ -157,6 +157,9 @@ export default {
         case "service":
           uni.navigateTo({ url: "/pages/service/service" });
           break;
+        case "master":
+          uni.navigateTo({ url: "/pages/technician-portal/technician-portal" });
+          break;
         // 其他菜单项处理...
         default:
           uni.showToast({
