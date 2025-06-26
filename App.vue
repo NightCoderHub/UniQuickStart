@@ -47,7 +47,12 @@ export default {
 /*每个页面公共css */
 @import "@/style/iconfont/iconfont.css";
 @import "@/style/wot-ui-variable.scss";
-/* 添加这段样式后，默认 Button 底色会变成绿色 */
+::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+  color: transparent;
+}
 :root,
 page {
   background-color: $background-color-content;

@@ -5,7 +5,7 @@
         class="horizontal-scroll"
         scroll-x="true"
         :scroll-with-animation="true"
-        :scroll-into-view="toView"
+        :scroll-left="scrollLeft"
       >
         <view class="item-container">
           <view
@@ -26,8 +26,13 @@
       </view>
     </view>
 
-    <view v-if="isDropdownVisible" class="dropdown-overlay">
-      <view class="dropdown-content">
+    <view
+      v-if="isDropdownVisible"
+      class="dropdown-overlay"
+      @click="toggleDropdown"
+    >
+      <view class="dropdown-content" @click.stop="">
+        <!-- <view class="dropdown-header">全部频道</view> -->
         <view
           v-for="(item, index) in tabs"
           :key="index"
@@ -44,57 +49,58 @@
 
 <script>
 export default {
-  // 定义组件名称
   name: "HorizontalTabScroll",
-
-  // 接受父组件传递的 props
   props: {
-    // 必传的 tabs 数组，包含 { text: '...' } 等对象
     tabs: {
       type: Array,
       default: () => [],
-      required: true,
     },
-    // 可选的默认选中索引
     defaultIndex: {
       type: Number,
       default: 0,
     },
   },
+  emits: ["tab-change"],
 
-  // 内部数据
   data() {
     return {
-      // 滚动目标元素的 ID
-      toView: "",
-      // 当前激活项的索引
+      // ** 替换 scroll-into-view，使用 scrollLeft 精确控制 **
+      scrollLeft: 0,
       activeIndex: this.defaultIndex,
-      // 控制下拉列表的显示/隐藏
       isDropdownVisible: false,
+
+      // 存储 Tab 项的尺寸和位置信息
+      itemRects: [],
+      // scroll-view 容器的宽度
+      scrollViewWidth: 0,
     };
   },
 
-  // 监听 props 的变化
   watch: {
-    // 当 defaultIndex 变化时，更新内部的 activeIndex
+    // 监听 props 的变化
     defaultIndex(newVal) {
       this.activeIndex = newVal;
-      // 确保组件初始化时滚动到默认位置
-      this.toView = "item-" + newVal;
+      // 当 defaultIndex 变化时，重新滚动到居中位置
+      this.$nextTick(() => {
+        this.scrollToCenter(newVal);
+      });
     },
-    // 当 tabs 数据变化时，重置选中状态
     tabs: {
       handler() {
-        this.activeIndex = this.defaultIndex;
-        this.toView = "item-" + this.defaultIndex;
+        // 数据更新后，重新获取元素尺寸
+        this.$nextTick(() => {
+          this.getItemRects();
+        });
       },
       deep: true,
     },
   },
 
-  // 组件挂载后，初始化滚动位置
+  // 组件挂载后，获取元素尺寸
   mounted() {
-    this.toView = "item-" + this.activeIndex;
+    this.$nextTick(() => {
+      this.getItemRects();
+    });
   },
 
   methods: {
@@ -104,14 +110,12 @@ export default {
      * @param {object} item - 被点击项的数据
      */
     selectTab(index, item) {
-      // 更新激活项的索引，用于高亮显示
       this.activeIndex = index;
 
-      // 设置 scroll-into-view 的值，触发滚动
-      this.toView = "item-" + index;
+      // ** 调用居中滚动方法 **
+      this.scrollToCenter(index);
 
       // 派发自定义事件，通知父组件
-      // 使用 this.$emit('事件名', '参数')
       this.$emit("tab-change", {
         index: index,
         item: item,
@@ -119,26 +123,74 @@ export default {
     },
 
     /**
-     * 切换下拉列表的显示状态
+     * 精确计算并滚动到居中位置
+     * @param {number} index - 目标项的索引
      */
+    scrollToCenter(index) {
+      if (this.itemRects.length === 0 || this.scrollViewWidth === 0) {
+        // 如果数据还没准备好，延迟执行
+        console.warn("Tab 尺寸信息尚未获取，居中滚动功能暂不可用。");
+        return;
+      }
+
+      // 获取目标 Tab 项的尺寸和位置
+      const targetItem = this.itemRects[index];
+      if (!targetItem) return;
+
+      // 计算需要滚动的距离
+      // 目标位置 = 目标元素左侧距离 - (scroll-view 宽度 / 2) + (目标元素宽度 / 2)
+      // 这样计算出的 scroll-left 值，就能让目标元素的中心对齐 scroll-view 的中心
+      const targetScrollLeft =
+        targetItem.left - this.scrollViewWidth / 2 + targetItem.width / 2;
+
+      // 更新 scrollLeft，触发滚动
+      this.scrollLeft = targetScrollLeft;
+    },
+
+    /**
+     * 获取 scroll-view 和 Tab 项的尺寸和位置信息
+     */
+    getItemRects() {
+      // 使用 uni.createSelectorQuery() 获取元素信息
+      const query = uni.createSelectorQuery().in(this);
+
+      // 获取 scroll-view 容器的宽度
+      query
+        .select(".horizontal-scroll")
+        .boundingClientRect((data) => {
+          if (data) {
+            this.scrollViewWidth = data.width;
+          }
+        })
+        .exec();
+
+      // 获取所有 Tab 项的位置信息
+      query
+        .selectAll(".scroll-item")
+        .boundingClientRect()
+        .exec((data) => {
+          if (data && data[1]) {
+            // 确保数据存在
+            this.itemRects = data[1];
+            // 初始化时滚动到默认位置
+            this.scrollToCenter(this.activeIndex);
+          }
+        });
+    },
+
     toggleDropdown() {
       this.isDropdownVisible = !this.isDropdownVisible;
     },
 
-    /**
-     * 在下拉列表中选择一个 Tab，并关闭列表
-     * @param {number} index - 被选择项的索引
-     * @param {object} item - 被选择项的数据
-     */
     selectAndCloseDropdown(index, item) {
-      this.selectTab(index, item); // 调用 selectTab 触发滚动和事件派发
-      this.isDropdownVisible = false; // 关闭下拉列表
+      this.selectTab(index, item);
+      this.isDropdownVisible = false;
     },
   },
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 /* 组件根容器 */
 .horizontal-tab-scroll {
   width: 100%;
@@ -146,17 +198,17 @@ export default {
 
 /* Tab 栏容器，用于定位下拉按钮 */
 .tab-container {
-  background-color: #fff;
-  padding: 10rpx 0;
+  background-color: $background-color-content;
   box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
   display: flex;
   align-items: center;
-  position: relative; /* 关键：为下拉按钮提供定位上下文 */
+  position: relative;
+  // height: 120rpx;
+  padding-top: 24rpx;
 }
 
 /* 横向滚动的 scroll-view */
 .horizontal-scroll {
-  /* 减去下拉按钮的宽度，确保其不被遮挡 */
   width: calc(100% - 80rpx);
   height: 80rpx;
   white-space: nowrap;
@@ -173,27 +225,26 @@ export default {
 
 /* Tab 项样式 */
 .scroll-item {
-  min-width: 120rpx;
-  height: 60rpx;
+  // width: 120rpx;
+  padding: 0 16rpx;
+  height: 44rpx;
+  line-height: 44rpx;
   flex-shrink: 0;
-  padding: 0 20rpx;
   margin: 0 10rpx;
-  border-radius: 30rpx;
+  border-radius: 50rpx;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 28rpx;
-  color: #666;
-  background-color: #f8f8f8;
-  transition: all 0.3s ease;
+  color: #828282;
+  border: 2rpx solid transparent;
 }
 
 /* 选中项样式 */
 .scroll-item.active {
-  background-color: #007aff;
-  color: #fff;
-  font-weight: bold;
-  transform: scale(1.05);
+  border-color: $color-success;
+  color: $color-success;
+  font-weight: normal;
 }
 
 /* ================== 下拉按钮样式 ================== */
@@ -203,10 +254,11 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  position: absolute; /* 绝对定位 */
+  position: absolute;
   right: 0;
-  top: 0;
-  background-color: #fff;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: $background-color-content;
   box-shadow: -4rpx 0 8rpx rgba(0, 0, 0, 0.05);
   z-index: 10;
 }
@@ -218,7 +270,7 @@ export default {
 
 /* ================== 下拉列表样式 ================== */
 .dropdown-overlay {
-  position: fixed; /* 固定定位，覆盖全屏 */
+  position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
@@ -233,13 +285,21 @@ export default {
 .dropdown-content {
   width: 90%;
   max-height: 80vh;
-  background-color: #fff;
+  background-color: $background-color-content;
   border-radius: 20rpx;
   padding: 30rpx;
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
   overflow-y: auto;
+}
+
+.dropdown-header {
+  width: 100%;
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-bottom: 20rpx;
+  color: #333;
 }
 
 .dropdown-item {
@@ -254,7 +314,7 @@ export default {
 }
 
 .dropdown-item.active {
-  color: #007aff;
+  color: $color-success;
   font-weight: bold;
 }
 </style>

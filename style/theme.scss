@@ -1,13 +1,9 @@
 // 主色调
 $color-black: #000000;
 $color-white: #ffffff;
-$color-primary: #40c393; // 孔雀石绿
-$color-primary-light: lighten($color-primary, 10%);
-$color-primary-dark: darken($color-primary, 10%);
-// 辅助色
-$color-secondary: #6c757d; // 灰色
+$color-primary: #0ab7ee;
 // 状态色
-$color-success: #0ab7ee; // 绿色
+$color-success: #40c393; // 绿色
 $color-warning: #fac701; // 黄色
 $color-danger: #dc3545; // 红色
 $color-info: #17a2b8; // 青色

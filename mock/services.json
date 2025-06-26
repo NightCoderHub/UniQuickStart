@@ -1,0 +1,94 @@
+{
+  "code": 200,
+  "msg": "success",
+  "data": [
+    {
+      "category_id": "home_care",
+      "category_name": "居家养老",
+      "subcategories": [
+        { "subcategory_id": "sub_1", "subcategory_name": "上门照护" },
+        { "subcategory_id": "sub_2", "subcategory_name": "康复护理" },
+        { "subcategory_id": "sub_3", "subcategory_name": "陪同就医" },
+        { "subcategory_id": "sub_4", "subcategory_name": "紧急救助" },
+        { "subcategory_id": "sub_5", "subcategory_name": "送餐服务" },
+        { "subcategory_id": "sub_6", "subcategory_name": "精神慰藉" },
+        { "subcategory_id": "sub_7", "subcategory_name": "助浴服务" },
+        { "subcategory_id": "sub_8", "subcategory_name": "日间托老" },
+        { "subcategory_id": "sub_9", "subcategory_name": "助洁服务" },
+        { "subcategory_id": "sub_10", "subcategory_name": "适老化改" },
+        { "subcategory_id": "sub_11", "subcategory_name": "家政服务" },
+        { "subcategory_id": "sub_12", "subcategory_name": "代办事务" },
+        { "subcategory_id": "sub_13", "subcategory_name": "陪聊解闷" },
+        { "subcategory_id": "sub_14", "subcategory_name": "心理咨询" },
+        { "subcategory_id": "sub_15", "subcategory_name": "辅具租赁" },
+        { "subcategory_id": "sub_16", "subcategory_name": "智能看护" }
+      ]
+    },
+    {
+      "category_id": "nearby_services",
+      "category_name": "附近服务",
+      "subcategories": [
+        { "subcategory_id": "sub_17", "subcategory_name": "周边药店" },
+        { "subcategory_id": "sub_18", "subcategory_name": "附近医院" },
+        { "subcategory_id": "sub_19", "subcategory_name": "社区活动" },
+        { "subcategory_id": "sub_20", "subcategory_name": "超市菜场" },
+        { "subcategory_id": "sub_21", "subcategory_name": "理发店" },
+        { "subcategory_id": "sub_22", "subcategory_name": "洗衣店" },
+        { "subcategory_id": "sub_23", "subcategory_name": "餐饮美食" },
+        { "subcategory_id": "sub_24", "subcategory_name": "快递代收" },
+        { "subcategory_id": "sub_25", "subcategory_name": "开锁换锁" },
+        { "subcategory_id": "sub_26", "subcategory_name": "配钥匙" },
+        { "subcategory_id": "sub_27", "subcategory_name": "送水服务" },
+        { "subcategory_id": "sub_28", "subcategory_name": "订票服务" },
+        { "subcategory_id": "sub_29", "subcategory_name": "报刊订阅" },
+        { "subcategory_id": "sub_30", "subcategory_name": "法律咨询" },
+        { "subcategory_id": "sub_31", "subcategory_name": "家电回收" },
+        { "subcategory_id": "sub_32", "subcategory_name": "旧物处理" }
+      ]
+    },
+    {
+      "category_id": "housekeeping",
+      "category_name": "家政",
+      "subcategories": [
+        { "subcategory_id": "sub_33", "subcategory_name": "日常保洁" },
+        { "subcategory_id": "sub_34", "subcategory_name": "深度清洁" },
+        { "subcategory_id": "sub_35", "subcategory_name": "擦玻璃" },
+        { "subcategory_id": "sub_36", "subcategory_name": "油烟机清洗" },
+        { "subcategory_id": "sub_37", "subcategory_name": "洗衣服务" },
+        { "subcategory_id": "sub_38", "subcategory_name": "空调清洗" },
+        { "subcategory_id": "sub_39", "subcategory_name": "除螨服务" },
+        { "subcategory_id": "sub_40", "subcategory_name": "除虫灭鼠" },
+        { "subcategory_id": "sub_41", "subcategory_name": "月嫂育儿" },
+        { "subcategory_id": "sub_42", "subcategory_name": "保姆阿姨" },
+        { "subcategory_id": "sub_43", "subcategory_name": "搬家服务" },
+        { "subcategory_id": "sub_44", "subcategory_name": "收纳整理" },
+        { "subcategory_id": "sub_45", "subcategory_name": "甲醛治理" },
+        { "subcategory_id": "sub_46", "subcategory_name": "开荒保洁" },
+        { "subcategory_id": "sub_47", "subcategory_name": "地毯清洗" },
+        { "subcategory_id": "sub_48", "subcategory_name": "沙发清洗" }
+      ]
+    },
+    {
+      "category_id": "repair_services",
+      "category_name": "维修",
+      "subcategories": [
+        { "subcategory_id": "sub_49", "subcategory_name": "水电维修" },
+        { "subcategory_id": "sub_50", "subcategory_name": "家电维修" },
+        { "subcategory_id": "sub_51", "subcategory_name": "管道疏通" },
+        { "subcategory_id": "sub_52", "subcategory_name": "灯具安装" },
+        { "subcategory_id": "sub_53", "subcategory_name": "家具维修" },
+        { "subcategory_id": "sub_54", "subcategory_name": "门窗维修" },
+        { "subcategory_id": "sub_55", "subcategory_name": "电脑维修" },
+        { "subcategory_id": "sub_56", "subcategory_name": "手机维修" },
+        { "subcategory_id": "sub_57", "subcategory_name": "房屋漏水" },
+        { "subcategory_id": "sub_58", "subcategory_name": "墙面修补" },
+        { "subcategory_id": "sub_59", "subcategory_name": "地板维修" },
+        { "subcategory_id": "sub_60", "subcategory_name": "水龙头换" },
+        { "subcategory_id": "sub_61", "subcategory_name": "马桶疏通" },
+        { "subcategory_id": "sub_62", "subcategory_name": "电路检修" },
+        { "subcategory_id": "sub_63", "subcategory_name": "卫浴安装" },
+        { "subcategory_id": "sub_64", "subcategory_name": "锁具更换" }
+      ]
+    }
+  ]
+}

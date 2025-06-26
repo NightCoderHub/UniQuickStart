@@ -1,11 +1,12 @@
 <template>
   <view class="profile-page">
+    <custom-nav-bar></custom-nav-bar>
     <!-- 用户信息区域 -->
     <view class="user-section">
       <view class="user-info">
         <image
           class="avatar"
-          src="/static/default_avator.webp"
+          src="/static/default_avator.png"
           mode="aspectFill"
         ></image>
         <view class="user-details">
@@ -33,7 +34,7 @@
     <!-- 功能菜单区域 -->
     <view class="menu-section">
       <!-- 第一行菜单 -->
-      <wd-card class="menu-card">
+      <view class="menu-card">
         <view class="dashboard-grid">
           <view class="service-item" @click="handleMenuClick('balance')">
             <text class="item-text">余额</text>
@@ -72,10 +73,10 @@
             mode="widthFix"
           ></image>
         </view>
-      </wd-card>
+      </view>
 
       <!-- 第二行菜单 -->
-      <wd-card class="menu-card">
+      <view class="menu-card">
         <view class="menu-grid">
           <view class="menu-item" @click="handleMenuClick('orders')">
             <text class="iconfont icon-dingdan menu-icon"></text>
@@ -94,10 +95,10 @@
             <text class="menu-text">收藏师傅</text>
           </view>
         </view>
-      </wd-card>
+      </view>
 
       <!-- 第三行菜单 -->
-      <wd-card class="menu-card">
+      <view class="menu-card">
         <view class="menu-grid">
           <view class="menu-item" @click="handleMenuClick('expert')">
             <text class="iconfont icon-zhuanjiajiaru menu-icon"></text>
@@ -132,7 +133,7 @@
             <text class="menu-text">师傅端</text>
           </view>
         </view>
-      </wd-card>
+      </view>
     </view>
   </view>
 </template>
@@ -238,6 +239,7 @@ export default {
     align-items: center;
     justify-content: space-evenly;
     gap: 40rpx;
+    padding: 12rpx;
     .service-item {
       width: 40%;
       height: 80rpx;
@@ -294,6 +296,10 @@ export default {
     }
   }
   .menu-card {
+    border-radius: 16rpx;
+    background: #ffffff;
+    margin-left: 24rpx;
+    margin-right: 30rpx;
     margin-bottom: 30rpx;
     border-radius: 24rpx;
     overflow: hidden;
@@ -303,22 +309,24 @@ export default {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 30rpx;
+      row-gap: 24rpx;
+      column-gap: 30rpx;
+      padding: 26rpx 38rpx;
       .menu-item {
         width: calc((100% - 90rpx) / 4);
         display: flex;
         flex-direction: column;
         align-items: center;
         transition: background-color 0.3s;
-
+        padding: 16rpx 0;
         &:active {
           background-color: #f5f5f5;
         }
 
         .menu-icon {
-          font-size: 48rpx;
-          margin-bottom: 5rpx;
-          color: $color-primary;
+          font-size: 50rpx;
+          margin-bottom: 12rpx;
+          color: $color-success;
         }
 
         .menu-text {
