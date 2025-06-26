@@ -11,6 +11,7 @@
         </view>
       </template>
     </wd-navbar>
+    <view class="placeholder-bar"> </view>
     <view class="search-section">
       <wd-search
         v-model="searchValue"
@@ -26,27 +27,65 @@
         <image class="ai-tag" src="/static/ai.png"></image>
       </view>
     </view>
+    <view class="placeholder-bar"> </view>
     <view class="main-content">
-      <wd-tabs v-model="activeTab">
-        <block v-for="(item, index) in tabsList" :key="index">
-          <wd-tab :title="`${item.title}`" :name="item.name">
-            <horizontal-tab-scroll
-              :tabs="currentCategorySubcategories"
-              :default-index="currentTabIndex"
-              @tab-change="onTabChange"
-            >
-            </horizontal-tab-scroll>
-          </wd-tab>
-        </block>
-      </wd-tabs>
+      <view class="tabs-container">
+        <wd-tabs v-model="activeTab">
+          <block v-for="(item, index) in tabsList" :key="index">
+            <wd-tab :title="`${item.title}`" :name="item.name"> </wd-tab>
+          </block>
+        </wd-tabs>
+      </view>
+
+      <horizontal-tab-scroll
+        :tabs="currentCategorySubcategories"
+        :default-index="currentTabIndex"
+        @tab-change="onTabChange"
+      >
+      </horizontal-tab-scroll>
       <view style="padding: 0 24rpx">
         <view class="main-banner">
           <view class="banner-content">
             <view class="banner-text">
-              <text class="banner-title">一键订水</text>
-              <text class="banner-subtitle">净水速达</text>
+              <text
+                v-for="(tag, index) in selectedTab.tags"
+                :key="index"
+                class="banner-title"
+              >
+                {{ tag }}
+              </text>
             </view>
-            <text class="banner-service">附近服务</text>
+            <text class="banner-divide"> </text>
+            <text class="banner-service">{{ selectedTab.text }} </text>
+            <image
+              class="banner-image level-1"
+              src="/static/微信图片_20250626192715.png"
+              mode="widthFix"
+            ></image>
+            <image
+              v-show="activeTab === 'home_care'"
+              class="banner-image level-2"
+              src="/static/home_care.png"
+              mode="widthFix"
+            ></image>
+            <image
+              v-show="activeTab === 'housekeeping'"
+              class="banner-image level-3"
+              src="/static/housekeeping.png"
+              mode="widthFix"
+            ></image>
+            <image
+              v-show="activeTab === 'nearby_services'"
+              class="banner-image level-4"
+              src="/static/nearby_services-1.png"
+              mode="widthFix"
+            ></image>
+            <image
+              v-show="activeTab === 'nearby_services'"
+              class="banner-image level-5"
+              src="/static/nearby_services-2.png"
+              mode="widthFix"
+            ></image>
           </view>
         </view>
         <wd-button
@@ -139,6 +178,7 @@ export default {
         ? category.subcategories.map((sub) => ({
             id: sub.subcategory_id,
             text: sub.subcategory_name,
+            tags: sub.tags,
           }))
         : [];
     },
@@ -148,15 +188,9 @@ export default {
       // 当 activeTab 变化时，重置 currentTabIndex 为 0，并更新 selectedTab
       this.currentTabIndex = 0;
       if (this.currentCategorySubcategories.length > 0) {
-        this.selectedTab = {
-          id: this.currentCategorySubcategories[0].id,
-          text: this.currentCategorySubcategories[0].text,
-        };
+        this.selectedTab = this.currentCategorySubcategories[0];
       } else {
-        this.selectedTab = {
-          id: "",
-          text: "",
-        };
+        this.selectedTab = {};
       }
     },
   },
@@ -174,10 +208,7 @@ export default {
 
     // 初始化 currentTabIndex 和 selectedTab
     if (this.currentCategorySubcategories.length > 0) {
-      this.selectedTab = {
-        id: this.currentCategorySubcategories[0].id,
-        text: this.currentCategorySubcategories[0].text,
-      };
+      this.selectedTab = this.currentCategorySubcategories[0];
     }
   },
   methods: {
@@ -189,10 +220,7 @@ export default {
       console.log("父组件接收到事件:", eventData);
       // 更新父组件的状态
       this.currentTabIndex = eventData.index;
-      this.selectedTab = {
-        id: eventData.item.id,
-        text: eventData.item.text,
-      };
+      this.selectedTab = eventData.item;
     },
     selectLocation() {
       console.log("选择位置");
@@ -222,7 +250,7 @@ export default {
     align-items: center;
 
     .location-icon {
-      color: $color-primary;
+      color: $color-success;
       font-size: 32rpx;
       margin-right: 8rpx;
     }
@@ -237,10 +265,15 @@ export default {
   }
 }
 
+.placeholder-bar {
+  height: 16rpx;
+  background-color: #fff;
+}
+
 // 搜索栏样式
 .search-section {
   position: relative;
-
+  background-color: #fff;
   .search-suffix {
     position: absolute;
     top: 50%;
@@ -267,6 +300,12 @@ export default {
 .main-content {
   // padding: 0 24rpx;
   // padding: 0 20px 100px 20px;
+  .tabs-container {
+    padding: 0 60rpx;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #fff;
+  }
 }
 
 // 高亮边框
@@ -276,41 +315,82 @@ export default {
 
 // 主要横幅样式
 .main-banner {
-  background: linear-gradient(135deg, #a8e6cf 0%, #7fcdcd 100%);
-  border-radius: 15px;
-  padding: 30px 20px;
-  margin: 20px 0;
+  background: #cdf1e1;
+  border-radius: 16rpx;
+  // padding: 30px 20px;
   position: relative;
   overflow: hidden;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
+  // display: flex;
+  // justify-content: space-between;
+  // align-items: center;
+  height: 620rpx;
   .banner-content {
-    flex: 1;
+    // flex: 1;
 
     .banner-text {
-      margin-bottom: 40px;
+      position: absolute;
+      top: 40rpx;
+      left: 44rpx;
+      width: 80%;
 
       .banner-title {
-        display: block;
-        font-size: 24px;
+        display: inline-block;
+        font-size: 40rpx;
         font-weight: bold;
-        color: #2e7d32;
-        margin-bottom: 5px;
-      }
-
-      .banner-subtitle {
-        display: block;
-        font-size: 18px;
-        color: #2e7d32;
+        color: $color-success;
+        margin-right: 24rpx;
+        margin-bottom: 12rpx;
       }
     }
 
+    .banner-divide {
+      position: absolute;
+      bottom: 40%;
+      left: 44rpx;
+      display: inline-block;
+      width: 192rpx;
+      height: 2rpx;
+      background-color: $color-success;
+    }
+
     .banner-service {
-      font-size: 20px;
-      font-weight: bold;
-      color: #2e7d32;
+      position: absolute;
+      bottom: 120rpx;
+      left: 44rpx;
+      font-size: 48rpx;
+      font-weight: 600;
+      color: $color-success;
+    }
+
+    .banner-image {
+      position: absolute !important;
+      will-change: transform;
+      &.level-1 {
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+      }
+      &.level-2 {
+        right: 0;
+        bottom: 0;
+        width: 440rpx;
+      }
+      &.level-3 {
+        right: -30rpx;
+        bottom: 0;
+        width: 440rpx;
+      }
+      &.level-4 {
+        right: 210rpx;
+        bottom: 84rpx;
+        width: 314rpx;
+      }
+      &.level-5 {
+        right: -70rpx;
+        bottom: -20rpx;
+        width: 440rpx;
+      }
     }
   }
 }
@@ -321,7 +401,7 @@ export default {
   font-weight: 600 !important;
   height: 120rpx !important;
   margin-top: 20rpx;
-  margin-bottom: 20rpx;
+  margin-bottom: 40rpx;
 }
 
 // 底部服务样式
@@ -337,8 +417,6 @@ export default {
       background-color: #f1f1f1;
     }
     .service-icon {
-      width: 50px;
-      height: 50px;
       border-radius: 12px;
       display: flex;
       align-items: center;

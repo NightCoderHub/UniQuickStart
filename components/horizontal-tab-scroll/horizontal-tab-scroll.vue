@@ -22,12 +22,12 @@
       </scroll-view>
 
       <view class="dropdown-btn" @click="toggleDropdown">
-        <text class="icon">{{ isDropdownVisible ? "▲" : "▼" }}</text>
+        <text class="icon" :class="{ rotated: isDropdownVisible }">▼</text>
       </view>
     </view>
 
     <view
-      v-if="isDropdownVisible"
+      :class="{ show: isDropdownVisible }"
       class="dropdown-overlay"
       @click="toggleDropdown"
     >
@@ -114,7 +114,7 @@ export default {
 
       // ** 调用居中滚动方法 **
       this.scrollToCenter(index);
-
+      if (this.isDropdownVisible) this.isDropdownVisible = false;
       // 派发自定义事件，通知父组件
       this.$emit("tab-change", {
         index: index,
@@ -194,23 +194,25 @@ export default {
 /* 组件根容器 */
 .horizontal-tab-scroll {
   width: 100%;
+  position: relative;
 }
 
 /* Tab 栏容器，用于定位下拉按钮 */
 .tab-container {
   background-color: $background-color-content;
-  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
+  // box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
   display: flex;
   align-items: center;
   position: relative;
+  // ** 将 position: relative; 放在这里，让 dropdown-overlay 可以在其内部定位 **
   // height: 120rpx;
-  padding-top: 24rpx;
+  // padding-top: 24rpx;
 }
 
 /* 横向滚动的 scroll-view */
 .horizontal-scroll {
   width: calc(100% - 80rpx);
-  height: 80rpx;
+  // height: 80rpx;
   white-space: nowrap;
   box-sizing: border-box;
 }
@@ -218,14 +220,15 @@ export default {
 /* Tab 项容器 */
 .item-container {
   display: flex;
+  align-items: center;
   flex-direction: row;
   padding: 0 10rpx;
   box-sizing: border-box;
+  height: 100rpx;
 }
 
 /* Tab 项样式 */
 .scroll-item {
-  // width: 120rpx;
   padding: 0 16rpx;
   height: 44rpx;
   line-height: 44rpx;
@@ -238,8 +241,11 @@ export default {
   font-size: 28rpx;
   color: #828282;
   border: 2rpx solid transparent;
+  transition: all 0.2s ease; /* 添加过渡效果 */
+  &:active {
+    opacity: 0.7; /* 点击反馈 */
+  }
 }
-
 /* 选中项样式 */
 .scroll-item.active {
   border-color: $color-success;
@@ -266,32 +272,48 @@ export default {
 .dropdown-btn .icon {
   font-size: 28rpx;
   color: #999;
+  transition: transform 0.3s ease;
 }
 
-/* ================== 下拉列表样式 ================== */
+.dropdown-btn .icon.rotated {
+  transform: rotate(180deg);
+}
+
+/* ================== 优化后的下拉列表样式 ================== */
 .dropdown-overlay {
-  position: fixed;
-  top: 0;
+  position: absolute;
+  top: 100%;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 99;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 100%;
+  z-index: 9; /* z-index 略低于 Tab 栏，避免遮挡 */
+
+  // ** 动画效果关键样式 **
+  max-height: 0; // 初始隐藏状态
+  opacity: 0; // 初始透明度
+  overflow: hidden; // 隐藏溢出内容
+  transition:
+    max-height 0.25s ease-in-out,
+    opacity 0.25s ease-in-out; // 添加过渡
+}
+
+/* 动画展开状态 */
+.dropdown-overlay.show {
+  max-height: 50vh; // 展开后足够大的高度，确保内容完全显示
+  opacity: 1; // 展开后完全显示
+  overflow-y: auto;
 }
 
 .dropdown-content {
-  width: 90%;
-  max-height: 80vh;
-  background-color: $background-color-content;
-  border-radius: 20rpx;
+  width: 100%;
+  box-sizing: border-box;
+  // background-color: $background-color-content;
+  background-color: #fff;
+  border-radius: 0 0 20rpx 20rpx;
   padding: 30rpx;
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
-  overflow-y: auto;
+  box-shadow: 0 6rpx 6rpx rgba(0, 0, 0, 0.05);
 }
 
 .dropdown-header {
@@ -311,8 +333,11 @@ export default {
   font-size: 30rpx;
   color: #333;
   box-sizing: border-box;
+  transition: all 0.2s ease;
+  &:active {
+    background-color: #f5f5f5; /* 点击反馈 */
+  }
 }
-
 .dropdown-item.active {
   color: $color-success;
   font-weight: bold;

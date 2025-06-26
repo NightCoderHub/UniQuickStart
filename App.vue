@@ -53,6 +53,9 @@ export default {
   height: 0;
   color: transparent;
 }
+view {
+  box-sizing: border-box;
+}
 :root,
 page {
   background-color: $background-color-content;
