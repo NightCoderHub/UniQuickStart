@@ -25,12 +25,32 @@
       </view>
     </view>
 
-    <!-- 订单列表 -->
-    <scroll-view class="orders-scroll" scroll-y @scrolltolower="loadMore">
+    <!-- 订单列表 - 使用z-paging -->
+    <z-paging
+      ref="paging"
+      v-model="dataList"
+      :refresher-enabled="true"
+      :auto="true"
+      :fixed="false"
+      :safe-area-inset-bottom="false"
+      :lower-threshold="50"
+      empty-view-text="暂无订单数据"
+      empty-view-img="/static/empty-order.png"
+      :empty-view-style="{ paddingTop: '100px' }"
+      :refresher-threshold="80"
+      refresher-default-text="下拉刷新订单"
+      refresher-pulling-text="释放刷新订单"
+      refresher-refreshing-text="正在刷新..."
+      loading-more-default-text="上拉加载更多订单"
+      loading-more-loading-text="加载中..."
+      loading-more-no-more-text="没有更多订单了"
+      :auto-show-system-loading="true"
+      @query="queryList"
+    >
       <view class="orders-container">
         <!-- 新任务列表 -->
         <view v-if="activeTab === 'new'">
-          <view v-for="order in newOrders" :key="order.id" class="order-card">
+          <view v-for="order in dataList" :key="order.id" class="order-card">
             <view class="order-header">
               <view class="service-type">
                 <text class="service-name">{{ order.serviceName }}</text>
@@ -75,7 +95,7 @@
         <!-- 服务中列表 -->
         <view v-if="activeTab === 'serving'">
           <view
-            v-for="order in servingOrders"
+            v-for="order in dataList"
             :key="order.id"
             class="order-card serving"
           >
@@ -121,7 +141,7 @@
         <!-- 待服务列表 -->
         <view v-if="activeTab === 'pending'">
           <view
-            v-for="order in pendingOrders"
+            v-for="order in dataList"
             :key="order.id"
             class="order-card pending"
           >
@@ -165,14 +185,8 @@
             </view>
           </view>
         </view>
-
-        <!-- 空状态 -->
-        <view v-if="getCurrentOrders.length === 0" class="empty-state">
-          <wd-icon name="inbox" size="64px" color="#d9d9d9"></wd-icon>
-          <text class="empty-text">暂无{{ getTabName() }}订单</text>
-        </view>
       </view>
-    </scroll-view>
+    </z-paging>
 
     <!-- 底部上线按钮 -->
     <view class="bottom-actions">
@@ -252,83 +266,136 @@ export default {
       isOnline: false,
       showOrderDetail: false,
       selectedOrder: null,
+      dataList: [], // z-paging的数据列表
 
-      // 新任务订单
-      newOrders: [
-        {
-          id: 1,
-          serviceName: "空调维修",
-          price: "58.00",
-          timeLimit: "36分钟内上门",
-          address: "铜仁市碧江区早到日货市场",
-          notes: "空调不制冷，需要检查维修",
-          grabbing: false,
-        },
-        {
-          id: 2,
-          serviceName: "家务保姆",
-          price: "299.00",
-          timeLimit: "36分钟内上门",
-          address: "铜仁市碧江区早到日货市场",
-          notes: "需要打扫卫生，整理房间",
-          grabbing: false,
-        },
-      ],
-
-      // 服务中订单
-      servingOrders: [
-        {
-          id: 3,
-          serviceName: "冰箱维修",
-          customerName: "张先生",
-          customerPhone: "138****8888",
-          address: "铜仁市碧江区人民路123号",
-          notes: "冰箱不制冷，已上门检查",
-        },
-      ],
-
-      // 待服务订单
-      pendingOrders: [
-        {
-          id: 4,
-          serviceName: "洗衣机维修",
-          appointmentTime: "今天 14:00",
-          address: "铜仁市万山区茶店街道办事处",
-          notes: "洗衣机不转动，预约下午维修",
-        },
-      ],
+      // 模拟数据源
+      mockData: {
+        new: [
+          {
+            id: 1,
+            serviceName: "空调维修",
+            price: "58.00",
+            timeLimit: "36分钟内上门",
+            address: "铜仁市碧江区早到日货市场",
+            notes: "空调不制冷，需要检查维修",
+            grabbing: false,
+          },
+          {
+            id: 2,
+            serviceName: "家务保姆",
+            price: "299.00",
+            timeLimit: "36分钟内上门",
+            address: "铜仁市碧江区早到日货市场",
+            notes: "需要打扫卫生，整理房间",
+            grabbing: false,
+          },
+          {
+            id: 3,
+            serviceName: "洗衣机维修",
+            price: "120.00",
+            timeLimit: "1小时内上门",
+            address: "铜仁市万山区茶店街道办事处",
+            notes: "洗衣机不转动，需要检查",
+            grabbing: false,
+          },
+          {
+            id: 4,
+            serviceName: "电视维修",
+            price: "80.00",
+            timeLimit: "2小时内上门",
+            address: "铜仁市碧江区人民路123号",
+            notes: "电视无法开机",
+            grabbing: false,
+          },
+          {
+            id: 5,
+            serviceName: "热水器维修",
+            price: "150.00",
+            timeLimit: "30分钟内上门",
+            address: "铜仁市碧江区南长城路鞋区a2栋",
+            notes: "热水器不加热",
+            grabbing: false,
+          },
+        ],
+        serving: [
+          {
+            id: 101,
+            serviceName: "冰箱维修",
+            customerName: "张先生",
+            customerPhone: "138****8888",
+            address: "铜仁市碧江区人民路123号",
+            notes: "冰箱不制冷，已上门检查",
+          },
+          {
+            id: 102,
+            serviceName: "微波炉维修",
+            customerName: "李女士",
+            customerPhone: "139****9999",
+            address: "铜仁市万山区茶店街道办事处",
+            notes: "微波炉不加热，正在维修中",
+          },
+        ],
+        pending: [
+          {
+            id: 201,
+            serviceName: "洗衣机维修",
+            appointmentTime: "今天 14:00",
+            address: "铜仁市万山区茶店街道办事处",
+            notes: "洗衣机不转动，预约下午维修",
+            customerName: "王先生",
+            customerPhone: "137****7777",
+          },
+          {
+            id: 202,
+            serviceName: "油烟机清洗",
+            appointmentTime: "明天 09:00",
+            address: "铜仁市碧江区南长城路鞋区a2栋",
+            notes: "油烟机需要深度清洗",
+            customerName: "赵女士",
+            customerPhone: "136****6666",
+          },
+        ],
+      },
     };
   },
 
-  computed: {
-    getCurrentOrders() {
-      switch (this.activeTab) {
-        case "new":
-          return this.newOrders;
-        case "serving":
-          return this.servingOrders;
-        case "pending":
-          return this.pendingOrders;
-        default:
-          return [];
-      }
-    },
-  },
-
   methods: {
+    // z-paging查询数据的方法
+    queryList(pageNo, pageSize) {
+      // 模拟网络请求延迟
+      setTimeout(() => {
+        const currentData = this.mockData[this.activeTab] || [];
+
+        // 模拟分页数据
+        const startIndex = (pageNo - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        const pageData = currentData.slice(startIndex, endIndex);
+
+        // 模拟总数据量，用于判断是否还有更多数据
+        // const total = currentData.length + (pageNo < 3 ? 10 : 0); // 模拟有更多数据
+
+        if (pageNo === 1) {
+          // 第一页或刷新时，直接赋值
+          this.$refs.paging.complete(pageData);
+        } else {
+          // 加载更多时，追加数据
+          if (pageData.length > 0) {
+            this.$refs.paging.complete(pageData);
+          } else {
+            // 没有更多数据
+            this.$refs.paging.complete(false);
+          }
+        }
+      }, 1000); // 模拟1秒的网络延迟
+    },
+
     // 切换标签
     switchTab(tab) {
-      this.activeTab = tab;
-    },
+      if (this.activeTab === tab) return;
 
-    // 获取标签名称
-    getTabName() {
-      const tabNames = {
-        new: "新任务",
-        serving: "服务中",
-        pending: "待服务",
-      };
-      return tabNames[this.activeTab] || "";
+      this.activeTab = tab;
+      // 切换标签时重新加载数据
+      this.$refs.paging.reload();
     },
 
     // 抢单
@@ -353,17 +420,19 @@ export default {
           icon: "success",
         });
 
-        // 将订单移到待服务列表
-        const orderIndex = this.newOrders.findIndex((o) => o.id === order.id);
+        // 从当前列表中移除该订单
+        const orderIndex = this.dataList.findIndex((o) => o.id === order.id);
         if (orderIndex > -1) {
-          this.newOrders.splice(orderIndex, 1);
-          this.pendingOrders.unshift({
-            ...order,
-            appointmentTime: "立即服务",
-            customerName: "李女士",
-            customerPhone: "139****9999",
-          });
+          this.dataList.splice(orderIndex, 1);
         }
+
+        // 将订单添加到待服务列表（实际项目中应该通过接口同步）
+        this.mockData.pending.unshift({
+          ...order,
+          appointmentTime: "立即服务",
+          customerName: "李女士",
+          customerPhone: "139****9999",
+        });
       }, 2000);
     },
 
@@ -374,15 +443,16 @@ export default {
         content: "确定要开始为客户提供服务吗？",
         success: (res) => {
           if (res.confirm) {
-            // 将订单移到服务中列表
-            const orderIndex = this.pendingOrders.findIndex(
+            // 从当前列表中移除该订单
+            const orderIndex = this.dataList.findIndex(
               (o) => o.id === order.id,
             );
             if (orderIndex > -1) {
-              this.pendingOrders.splice(orderIndex, 1);
-              this.servingOrders.unshift(order);
-              this.activeTab = "serving";
+              this.dataList.splice(orderIndex, 1);
             }
+
+            // 将订单添加到服务中列表
+            this.mockData.serving.unshift(order);
 
             uni.showToast({
               title: "服务已开始",
@@ -400,12 +470,12 @@ export default {
         content: "确定已完成服务吗？完成后将结算费用。",
         success: (res) => {
           if (res.confirm) {
-            // 移除订单
-            const orderIndex = this.servingOrders.findIndex(
+            // 从当前列表中移除该订单
+            const orderIndex = this.dataList.findIndex(
               (o) => o.id === order.id,
             );
             if (orderIndex > -1) {
-              this.servingOrders.splice(orderIndex, 1);
+              this.dataList.splice(orderIndex, 1);
             }
 
             uni.showToast({
@@ -444,6 +514,11 @@ export default {
         title: this.isOnline ? "已上线，可接收订单" : "已下线",
         icon: "success",
       });
+
+      // 上线后刷新订单列表
+      if (this.isOnline) {
+        this.$refs.paging.reload();
+      }
     },
 
     // 获取上线按钮样式
@@ -451,12 +526,6 @@ export default {
       return this.isOnline
         ? "background: #52c41a; border-radius: 8px; font-size: 18px; font-weight: 500;"
         : "background: #1890ff; border-radius: 8px; font-size: 18px; font-weight: 500;";
-    },
-
-    // 加载更多
-    loadMore() {
-      console.log("加载更多订单");
-      // 实现加载更多逻辑
     },
   },
 };
@@ -508,14 +577,9 @@ export default {
   }
 }
 
-/* 订单滚动区域 */
-.orders-scroll {
-  flex: 1;
-  padding: 0 16px 120px;
-}
-
+/* 订单容器 */
 .orders-container {
-  padding-top: 16px;
+  padding: 16px;
 }
 
 /* 订单卡片 */
@@ -615,27 +679,8 @@ export default {
   }
 }
 
-/* 空状态 */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
-
-  .empty-text {
-    color: #999;
-    font-size: 14px;
-    margin-top: 16px;
-  }
-}
-
 /* 底部操作区域 */
 .bottom-actions {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
   background: #fff;
   padding: 16px;
   border-top: 1px solid #f0f0f0;
