@@ -10,17 +10,24 @@
         ></image>
       </view>
       <view class="product-info">
-        <text class="info-item">是否有桶>有桶</text>
-        <text class="info-item">规格>1桶</text>
+        <text class="info-item"
+          >是否有桶>
+          <text class="info-item-detail">有桶</text>
+        </text>
+        <text class="info-item"
+          >规格>
+          <text class="info-item-detail">1桶</text>
+        </text>
       </view>
     </view>
 
     <!-- 地址区域 -->
     <view class="address-section" @click="selectAddress">
       <view class="address-item">
-        <wd-icon name="location" color="#52c41a" size="20px"></wd-icon>
+        <!-- <wd-icon class-prefix="iconfont" name="location" color="#52c41a" size="20px"></wd-icon> -->
+        <text class="iconfont icon-dingwei-shifuduan"></text>
         <text class="address-text">铜仁市碧江区早到日货市场</text>
-        <wd-icon name="arrow-right" color="#ccc" size="16px"></wd-icon>
+        <wd-icon name="arrow-right" color="#000" size="16px"></wd-icon>
       </view>
     </view>
 
@@ -33,7 +40,7 @@
           <text class="price-number">16.00</text>
           <text class="price-unit">元</text>
         </view>
-        <wd-icon name="arrow-right" color="#ccc" size="16px"></wd-icon>
+        <wd-icon name="arrow-right" color="#000" size="16px"></wd-icon>
       </view>
 
       <view class="price-item" @click="showUserPrice">
@@ -145,7 +152,8 @@
         <wd-button
           type="primary"
           size="large"
-          custom-style="background: #1890ff; border-radius: 24px; padding: 0 24px;"
+          block
+          :custom-style="{ borderRadius: '16rpx' }"
           @click="confirmBooking"
         >
           立马安排
@@ -239,7 +247,11 @@ export default {
     font-size: 14px;
 
     .info-item {
-      color: #333;
+      color: $color-gray-500;
+    }
+
+    .info-item-detail {
+      color: #000;
     }
   }
 }
@@ -252,11 +264,14 @@ export default {
     display: flex;
     align-items: center;
     padding: 16px;
-
+    .icon-dingwei-shifuduan {
+      color: $color-success;
+      font-size: 42rpx;
+    }
     .address-text {
       flex: 1;
       margin-left: 12px;
-      color: #333;
+      color: #000;
       font-size: 16px;
     }
   }
