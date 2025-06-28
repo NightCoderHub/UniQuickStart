@@ -320,6 +320,20 @@ watch(
     immediate: false, // 不在组件创建时立即执行一次，只在 isDefault 实际改变时执行
   },
 );
+
+// --- 监听 type 变化并设置导航栏标题 ---
+watch(
+  type,
+  (newType) => {
+    const title = newType === "add" ? "新增收货地址" : "编辑收货地址";
+    uni.setNavigationBarTitle({
+      title: title,
+    });
+  },
+  {
+    immediate: true, // 立即执行一次，确保页面加载时设置正确的标题
+  },
+);
 </script>
 
 <style lang="scss" scoped>
