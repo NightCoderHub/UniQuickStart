@@ -1,12 +1,12 @@
 import { defineConfig } from "vite";
 import uni from "@dcloudio/vite-plugin-uni";
-import VueDevTools from "vite-plugin-vue-devtools";
+// import VueDevTools from "vite-plugin-vue-devtools";
 import viteCompression from "vite-plugin-compression";
 
 export default defineConfig({
   plugins: [
     uni(),
-    VueDevTools(),
+    // VueDevTools(),
     viteCompression({
       verbose: true, // 是否在控制台输出压缩结果
       disable: process.env.UNI_PLATFORM.startsWith("mp-"), // 是否禁用插件，设置为 true 则不压缩

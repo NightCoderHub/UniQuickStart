@@ -189,17 +189,19 @@
     </z-paging>
 
     <!-- 底部上线按钮 -->
-    <view class="bottom-actions">
-      <wd-button
-        :type="isOnline ? 'success' : 'primary'"
-        size="large"
-        block
-        :custom-style="getOnlineButtonStyle()"
-        @click="toggleOnlineStatus"
-      >
-        {{ isOnline ? "已上线" : "上线" }}
-      </wd-button>
-    </view>
+    <safe-area-footer :fixed="true">
+      <view class="bottom-actions">
+        <wd-button
+          :type="isOnline ? 'success' : 'primary'"
+          size="large"
+          block
+          :custom-style="getOnlineButtonStyle()"
+          @click="toggleOnlineStatus"
+        >
+          {{ isOnline ? "已上线" : "上线" }}
+        </wd-button>
+      </view>
+    </safe-area-footer>
 
     <!-- 订单详情弹窗 -->
     <wd-popup

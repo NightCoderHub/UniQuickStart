@@ -14,6 +14,9 @@ importers:
       wot-design-uni:
         specifier: ^1.9.1
         version: 1.9.1(vue@3.5.17)
+      z-paging:
+        specifier: ^2.8.7
+        version: 2.8.7
     devDependencies:
       '@eslint/js':
         specifier: ^9.29.0
@@ -1218,6 +1221,10 @@ packages:
     resolution: {integrity: sha512-GQHQqAopRhwU8Kt1DDM8NjibDXHC8eoh1erhGAJPEyveY9qqVeXvVikNKrDz69sHowPMorbPUrH/mx8c50eiBQ==}
     engines: {node: '>=18'}
 
+  z-paging@2.8.7:
+    resolution: {integrity: sha512-RcDeKFoCQB51dmrrTb1PMIazjTqGuAbFmjPS0/N5hdUNTCRvxGOOBTBFolvIxUcsWhrocI9C0mYDgUwXT6Dwcg==}
+    engines: {HBuilderX: ^3.0.7}
+
 snapshots:
 
   '@ampproject/remapping@2.3.0':
@@ -2401,3 +2408,5 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   yoctocolors@2.1.1: {}
+
+  z-paging@2.8.7: {}

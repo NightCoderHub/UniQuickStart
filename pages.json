@@ -81,6 +81,18 @@
       "style": {
         "navigationBarTitleText": "师傅端"
       }
+    },
+    {
+      "path": "pages/address/address-select",
+      "style": {
+        "navigationBarTitleText": "选择配送地址"
+      }
+    },
+    {
+      "path": "pages/address/address-edit",
+      "style": {
+        "navigationBarTitleText": "编辑配送地址"
+      }
     }
   ],
   "globalStyle": {
