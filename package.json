@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@uni-helper/uni-network": "^0.21.3",
-    "wot-design-uni": "^1.9.1"
+    "wot-design-uni": "^1.9.1",
+    "z-paging": "^2.8.7"
   }
 }
