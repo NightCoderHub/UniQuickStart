@@ -15,7 +15,6 @@
 
 <script setup>
 import {
-  defineProps,
   ref,
   onMounted,
   nextTick,
