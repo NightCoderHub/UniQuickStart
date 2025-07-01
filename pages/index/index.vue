@@ -12,22 +12,10 @@
       </template>
     </wd-navbar>
     <view class="placeholder-bar"> </view>
-    <view class="search-section">
-      <wd-search
-        v-model="searchValue"
-        placeholder-left
-        :placeholder-style="{ color: '#3D3D3D' }"
-        placeholder="输入服务内容"
-        hide-cancel
-        disabled
-      >
-      </wd-search>
-      <view class="search-suffix">
-        <text class="iconfont icon-saoyisao qr-icon" @click="scanQR"></text>
-        <image class="ai-tag" src="/static/ai.png"></image>
-      </view>
-    </view>
-    <view class="placeholder-bar"> </view>
+    <search-section
+      :is-enabled="false"
+      @click="navigateToSearch"
+    ></search-section>
     <view class="main-content">
       <view class="tabs-container">
         <wd-tabs v-model="activeTab">
@@ -212,6 +200,10 @@ export default {
     }
   },
   methods: {
+    devToast() {
+      console.log(11);
+      this.$devToast();
+    },
     /**
      * 监听子组件派发的 tab-change 事件
      * @param {object} eventData - 子组件传递过来的数据
@@ -224,9 +216,14 @@ export default {
     },
     selectLocation() {
       console.log("选择位置");
+      this.$devToast();
+    },
+    navigateToSearch() {
+      this.$devToast();
     },
     scanQR() {
       console.log("扫描二维码");
+      this.$devToast();
     },
     requestService() {
       console.log("我需要服务");
@@ -235,6 +232,7 @@ export default {
       });
     },
     handleServiceClick(service) {
+      this.$devToast();
       console.log("点击服务:", service.name);
     },
   },
@@ -271,32 +269,6 @@ export default {
 .placeholder-bar {
   height: 16rpx;
   background-color: #fff;
-}
-
-// 搜索栏样式
-.search-section {
-  position: relative;
-  background-color: #fff;
-  .search-suffix {
-    position: absolute;
-    top: 50%;
-    right: 48rpx;
-    transform: translateY(-50%);
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    gap: 20rpx;
-
-    .qr-icon {
-      font-size: 40rpx;
-      color: #000;
-    }
-
-    .ai-tag {
-      width: 40rpx;
-      height: 40rpx;
-    }
-  }
 }
 
 // 主要内容样式

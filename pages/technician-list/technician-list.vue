@@ -13,24 +13,10 @@
       </view>
     </view>
 
-    <!-- 搜索栏 -->
-    <view class="search-section">
-      <view class="search-bar">
-        <wd-icon name="search" size="20px" color="#999"></wd-icon>
-        <input
-          v-model="searchKeyword"
-          class="search-input"
-          placeholder="输入服务人员名称"
-          @input="onSearch"
-        />
-      </view>
-      <view class="search-actions">
-        <wd-icon name="scan" size="24px" color="#666"></wd-icon>
-        <view class="ai-button">
-          <text class="ai-text">AI</text>
-        </view>
-      </view>
-    </view>
+    <search-section
+      :is-enabled="true"
+      @click="navigateToSearch"
+    ></search-section>
 
     <!-- 筛选标签 -->
     <view class="filter-tabs">
@@ -380,55 +366,6 @@ export default {
     display: flex;
     align-items: center;
     gap: 16px;
-  }
-}
-
-/* 搜索区域 */
-.search-section {
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  background: #fff;
-  border-bottom: 1px solid #f0f0f0;
-
-  .search-bar {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    background: #f5f5f5;
-    border-radius: 20px;
-    padding: 8px 12px;
-    margin-right: 12px;
-
-    .search-input {
-      flex: 1;
-      margin-left: 8px;
-      font-size: 14px;
-      border: none;
-      background: transparent;
-    }
-  }
-
-  .search-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-
-    .ai-button {
-      width: 32px;
-      height: 32px;
-      background: #1890ff;
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      .ai-text {
-        color: #fff;
-        font-size: 12px;
-        font-weight: bold;
-      }
-    }
   }
 }
 
