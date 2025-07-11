@@ -99,7 +99,7 @@ export default {
   flex: 1;
   // height: 100%;
   height: 64rpx;
-
+	line-height: 64rpx;
   font-size: 28rpx;
   color: #333;
   background: transparent;

@@ -201,7 +201,6 @@ export default {
   },
   methods: {
     devToast() {
-      console.log(11);
       this.$devToast();
     },
     /**

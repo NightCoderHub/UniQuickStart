@@ -93,6 +93,35 @@
       "style": {
         "navigationBarTitleText": "编辑配送地址"
       }
+    },
+    {
+    	"path" : "pages/agreement/agreement",
+    	"style" : 
+    	{
+    		"navigationBarTitleText" : "服务协议"
+    	}
+    },
+    {
+    	"path" : "pages/appointment/appointment",
+    	"style" : 
+    	{
+    		"navigationBarTitleText" : "预约师傅"
+    	}
+    },
+    {
+    	"path" : "pages/technician-info/technician-info",
+    	"style" : 
+    	{
+    		"navigationBarTitleText" : "师傅正在赶来",
+				"navigationStyle": "custom"
+    	}
+    },
+    {
+    	"path" : "pages/feedback/feedback",
+    	"style" : 
+    	{
+    		"navigationBarTitleText" : "意见反馈"
+    	}
     }
   ],
   "globalStyle": {
