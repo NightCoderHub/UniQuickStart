@@ -94,12 +94,7 @@ const onTabbarChange = (e) => {
     const browsingMode = uni.getStorageSync("browsing_mode");
 
     // 如果处于浏览模式，并且目标页面是需要登录或限制的页面
-    if (
-      browsingMode &&
-      (targetPath === "pages/me/index" ||
-        targetPath === "pages/technician-list/technician-list" ||
-        targetPath === "pages/community-feed/community-feed")
-    ) {
+    if (browsingMode && targetPath === "pages/me/index") {
       uni.showToast({
         title: "浏览模式下无法访问此功能，请登录",
         icon: "none",
