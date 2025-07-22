@@ -4,10 +4,14 @@ export default {
   onLaunch: function () {
     console.log("App Launch");
     setupUpdateManager();
+    // #ifndef H5
+    uni.hideTabBar();
+    // #endif
     const privacyAgreed = uni.getStorageSync("privacy_policy_agreed");
-    // #ifdef APP-PLUS
-    if (privacyAgreed) {
-      console.log("用户已同意隐私协议，直接进入主界面。");
+    const browsingMode = uni.getStorageSync("browsing_mode"); // 获取浏览模式状态
+
+    if (privacyAgreed || browsingMode) {
+      console.log("用户已同意隐私协议或处于浏览模式，直接进入主界面。");
       // 检查当前页面是否是隐私协议页面，如果是，则导航回主页
       let pages = getCurrentPages();
       let currentPage = pages[pages.length - 1];
@@ -17,13 +21,12 @@ export default {
         });
       }
     } else {
-      console.log("用户尚未同意隐私协议，跳转到隐私协议页面。");
-      // 如果未同意，跳转到隐私协议页面
+      console.log("用户尚未同意隐私协议且未进入浏览模式，跳转到隐私协议页面。");
+      // 如果未同意且未进入浏览模式，跳转到隐私协议页面
       uni.reLaunch({
         url: "/pages/privacy/privacy",
       });
     }
-    // #endif
   },
   onShow: function () {
     console.log("App Show");
@@ -61,5 +64,10 @@ scroll-view {
 page {
   background-color: $background-color-content;
   color: $color-gray-800;
+  font-family: PingFangSC;
+}
+
+uni-tabbar {
+  display: none;
 }
 </style>
