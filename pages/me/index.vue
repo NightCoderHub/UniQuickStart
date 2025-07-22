@@ -153,7 +153,7 @@ const goToLogin = () => {
 // 跳转到设置页面
 const goToSettings = () => {
   uni.navigateTo({
-    url: "/pages/settings/settings",
+    url: "/settingPages/setting/setting",
   });
 };
 

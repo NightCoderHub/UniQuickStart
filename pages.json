@@ -71,6 +71,73 @@
       }
     }
   ],
+  "subPackages": [
+    {
+      "root": "settingPages",
+      "pages": [
+        {
+          "path": "setting/setting",
+          "style": {
+            "navigationBarTitleText": "系统设置"
+          }
+        },
+        {
+          "path": "account/privacy",
+          "style": {
+            "navigationBarTitleText": "隐私设置"
+          }
+        },
+        {
+          "path": "account/profile",
+          "style": {
+            "navigationBarTitleText": "个人资料"
+          }
+        },
+        {
+          "path": "notifications/notifications",
+          "style": {
+            "navigationBarTitleText": "消息通知"
+          }
+        },
+        {
+          "path": "legal/privacy-policy",
+          "style": {
+            "navigationBarTitleText": "隐私政策"
+          }
+        },
+        {
+          "path": "legal/user-agreement",
+          "style": {
+            "navigationBarTitleText": "用户协议"
+          }
+        },
+        {
+          "path": "help-feedback/help-center",
+          "style": {
+            "navigationBarTitleText": "帮助中心"
+          }
+        },
+        {
+          "path": "help-feedback/feedback",
+          "style": {
+            "navigationBarTitleText": "意见反馈"
+          }
+        },
+        {
+          "path": "about/about",
+          "style": {
+            "navigationBarTitleText": "关于我们"
+          }
+        },
+        {
+          "path": "system-permissions/system-permissions",
+          "style": {
+            "navigationBarTitleText": "系统权限设置"
+          }
+        }
+      ]
+    }
+  ],
   "globalStyle": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "",
