@@ -8,13 +8,13 @@
           :src="userInfo.avatar || '/static/132.jpg'"
           mode="aspectFill"
         ></image>
-        <text class="iconfont icon-arrow-right"></text>
+        <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
       </view>
 
       <view class="profile-item" @click="editNickname">
         <text class="item-text">昵称</text>
         <text class="item-value">{{ userInfo.nickname || "未设置" }}</text>
-        <text class="iconfont icon-arrow-right"></text>
+        <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
       </view>
 
       <view class="profile-item">
@@ -27,7 +27,7 @@
         <text class="item-value">{{
           formatGender(userInfo.gender) || "未设置"
         }}</text>
-        <text class="iconfont icon-arrow-right"></text>
+        <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
       </view>
       <wd-datetime-picker
         v-model="userInfo.birthday"
@@ -45,7 +45,7 @@
         <text class="item-value">{{
           userInfo.phone ? formatPhoneNumber(userInfo.phone) : "未绑定"
         }}</text>
-        <text class="iconfont icon-arrow-right"></text>
+        <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
       </view>
 
       <view
@@ -54,7 +54,7 @@
       >
         <text class="item-text">邮箱</text>
         <text class="item-value">{{ userInfo.email || "未绑定" }}</text>
-        <text class="iconfont icon-arrow-right"></text>
+        <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
       </view>
     </scroll-view>
 

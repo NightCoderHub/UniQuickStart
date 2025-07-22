@@ -17,14 +17,14 @@
         @click="navigateTo('/settingPages/legal/privacy-policy')"
       >
         <text class="item-label">隐私政策</text>
-        <text class="iconfont icon-arrow-right"></text>
+        <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
       </view>
       <view
         class="info-item"
         @click="navigateTo('/settingPages/legal/user-agreement')"
       >
         <text class="item-label">用户协议</text>
-        <text class="iconfont icon-arrow-right"></text>
+        <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
       </view>
       <view class="info-item" @click="copyToClipboard(COMPANY_INFO.website)">
         <text class="item-label">官方网站</text>

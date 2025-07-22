@@ -8,21 +8,21 @@
           @click="navigateTo('/settingPages/account/profile')"
         >
           <text class="item-text">个人资料</text>
-          <text class="iconfont icon-arrow-right"></text>
+          <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
         </view>
         <!-- <view
           class="setting-item"
           @click="navigateTo('/settingPages/account/security')"
         >
           <text class="item-text">账号与安全</text>
-          <text class="iconfont icon-arrow-right"></text>
+          <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
         </view> -->
         <!-- <view
           class="setting-item"
           @click="navigateTo('/settingPages/account/privacy')"
         >
           <text class="item-text">隐私设置</text>
-          <text class="iconfont icon-arrow-right"></text>
+          <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
         </view> -->
         <!-- 新增系统权限设置入口 -->
         <view
@@ -32,7 +32,7 @@
           "
         >
           <text class="item-text">系统权限设置</text>
-          <text class="iconfont icon-arrow-right"></text>
+          <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
         </view>
       </view>
 
@@ -42,7 +42,7 @@
           @click="navigateTo('/settingPages/notifications/notifications')"
         >
           <text class="item-text">消息通知</text>
-          <text class="iconfont icon-arrow-right"></text>
+          <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
         </view>
       </view>
 
@@ -51,13 +51,13 @@
           <text class="item-text">清除缓存</text>
           <text class="item-value">{{ cacheSize }}</text>
           <!-- 使用响应式变量 -->
-          <text class="iconfont icon-arrow-right"></text>
+          <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
         </view>
         <view class="setting-item" @click="checkUpdate">
           <text class="item-text">检查更新</text>
           <text class="item-value">当前版本 {{ APP_CONFIG.version }}</text>
           <!-- 使用响应式变量 -->
-          <text class="iconfont icon-arrow-right"></text>
+          <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
         </view>
       </view>
 
@@ -67,35 +67,35 @@
           @click="navigateTo('/settingPages/legal/privacy-policy')"
         >
           <text class="item-text">隐私政策</text>
-          <text class="iconfont icon-arrow-right"></text>
+          <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
         </view>
         <view
           class="setting-item"
           @click="navigateTo('/settingPages/legal/user-agreement')"
         >
           <text class="item-text">用户协议</text>
-          <text class="iconfont icon-arrow-right"></text>
+          <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
         </view>
         <view
           class="setting-item"
           @click="navigateTo('/settingPages/help-feedback/help-center')"
         >
           <text class="item-text">帮助中心</text>
-          <text class="iconfont icon-arrow-right"></text>
+          <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
         </view>
         <view
           class="setting-item"
           @click="navigateTo('/settingPages/about/about')"
         >
           <text class="item-text">关于我们</text>
-          <text class="iconfont icon-arrow-right"></text>
+          <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
         </view>
       </view>
       <view v-if="userStore.isLoggedIn" class="setting-group">
         <view class="setting-item" @click="showLogoutNotice">
           <text class="item-text">账户注销</text>
           <text class="item-value">注销后无法恢复</text>
-          <text class="iconfont icon-arrow-right"></text>
+          <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
         </view>
       </view>
 
