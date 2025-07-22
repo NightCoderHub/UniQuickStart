@@ -99,6 +99,7 @@
       </view>
     </view>
   </view>
+  <custom-tabbar current-path="pages/index/index"></custom-tabbar>
 </template>
 
 <script>

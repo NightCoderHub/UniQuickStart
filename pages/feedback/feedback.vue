@@ -38,24 +38,19 @@
     </view>
 
     <view class="submit-button-container">
-      <wd-button
-        type="primary"
-				size="large"
-        block
-        @click="submitFeedback"
-      >
+      <wd-button type="primary" size="large" block @click="submitFeedback">
         提交反馈
       </wd-button>
     </view>
   </view>
 </template>
 <script setup>
-import { ref, computed } from 'vue';
-import { useToast } from 'wot-design-uni'; // 引入 toast 组合式API，如果你的版本不支持，可以继续使用 ref 获取组件实例
+import { ref, computed } from "vue";
+import { useToast } from "wot-design-uni"; // 引入 toast 组合式API，如果你的版本不支持，可以继续使用 ref 获取组件实例
 const toast = useToast(); // 使用组合式API获取toast实例
 
-const feedbackContent = ref('');
-const contactInfo = ref('');
+const feedbackContent = ref("");
+const contactInfo = ref("");
 const fileList = ref([]); // 用于存储图片文件列表
 
 // 计算属性：判断提交按钮是否禁用
@@ -65,13 +60,13 @@ const isSubmitDisabled = computed(() => {
 
 // 处理图片超出大小限制
 const handleOverSize = (file) => {
-  console.log('文件过大:', file);
-  toast.show('文件大小不能超过2MB');
+  console.log("文件过大:", file);
+  toast.show("文件大小不能超过2MB");
 };
 
 // 处理移除图片
 const handleRemove = ({ file, index }) => {
-  console.log('移除文件:', file, '索引:', index);
+  console.log("移除文件:", file, "索引:", index);
   fileList.value.splice(index, 1); // 从文件列表中移除对应文件
 };
 
@@ -80,11 +75,11 @@ const handleAfterRead = (event) => {
   const { file } = event.detail;
   // 这里通常会将文件上传到服务器，获取到服务器返回的图片URL后再添加到 fileList 中
   // 模拟上传成功
-  console.log('读取到文件:', file);
+  console.log("读取到文件:", file);
   fileList.value.push({
     url: URL.createObjectURL(file.file), // 预览URL，实际应用中替换为服务器返回的URL
-    status: 'success', // 或 'uploading'
-    message: '上传中...',
+    status: "success", // 或 'uploading'
+    message: "上传中...",
     name: file.file.name,
     type: file.file.type,
     size: file.file.size,
@@ -94,8 +89,8 @@ const handleAfterRead = (event) => {
   setTimeout(() => {
     const lastFile = fileList.value[fileList.value.length - 1];
     if (lastFile) {
-      lastFile.status = 'success';
-      lastFile.message = '上传成功';
+      lastFile.status = "success";
+      lastFile.message = "上传成功";
       // lastFile.url = '服务器返回的图片URL'; // 真实场景下更新为服务器返回的URL
     }
   }, 1000);
@@ -104,7 +99,7 @@ const handleAfterRead = (event) => {
 // 提交反馈
 const submitFeedback = () => {
   if (isSubmitDisabled.value) {
-    toast.show('反馈内容不能少于10个字哦！');
+    toast.show("反馈内容不能少于10个字哦！");
     return;
   }
 
@@ -112,14 +107,14 @@ const submitFeedback = () => {
   const feedbackData = {
     content: feedbackContent.value,
     contact: contactInfo.value,
-    images: fileList.value.map(file => file.url), // 实际应传递服务器返回的图片URL
+    images: fileList.value.map((file) => file.url), // 实际应传递服务器返回的图片URL
   };
 
-  console.log('提交的反馈数据:', feedbackData);
+  console.log("提交的反馈数据:", feedbackData);
 
   // 这里模拟API调用
   uni.showLoading({
-    title: '提交中...',
+    title: "提交中...",
     mask: true,
   });
 
@@ -127,13 +122,13 @@ const submitFeedback = () => {
     uni.hideLoading();
     // 假设提交成功
     toast.show({
-      type: 'success',
-      message: '反馈已提交，感谢您的宝贵意见！',
+      type: "success",
+      message: "反馈已提交，感谢您的宝贵意见！",
       duration: 2000,
       onClose: () => {
         // 提交成功后清空表单或返回上一页
-        feedbackContent.value = '';
-        contactInfo.value = '';
+        feedbackContent.value = "";
+        contactInfo.value = "";
         fileList.value = [];
         uni.navigateBack(); // 返回上一页
       },
@@ -196,7 +191,6 @@ const submitFeedback = () => {
   }
 
   .submit-button-container {
-		
     padding-top: 10px; // 与上方表单拉开距离
     .wd-button {
       border-radius: 8px;
