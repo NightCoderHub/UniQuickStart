@@ -12,6 +12,7 @@ export const COMPANY_INFO = {
 
 export const APP_CONFIG = {
   // 应用配置
+  name: "UniQuickStart",
   version: "1.0.0",
   apiBaseUrl: "",
   defaultPageSize: 10,

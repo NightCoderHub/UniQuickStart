@@ -38,7 +38,7 @@
 
     <view class="footer-section">
       <text class="copyright"
-        >Copyright © 2025 早同城. All Rights Reserved.</text
+        >Copyright © 2025 {{ APP_CONFIG.name }}. All Rights Reserved.</text
       >
     </view>
   </view>
