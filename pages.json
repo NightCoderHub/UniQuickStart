@@ -17,7 +17,9 @@
     {
       "path": "pages/login/index",
       "style": {
-        "navigationBarTitleText": "登录"
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F7F8FA",
+        "navigationBarTextStyle": "black"
       }
     },
     {
@@ -34,7 +36,7 @@
       }
     },
     {
-      "path": "pages/forgotPassword/forgotPassword",
+      "path": "pages/forgot-password/forgot-password",
       "style": {
         "navigationBarTitleText": "忘记密码"
       }
