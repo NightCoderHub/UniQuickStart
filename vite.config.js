@@ -21,6 +21,13 @@ export default defineConfig({
     host: "0.0.0.0", // 允许局域网访问
     open: false, // 启动时是否自动打开浏览器
     // 配置代理，解决跨域问题（如果你的 uni-app 需要请求后端 API）
-    proxy: {},
+    proxy: {
+      "/tencent_map_api": {
+        target: "https://apis.map.qq.com", // 腾讯地图 Web API 的实际域名
+        changeOrigin: true, // 改变源，将请求头中的 Host 字段设置为 target 的 Host，解决跨域问题
+        rewrite: (path) => path.replace(/^\/tencent_map_api/, ""), // 重写路径，移除 /tencent_map_api 前缀
+        secure: true, // 如果目标是 HTTPS，设置为 true
+      },
+    },
   },
 });
