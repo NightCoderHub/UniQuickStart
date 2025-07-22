@@ -4,18 +4,22 @@
       <wd-cell-group>
         <wd-input
           v-model="formData.name"
+          required
+          label-width="220rpx"
           label="收货人"
           placeholder="请填写收货人姓名"
         />
         <wd-input
           v-model="formData.phone"
           label="手机号"
+          label-width="220rpx"
+          required
           placeholder="请填写收货人手机号"
           type="number"
           :maxlength="11"
         />
 
-        <wd-picker
+        <!-- <wd-picker
           v-model="selectedRegionCodes"
           :columns="districtColumns"
           label="所在地区"
@@ -27,50 +31,72 @@
           clearable
           @confirm="onRegionPickerConfirm"
           @clear="onRegionPickerClear"
-        />
-
+        /> -->
+        <view class="location-container" @click="getLocation">
+          <wd-textarea
+            v-model="formData.detailAddress"
+            required
+            label-width="220rpx"
+            label="详细地址"
+            readonly
+            auto-height
+            placeholder="定位获取所在地区"
+            custom-style="padding: 10px 12px;"
+          >
+          </wd-textarea>
+          <wd-icon name="location"></wd-icon>
+        </view>
         <wd-input
-          v-model="formData.detailAddress"
-          label="详细地址"
-          placeholder="请填写详细地址，如街道、门牌号"
-          type="textarea"
+          v-model="formData.houseNumber"
+          required
+          label="楼栋门牌号"
+          label-width="220rpx"
+          placeholder="请填写楼栋门牌号"
           :autosize="{ minRows: 3, maxRows: 5 }"
           custom-style="padding: 10px 12px;"
         />
 
         <wd-cell title="设为默认地址" center>
-          <wd-switch v-model="formData.isDefault" active-color="#52c41a" />
+          <wd-switch
+            v-model="formData.isDefault"
+            size="38rpx"
+            active-color="#52c41a"
+          />
         </wd-cell>
       </wd-cell-group>
     </view>
-
-    <view class="bottom-buttons">
-      <wd-button type="success" block size="large" @click="saveAddress"
-        >保存地址</wd-button
-      >
-      <wd-button
-        v-if="type === 'edit'"
-        type="error"
-        block
-        size="large"
-        custom-class="delete-button"
-        @click="deleteCurrentAddress"
-        >删除地址</wd-button
-      >
-    </view>
+    <safe-area-footer>
+      <view class="bottom-buttons">
+        <wd-button type="success" block size="large" @click="saveAddress"
+          >保存地址</wd-button
+        >
+        <wd-button
+          v-if="type === 'edit'"
+          type="error"
+          block
+          size="large"
+          custom-class="delete-button"
+          @click="deleteCurrentAddress"
+          >删除地址</wd-button
+        >
+      </view>
+    </safe-area-footer>
   </view>
+  <wd-message-box></wd-message-box>
 </template>
 
 <script setup>
-import { ref, reactive, watch } from "vue"; // 导入 watch
+import { ref, reactive, watch } from "vue";
+import { useMessage } from "wot-design-uni";
 import { onLoad } from "@dcloudio/uni-app";
 
-import { districtData } from "@/utils/regionData.js";
-const district = districtData;
+// import { districtData } from "@/utils/regionData.js";
+// import { reverseGeocode } from "@/utils/getLocationAndPermission.js";
 
+// const district = districtData;
+const message = useMessage();
 const type = ref("add");
 const currentEditId = ref(null);
-
 const formData = reactive({
   id: "",
   name: "",
@@ -80,147 +106,164 @@ const formData = reactive({
   cityCode: "",
   areaCode: "",
   detailAddress: "",
+  houseNumber: "", // 新增楼栋门牌号字段
   isDefault: false,
+  longitude: null,
+  latitude: null,
+  adcode: null,
 });
+// const selectedRegionCodes = ref([]);
+// const districtColumns = ref([]);
+// const adcode = ref('') // 行政区编码
 
-const selectedRegionCodes = ref([]);
-const districtColumns = ref([]);
+// const initDistrictColumns = (initialValue = []) => {
+//   const cols = [];
 
-const initDistrictColumns = (initialValue = []) => {
-  const cols = [];
+//   const getSafeData = (key, placeholder) => {
+//     const data = district[key] || [];
+//     return data.length > 0 ? data : [{ label: placeholder, value: "" }];
+//   };
 
-  const getSafeData = (key, placeholder) => {
-    const data = district[key] || [];
-    return data.length > 0 ? data : [{ label: placeholder, value: "" }];
-  };
+//   const provincesData = getSafeData("0", "暂无省份");
+//   cols.push(provincesData);
 
-  const provincesData = getSafeData("0", "暂无省份");
-  cols.push(provincesData);
+//   let defaultProvinceCode = initialValue[0] || provincesData[0]?.value;
 
-  let defaultProvinceCode = initialValue[0] || provincesData[0]?.value;
+//   const citiesData = getSafeData(defaultProvinceCode, "暂无城市");
+//   cols.push(citiesData);
 
-  const citiesData = getSafeData(defaultProvinceCode, "暂无城市");
-  cols.push(citiesData);
+//   let defaultCityCode = initialValue[1] || citiesData[0]?.value;
 
-  let defaultCityCode = initialValue[1] || citiesData[0]?.value;
+//   const areasData = getSafeData(defaultCityCode, "暂无区县");
+//   cols.push(areasData);
 
-  const areasData = getSafeData(defaultCityCode, "暂无区县");
-  cols.push(areasData);
+//   districtColumns.value = cols;
+// };
 
-  districtColumns.value = cols;
+// const onChangeDistrict = (pickerInstance, value, columnIndex, resolve) => {
+//   const item = value[columnIndex];
+
+//   const getSafeDataForPicker = (key, placeholder) => {
+//     const data = district[key] || [];
+//     return data.length > 0 ? data : [{ label: placeholder, value: "" }];
+//   };
+
+//   if (columnIndex === 0) {
+//     const nextCitiesData = getSafeDataForPicker(item.value, "暂无城市");
+//     pickerInstance.setColumnData(1, nextCitiesData);
+
+//     const firstCityOfNewProvinceCode = nextCitiesData[0]?.value;
+//     const nextAreasData = getSafeDataForPicker(
+//       firstCityOfNewProvinceCode,
+//       "暂无区县",
+//     );
+//     pickerInstance.setColumnData(2, nextAreasData);
+//   } else if (columnIndex === 1) {
+//     const nextAreasData = getSafeDataForPicker(item.value, "暂无区县");
+//     pickerInstance.setColumnData(2, nextAreasData);
+//   }
+//   resolve();
+// };
+
+// const displayRegionFormat = (items) => {
+//   if (!items || items.length === 0) {
+//     return "";
+//   }
+//   return items
+//     .map((item) => {
+//       return item && item.label && !item.label.startsWith("暂无")
+//         ? item.label
+//         : "";
+//     })
+//     .filter(Boolean)
+//     .join(" ");
+// };
+
+// const onRegionPickerConfirm = ({ value, selectedItems }) => {
+//   const selectedLabels = Array.isArray(selectedItems)
+//     ? selectedItems.map((item) => item.label)
+//     : [];
+
+//   selectedRegionCodes.value = value;
+
+//   formData.region = selectedLabels
+//     .filter((text) => text && !text.startsWith("暂无"))
+//     .join(" ");
+//   formData.provinceCode = value[0] || "";
+//   formData.cityCode = value[1] || "";
+//   formData.areaCode = value[2] || "";
+// };
+
+const getLocation = () => {
+  uni.chooseLocation({
+    success: (res) => {
+      formData.detailAddress = res.address;
+      formData.latitude = res.latitude;
+      formData.longitude = res.longitude;
+      // reverseGeocode(res.latitude, res.longitude).then((result) => {
+      //   formData.adcode = result.ad_info.adcode
+      // })
+    },
+  });
 };
 
-const onChangeDistrict = (pickerInstance, value, columnIndex, resolve) => {
-  const item = value[columnIndex];
+// const onRegionPickerClear = () => {
+//   selectedRegionCodes.value = [];
+//   formData.region = "";
+//   formData.provinceCode = "";
+//   formData.cityCode = "";
+//   formData.areaCode = "";
 
-  const getSafeDataForPicker = (key, placeholder) => {
-    const data = district[key] || [];
-    return data.length > 0 ? data : [{ label: placeholder, value: "" }];
-  };
+//   initDistrictColumns();
 
-  if (columnIndex === 0) {
-    const nextCitiesData = getSafeDataForPicker(item.value, "暂无城市");
-    pickerInstance.setColumnData(1, nextCitiesData);
-
-    const firstCityOfNewProvinceCode = nextCitiesData[0]?.value;
-    const nextAreasData = getSafeDataForPicker(
-      firstCityOfNewProvinceCode,
-      "暂无区县",
-    );
-    pickerInstance.setColumnData(2, nextAreasData);
-  } else if (columnIndex === 1) {
-    const nextAreasData = getSafeDataForPicker(item.value, "暂无区县");
-    pickerInstance.setColumnData(2, nextAreasData);
-  }
-  resolve();
-};
-
-const displayRegionFormat = (items) => {
-  if (!items || items.length === 0) {
-    return "";
-  }
-  return items
-    .map((item) => {
-      return item && item.label && !item.label.startsWith("暂无")
-        ? item.label
-        : "";
-    })
-    .filter(Boolean)
-    .join(" ");
-};
-
-const onRegionPickerConfirm = ({ value, selectedItems }) => {
-  const selectedLabels = Array.isArray(selectedItems)
-    ? selectedItems.map((item) => item.label)
-    : [];
-
-  selectedRegionCodes.value = value;
-
-  formData.region = selectedLabels
-    .filter((text) => text && !text.startsWith("暂无"))
-    .join(" ");
-  formData.provinceCode = value[0] || "";
-  formData.cityCode = value[1] || "";
-  formData.areaCode = value[2] || "";
-};
-
-const onRegionPickerClear = () => {
-  selectedRegionCodes.value = [];
-  formData.region = "";
-  formData.provinceCode = "";
-  formData.cityCode = "";
-  formData.areaCode = "";
-
-  initDistrictColumns();
-
-  uni.showToast({ title: "已清空选择", icon: "none" });
-};
+//   uni.showToast({ title: "已清空选择", icon: "none" });
+// };
 
 onLoad((options) => {
   if (options.type === "edit" && options.id) {
     type.value = "edit";
     currentEditId.value = options.id;
 
-    const mockAddress = {
-      id: options.id,
-      name: "王小明",
-      phone: "13500001234",
-      region: "贵州省 铜仁市 碧江区",
-      provinceCode: "520000",
-      cityCode: "520600",
-      areaCode: "520602",
-      detailAddress: "河西街道中华路123号某小区B栋301",
-      isDefault: false,
-    };
-    Object.assign(formData, mockAddress);
+    // const mockAddress = {
+    //   id: options.id,
+    //   name: "王小明",
+    //   phone: "13500001234",
+    //   region: "贵州省 铜仁市 碧江区",
+    //   provinceCode: "520000",
+    //   cityCode: "520600",
+    //   areaCode: "520602",
+    //   detailAddress: "河西街道中华路123号某小区B栋301",
+    //   isDefault: false,
+    // };
+    // Object.assign(formData, mockAddress);
 
-    let initialCodesForPicker = [
-      formData.provinceCode,
-      formData.cityCode,
-      formData.areaCode,
-    ].filter(Boolean);
+    // let initialCodesForPicker = [
+    //   formData.provinceCode,
+    //   formData.cityCode,
+    //   formData.areaCode,
+    // ].filter(Boolean);
 
-    let validInitialCodes = [];
-    let currentCheckData = district["0"];
-    for (let i = 0; i < initialCodesForPicker.length; i++) {
-      const code = initialCodesForPicker[i];
-      if (
-        currentCheckData &&
-        Array.isArray(currentCheckData) &&
-        currentCheckData.some((item) => item.value === code)
-      ) {
-        validInitialCodes.push(code);
-        currentCheckData = district[code];
-      } else {
-        break;
-      }
-    }
-    selectedRegionCodes.value = validInitialCodes;
+    // let validInitialCodes = [];
+    // let currentCheckData = district["0"];
+    // for (let i = 0; i < initialCodesForPicker.length; i++) {
+    //   const code = initialCodesForPicker[i];
+    //   if (
+    //     currentCheckData &&
+    //     Array.isArray(currentCheckData) &&
+    //     currentCheckData.some((item) => item.value === code)
+    //   ) {
+    //     validInitialCodes.push(code);
+    //     currentCheckData = district[code];
+    //   } else {
+    //     break;
+    //   }
+    // }
+    // selectedRegionCodes.value = validInitialCodes;
 
-    initDistrictColumns(selectedRegionCodes.value);
+    // initDistrictColumns(selectedRegionCodes.value);
   } else {
     type.value = "add";
-    initDistrictColumns();
+    // initDistrictColumns();
   }
 });
 
@@ -233,12 +276,16 @@ const validateForm = () => {
     uni.showToast({ title: "请填写正确的手机号", icon: "none" });
     return false;
   }
-  if (!formData.region || formData.region.includes("暂无")) {
-    uni.showToast({ title: "请选择完整的所在地区", icon: "none" });
-    return false;
-  }
+  // if (!formData.region || formData.region.includes("暂无")) {
+  //   uni.showToast({ title: "请选择完整的所在地区", icon: "none" });
+  //   return false;
+  // }
   if (!formData.detailAddress) {
     uni.showToast({ title: "请填写详细地址", icon: "none" });
+    return false;
+  }
+  if (!formData.houseNumber) {
+    uni.showToast({ title: "请填写楼栋门牌号", icon: "none" });
     return false;
   }
   return true;
@@ -261,24 +308,23 @@ const saveAddress = () => {
 };
 
 const deleteCurrentAddress = () => {
-  uni.showModal({
-    title: "确认删除",
-    content: "确定要删除该地址吗？",
-    success: (res) => {
-      if (res.confirm) {
-        console.log("用户点击确定删除地址:", formData.id);
-        uni.showToast({ title: "删除成功", icon: "success" });
+  message
+    .confirm({
+      title: "确认删除",
+      msg: "确定要删除该地址吗？",
+    })
+    .then(() => {
+      uni.showToast({
+        title: "删除成功",
+        icon: "success",
+      });
+      setTimeout(() => {
         uni.navigateBack();
-      } else if (res.cancel) {
-        console.log("用户点击取消删除");
-        uni.showToast({ title: "已取消删除", icon: "none" });
-      }
-    },
-    fail: (err) => {
-      console.error("showModal 调用失败:", err);
-      uni.showToast({ title: "操作失败", icon: "none" });
-    },
-  });
+      }, 1000);
+    })
+    .catch(() => {
+      console.log("取消删除");
+    });
 };
 
 // --- 完善“设为默认地址”的交互逻辑 ---
@@ -348,10 +394,6 @@ watch(
 }
 
 .bottom-buttons {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
   background-color: #fff;
   padding: 24rpx;
   box-shadow: 0 -2rpx 8rpx rgba(0, 0, 0, 0.05);
@@ -362,6 +404,18 @@ watch(
   .delete-button {
     background-color: #f5222d;
     color: #fff;
+  }
+}
+
+.location-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  .wd-textarea {
+    flex: 1;
+  }
+  .wd-icon {
+    margin-right: 24rpx;
   }
 }
 </style>
