@@ -60,7 +60,7 @@
         <text
           class="forget"
           @click="
-            uni.navigateTo({ url: '/pages/forgotPassword/forgotPassword' })
+            uni.navigateTo({ url: '/pages/forgot-password/forgot-password' })
           "
           >忘记密码?</text
         >
