@@ -71,11 +71,11 @@
         <text class="agree-text">
           同意
           <text class="highlight-link" @click="openPolicy('privacy')"
-            >《服务协议》</text
+            >《隐私政策》</text
           >
           和
           <text class="highlight-link" @click="openPolicy('agreement')"
-            >《隐私政策》</text
+            >《服务协议》</text
           >
         </text>
       </view>
