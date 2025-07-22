@@ -10,10 +10,10 @@ importers:
     dependencies:
       '@uni-helper/uni-network':
         specifier: ^0.21.3
-        version: 0.21.3(vue@3.5.17)
+        version: 0.21.3(vue@3.5.17(typescript@5.8.3))
       wot-design-uni:
         specifier: ^1.9.1
-        version: 1.9.1(vue@3.5.17)
+        version: 1.9.1(vue@3.5.17(typescript@5.8.3))
       z-paging:
         specifier: ^2.8.7
         version: 2.8.7
@@ -21,6 +21,9 @@ importers:
       '@eslint/js':
         specifier: ^9.29.0
         version: 9.29.0
+      '@uni-helper/uni-types':
+        specifier: 1.0.0-alpha.6
+        version: 1.0.0-alpha.6(@uni-helper/uni-app-types@1.0.0-alpha.6(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3)))(@uni-helper/uni-cloud-types@1.0.0-alpha.6(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3)))(@uni-helper/uni-ui-types@1.0.0-alpha.6(@uni-helper/uni-app-types@1.0.0-alpha.6(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3)))(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3)))(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3))
       eslint:
         specifier: ^9.29.0
         version: 9.29.0
@@ -45,6 +48,9 @@ importers:
       prettier:
         specifier: 3.5.3
         version: 3.5.3
+      typescript:
+        specifier: ^5.8.3
+        version: 5.8.3
       vconsole:
         specifier: ^3.15.1
         version: 3.15.1
@@ -53,7 +59,7 @@ importers:
         version: 0.5.1
       vite-plugin-vue-devtools:
         specifier: ^7.7.7
-        version: 7.7.7(vue@3.5.17)
+        version: 7.7.7(vue@3.5.17(typescript@5.8.3))
 
 packages:
 
@@ -322,6 +328,20 @@ packages:
   '@types/lodash@4.17.18':
     resolution: {integrity: sha512-KJ65INaxqxmU6EoCiJmRPZC9H9RVWCRd349tXM2M3O5NA7cY6YL7c0bHAHQ93NOfTObEQ004kd2QVHs/r0+m4g==}
 
+  '@uni-helper/uni-app-types@1.0.0-alpha.6':
+    resolution: {integrity: sha512-t9AKDYBmDaz4IW0fgtBt25ubEzf7kyUeMlHaBaG5nyNGd6pVuDpYkABhsnNPDiZcaHAoN6SbX1SQQx5axDOWbA==}
+    engines: {node: '>=14.18'}
+    peerDependencies:
+      typescript: ^5.0.0
+      vue: ^3.0.0
+
+  '@uni-helper/uni-cloud-types@1.0.0-alpha.6':
+    resolution: {integrity: sha512-xnLiRcqf14NXcmkcekF3BbN0O157WROpzHfyKVAeLhcXRhO0HIRUMy0+h9KnCDZ+LFteeIOZXJWC5ere3yhIiQ==}
+    engines: {node: '>=14.18'}
+    peerDependencies:
+      typescript: ^5.0.0
+      vue: ^3.0.0
+
   '@uni-helper/uni-network@0.21.3':
     resolution: {integrity: sha512-0upDni9vrrNnKHyH27VKfZ25NYpXyQgkqCjWXFK/gfGXJGFm5r4m9RfLj4wyob+EgKbxuaAvNLAtgfxF4dFwow==}
     engines: {node: '>=18'}
@@ -336,6 +356,24 @@ packages:
         optional: true
       vue:
         optional: true
+
+  '@uni-helper/uni-types@1.0.0-alpha.6':
+    resolution: {integrity: sha512-lGSm3RUOQThyYIUuJI46b8ug3nGZMyRfMQ/ktOGNxOXBukGA1TF1TN2m4MjKUklIQ+kiIuIgZJoU3S7oIK5emw==}
+    engines: {node: '>=14.18'}
+    peerDependencies:
+      '@uni-helper/uni-app-types': 1.0.0-alpha.6
+      '@uni-helper/uni-cloud-types': 1.0.0-alpha.6
+      '@uni-helper/uni-ui-types': 1.0.0-alpha.6
+      typescript: ^5.0.0
+      vue: ^3.0.0
+
+  '@uni-helper/uni-ui-types@1.0.0-alpha.6':
+    resolution: {integrity: sha512-2KuAup2M7rPVzpLaXhhnxCD/Cs5VQYiqzC9XNI/VZuA88+ApPmHzkwyS0THSHnz1VbDIGX/Ju69nj+mApfYKDw==}
+    engines: {node: '>=14.18'}
+    peerDependencies:
+      '@uni-helper/uni-app-types': 1.0.0-alpha.6
+      typescript: ^5.0.0
+      vue: ^3.0.0
 
   '@vue/babel-helper-vue-transform-on@1.4.0':
     resolution: {integrity: sha512-mCokbouEQ/ocRce/FpKCRItGo+013tHg7tixg3DUNS+6bmIchPt66012kBMm476vyEIJPafrvOf4E5OYj3shSw==}
@@ -1123,6 +1161,11 @@ packages:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
     engines: {node: '>= 0.8.0'}
 
+  typescript@5.8.3:
+    resolution: {integrity: sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   unicorn-magic@0.3.0:
     resolution: {integrity: sha512-+QBBXBCvifc56fsbuxZQ6Sic3wqqc3WWaqxs58gvJrcOuN83HGTCwz3oS5phzU9LthRNE9VrJCFCLUgHeeFnfA==}
     engines: {node: '>=18'}
@@ -1549,16 +1592,40 @@ snapshots:
 
   '@types/lodash@4.17.18': {}
 
-  '@uni-helper/uni-network@0.21.3(vue@3.5.17)':
+  '@uni-helper/uni-app-types@1.0.0-alpha.6(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3))':
+    dependencies:
+      typescript: 5.8.3
+      vue: 3.5.17(typescript@5.8.3)
+
+  '@uni-helper/uni-cloud-types@1.0.0-alpha.6(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3))':
+    dependencies:
+      typescript: 5.8.3
+      vue: 3.5.17(typescript@5.8.3)
+
+  '@uni-helper/uni-network@0.21.3(vue@3.5.17(typescript@5.8.3))':
     dependencies:
       '@dcloudio/types': 3.4.15
       '@types/lodash.merge': 4.6.9
       fast-querystring: 1.1.2
       lodash.merge: 4.6.2
       statuses-es: 2.0.6
-      vue-demi: 0.14.10(vue@3.5.17)
+      vue-demi: 0.14.10(vue@3.5.17(typescript@5.8.3))
     optionalDependencies:
-      vue: 3.5.17
+      vue: 3.5.17(typescript@5.8.3)
+
+  '@uni-helper/uni-types@1.0.0-alpha.6(@uni-helper/uni-app-types@1.0.0-alpha.6(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3)))(@uni-helper/uni-cloud-types@1.0.0-alpha.6(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3)))(@uni-helper/uni-ui-types@1.0.0-alpha.6(@uni-helper/uni-app-types@1.0.0-alpha.6(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3)))(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3)))(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3))':
+    dependencies:
+      '@uni-helper/uni-app-types': 1.0.0-alpha.6(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3))
+      '@uni-helper/uni-cloud-types': 1.0.0-alpha.6(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3))
+      '@uni-helper/uni-ui-types': 1.0.0-alpha.6(@uni-helper/uni-app-types@1.0.0-alpha.6(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3)))(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3))
+      typescript: 5.8.3
+      vue: 3.5.17(typescript@5.8.3)
+
+  '@uni-helper/uni-ui-types@1.0.0-alpha.6(@uni-helper/uni-app-types@1.0.0-alpha.6(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3)))(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3))':
+    dependencies:
+      '@uni-helper/uni-app-types': 1.0.0-alpha.6(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3))
+      typescript: 5.8.3
+      vue: 3.5.17(typescript@5.8.3)
 
   '@vue/babel-helper-vue-transform-on@1.4.0': {}
 
@@ -1619,7 +1686,7 @@ snapshots:
       '@vue/compiler-dom': 3.5.17
       '@vue/shared': 3.5.17
 
-  '@vue/devtools-core@7.7.7(vue@3.5.17)':
+  '@vue/devtools-core@7.7.7(vue@3.5.17(typescript@5.8.3))':
     dependencies:
       '@vue/devtools-kit': 7.7.7
       '@vue/devtools-shared': 7.7.7
@@ -1627,7 +1694,7 @@ snapshots:
       nanoid: 5.1.5
       pathe: 2.0.3
       vite-hot-client: 2.0.4
-      vue: 3.5.17
+      vue: 3.5.17(typescript@5.8.3)
     transitivePeerDependencies:
       - vite
 
@@ -1661,11 +1728,11 @@ snapshots:
       '@vue/shared': 3.5.17
       csstype: 3.1.3
 
-  '@vue/server-renderer@3.5.17(vue@3.5.17)':
+  '@vue/server-renderer@3.5.17(vue@3.5.17(typescript@5.8.3))':
     dependencies:
       '@vue/compiler-ssr': 3.5.17
       '@vue/shared': 3.5.17
-      vue: 3.5.17
+      vue: 3.5.17(typescript@5.8.3)
 
   '@vue/shared@3.5.17': {}
 
@@ -2316,6 +2383,8 @@ snapshots:
     dependencies:
       prelude-ls: 1.2.1
 
+  typescript@5.8.3: {}
+
   unicorn-magic@0.3.0: {}
 
   universalify@2.0.1: {}
@@ -2364,9 +2433,9 @@ snapshots:
       - rollup
       - supports-color
 
-  vite-plugin-vue-devtools@7.7.7(vue@3.5.17):
+  vite-plugin-vue-devtools@7.7.7(vue@3.5.17(typescript@5.8.3)):
     dependencies:
-      '@vue/devtools-core': 7.7.7(vue@3.5.17)
+      '@vue/devtools-core': 7.7.7(vue@3.5.17(typescript@5.8.3))
       '@vue/devtools-kit': 7.7.7
       '@vue/devtools-shared': 7.7.7
       execa: 9.6.0
@@ -2393,9 +2462,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vue-demi@0.14.10(vue@3.5.17):
+  vue-demi@0.14.10(vue@3.5.17(typescript@5.8.3)):
     dependencies:
-      vue: 3.5.17
+      vue: 3.5.17(typescript@5.8.3)
 
   vue-eslint-parser@10.1.3(eslint@9.29.0):
     dependencies:
@@ -2410,13 +2479,15 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vue@3.5.17:
+  vue@3.5.17(typescript@5.8.3):
     dependencies:
       '@vue/compiler-dom': 3.5.17
       '@vue/compiler-sfc': 3.5.17
       '@vue/runtime-dom': 3.5.17
-      '@vue/server-renderer': 3.5.17(vue@3.5.17)
+      '@vue/server-renderer': 3.5.17(vue@3.5.17(typescript@5.8.3))
       '@vue/shared': 3.5.17
+    optionalDependencies:
+      typescript: 5.8.3
 
   which@2.0.2:
     dependencies:
@@ -2424,9 +2495,9 @@ snapshots:
 
   word-wrap@1.2.5: {}
 
-  wot-design-uni@1.9.1(vue@3.5.17):
+  wot-design-uni@1.9.1(vue@3.5.17(typescript@5.8.3)):
     dependencies:
-      vue: 3.5.17
+      vue: 3.5.17(typescript@5.8.3)
 
   wrap-ansi@9.0.0:
     dependencies:
