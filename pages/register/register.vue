@@ -1,83 +1,189 @@
 <template>
-  <view class="register-container">
-    <wd-toast />
-    <wd-message-box />
-    <view class="register-header">
-      <text class="title">注册账号</text>
+  <view class="login-page">
+    <view class="header">
+      <view class="title">注册账号</view>
+      <view class="subtitle">请填写您的注册信息</view>
     </view>
 
-    <view class="register-form">
-      <wd-input
-        v-model="registerForm.username"
-        label="用户名"
-        placeholder="请输入用户名"
-        clearable
-        size="large"
-        custom-class="input-field"
-      />
-      <wd-input
-        v-model="registerForm.password"
-        label="密码"
-        placeholder="请输入密码"
-        type="password"
-        clearable
-        size="large"
-        custom-class="input-field"
-      />
-      <wd-input
-        v-model="registerForm.confirmPassword"
-        label="确认密码"
-        placeholder="请再次输入密码"
-        type="password"
-        clearable
-        size="large"
-        custom-class="input-field"
-      />
+    <view class="form">
+      <view class="input-container">
+        <view class="input-item">
+          <text class="iconfont icon-shouji"></text>
+          <input
+            v-model="registerForm.phone"
+            type="number"
+            placeholder="请输入手机号"
+          />
+        </view>
+        <!-- 添加验证码输入框 -->
+        <view class="input-item code-input-item">
+          <text class="iconfont icon-yanzhengma"></text>
+          <input
+            v-model="registerForm.verificationCode"
+            type="number"
+            placeholder="请输入6位数的验证码"
+            maxlength="6"
+          />
+          <button
+            class="get-code-button"
+            :disabled="isCountingDown"
+            @click="getVerificationCode"
+          >
+            {{ countdown > 0 ? `${countdown}s后重发` : "获取验证码" }}
+          </button>
+        </view>
+        <!-- 验证码输入框结束 -->
+        <view class="input-item">
+          <text class="iconfont icon-mima"></text>
+          <input
+            v-model="registerForm.password"
+            :password="!showPassword"
+            placeholder="请输入6-12位密码"
+          />
+          <text
+            :class="[
+              'iconfont',
+              !showPassword ? 'icon-bukeshimima' : 'icon-keshimima',
+            ]"
+            @click="showPassword = !showPassword"
+          ></text>
+        </view>
+        <view class="input-item">
+          <text class="iconfont icon-mima"></text>
+          <input
+            v-model="registerForm.confirmPassword"
+            :password="!showConfirmPassword"
+            placeholder="请再次输入密码"
+          />
+          <text
+            :class="[
+              'iconfont',
+              !showConfirmPassword ? 'icon-bukeshimima' : 'icon-keshimima',
+            ]"
+            @click="showConfirmPassword = !showConfirmPassword"
+          ></text>
+        </view>
+      </view>
 
-      <wd-button
-        type="primary"
-        size="large"
-        custom-class="register-button"
+      <button
+        class="login-btn"
         :loading="isRegistering"
-        :disabled="isRegistering"
         @click="handleRegister"
       >
         注册
-      </wd-button>
+      </button>
 
-      <view class="links">
-        <text class="link-item" @click="goToLogin">已有账号？立即登录</text>
-      </view>
+      <view class="verify-login" @click="goToLogin">已有账号？立即登录</view>
     </view>
   </view>
 </template>
 
 <script setup>
-import { reactive, ref } from "vue";
-import { useToast, useMessage } from "wot-design-uni";
-
-const toast = useToast();
-const message = useMessage();
+import { reactive, ref, onUnmounted } from "vue";
 
 const registerForm = reactive({
-  username: "",
+  phone: "",
+  verificationCode: "", // 添加验证码字段
   password: "",
   confirmPassword: "",
 });
 
 const isRegistering = ref(false);
+const showPassword = ref(false);
+const showConfirmPassword = ref(false);
+
+// 验证码相关状态
+const countdown = ref(0);
+const isCountingDown = ref(false);
+let countdownTimer = null;
+
+// 获取验证码方法
+const getVerificationCode = () => {
+  if (!registerForm.phone) {
+    uni.showToast({
+      title: "请输入手机号",
+      icon: "none",
+    });
+    return;
+  }
+  const phoneReg = /^1[3-9]\d{9}$/;
+  if (!phoneReg.test(registerForm.phone)) {
+    uni.showToast({
+      title: "请输入正确的手机号",
+      icon: "none",
+    });
+    return;
+  }
+
+  // 模拟发送验证码请求
+  isCountingDown.value = true;
+  countdown.value = 60; // 倒计时60秒
+  uni.showToast({
+    title: "验证码已发送",
+    icon: "success",
+  });
+
+  countdownTimer = setInterval(() => {
+    if (countdown.value > 0) {
+      countdown.value--;
+    } else {
+      clearInterval(countdownTimer);
+      isCountingDown.value = false;
+    }
+  }, 1000);
+};
 
 const handleRegister = async () => {
-  if (!registerForm.username) {
-    toast.error("请输入用户名");
+  if (!registerForm.phone) {
+    uni.showToast({
+      title: "请输入手机号",
+      icon: "none",
+    });
+    return;
+  }
+  const phoneReg = /^1[3-9]\d{9}$/;
+  if (!phoneReg.test(registerForm.phone)) {
+    uni.showToast({
+      title: "请输入正确的手机号",
+      icon: "none",
+    });
+    return;
+  }
+  // 验证码校验
+  if (!registerForm.verificationCode) {
+    uni.showToast({
+      title: "请输入验证码",
+      icon: "none",
+    });
+    return;
+  }
+  if (registerForm.verificationCode.length !== 6) {
+    uni.showToast({
+      title: "验证码长度不正确",
+      icon: "none",
+    });
+    return;
+  }
+
+  if (!registerForm.password) {
+    uni.showToast({
+      title: "请输入密码",
+      icon: "none",
+    });
     return;
   }
   if (registerForm.password.length < 6) {
-    toast.error("密码长度不能少于6位");
+    uni.showToast({
+      title: "密码长度不能少于6位",
+      icon: "none",
+    });
     return;
   }
   if (registerForm.password !== registerForm.confirmPassword) {
-    toast.error("两次输入的密码不一致");
+    uni.showToast({
+      title: "两次输入的密码不一致",
+      icon: "none",
+    });
     return;
   }
 
@@ -88,20 +194,25 @@ const handleRegister = async () => {
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     // 模拟注册成功逻辑
-    message
-      .alert({
-        title: "注册成功",
-        msg: "恭喜您，账号注册成功！",
-        confirmButtonText: "立即登录",
-      })
-      .then(() => {
-        // 注册成功后跳转到登录页
-        uni.redirectTo({
-          url: "/pages/login/index",
-        });
-      });
+    uni.showModal({
+      title: "注册成功",
+      content: "恭喜您，账号注册成功！",
+      showCancel: false,
+      confirmText: "立即登录",
+      success: (res) => {
+        if (res.confirm) {
+          // 注册成功后跳转到登录页
+          uni.redirectTo({
+            url: "/pages/login/index",
+          });
+        }
+      },
+    });
   } catch (error) {
-    toast.error("注册失败，请稍后再试");
+    uni.showToast({
+      title: "注册失败，请稍后再试",
+      icon: "none",
+    });
     console.error("注册请求失败:", error);
   } finally {
     isRegistering.value = false;
@@ -111,59 +222,124 @@ const handleRegister = async () => {
 const goToLogin = () => {
   uni.navigateBack();
 };
+
+onUnmounted(() => {
+  if (countdownTimer) {
+    clearInterval(countdownTimer);
+  }
+});
 </script>
 
-<style lang="scss" scoped>
-.register-container {
+<style scoped>
+.login-page {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 80rpx 40rpx;
-  background-color: #f7f7f7;
-  min-height: 100vh;
-  box-sizing: border-box;
 }
 
-.register-header {
-  margin-bottom: 80rpx;
+.title {
+  font-family: PingFangSC-Medium;
+  font-size: 64rpx;
+  margin-top: 64rpx;
+  margin-bottom: 20rpx;
   text-align: center;
-
-  .title {
-    font-size: 56rpx;
-    font-weight: bold;
-    color: #333;
-  }
+  color: #000000;
 }
 
-.register-form {
-  width: 100%;
-  max-width: 600rpx;
+.subtitle {
+  font-size: 26rpx;
+  color: #969799;
+  text-align: center;
+}
+
+.form {
+  margin-top: 60rpx;
+  padding: 0 32rpx;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 48rpx;
+}
+
+.input-item {
+  display: flex;
+  align-items: center;
+  height: 100rpx;
+  line-height: 100rpx;
+  border-bottom: 1px solid #eee;
+  padding: 0 32rpx;
   background-color: #fff;
-  border-radius: 16rpx;
-  padding: 40rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+  border-radius: 200rpx;
+  gap: 32rpx;
+  font-size: 26rpx;
+}
 
-  .input-field {
-    margin-bottom: 30rpx;
+.input-item .iconfont {
+  font-size: 48rpx;
+  color: #333;
+}
+
+.input-item input {
+  flex: 1;
+  font-size: 32rpx;
+}
+
+.login-btn {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  background-color: #57c051;
+  color: #fff;
+  font-size: 16px;
+  border-radius: 44rpx;
+  margin-top: 48rpx;
+  margin-bottom: 48rpx;
+  letter-spacing: 12rpx;
+}
+
+.login-btn[disabled] {
+  background-color: #57c051;
+  color: #fff;
+  opacity: 0.5;
+}
+
+.verify-login {
+  font-size: 28rpx;
+  font-weight: normal;
+  text-align: center;
+  color: #57c051;
+}
+
+.uni-input-placeholder {
+  font-size: 26rpx;
+  color: #c8c9cc;
+}
+
+.code-input-item {
+  position: relative;
+}
+
+.get-code-button {
+  position: absolute;
+  right: 32rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: transparent;
+  border: none;
+  color: #57c051;
+  font-size: 28rpx;
+  padding: 0;
+  height: auto;
+  line-height: normal;
+
+  &::after {
+    border: none;
   }
 
-  .register-button {
-    margin-top: 50rpx;
-  }
-
-  .links {
-    display: flex;
-    justify-content: center; // 居中显示
-    margin-top: 40rpx;
-    font-size: 28rpx;
-    color: #007aff;
-  }
-
-  .link-item {
-    padding: 10rpx 0;
-    &:active {
-      opacity: 0.7;
-    }
+  &[disabled] {
+    color: #969799;
+    background-color: transparent;
   }
 }
 </style>
