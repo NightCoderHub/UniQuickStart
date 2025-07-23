@@ -4,7 +4,7 @@ export const useUserStore = defineStore("user", {
   state: () => ({
     // 从本地存储获取初始数据
     userInfo: uni.getStorageSync("userInfo") || null,
-    token: uni.getStorageSync("token") || "",
+    token: uni.getStorageSync("accessToken") || "",
     refreshToken: uni.getStorageSync("refreshToken") || "",
   }),
   getters: {
@@ -29,7 +29,7 @@ export const useUserStore = defineStore("user", {
     // 设置token
     setToken(token) {
       this.token = token;
-      uni.setStorageSync("token", token);
+      uni.setStorageSync("accessToken", token);
     },
     // 设置刷新token
     setRefreshToken(refreshToken) {
@@ -42,7 +42,7 @@ export const useUserStore = defineStore("user", {
       this.token = "";
       this.refreshToken = "";
       uni.removeStorageSync("userInfo");
-      uni.removeStorageSync("token");
+      uni.removeStorageSync("accessToken");
       uni.removeStorageSync("refreshToken");
     },
   },

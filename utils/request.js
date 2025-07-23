@@ -75,7 +75,7 @@ const ResponseSuccessStatusCode = 200;
  * 通常在 401 认证过期时调用。
  */
 function clearAuthAndRedirectToLogin() {
-  uni.removeStorageSync("token"); // 移除 Access Token
+  uni.removeStorageSync("accessToken"); // 移除 Access Token
   uni.removeStorageSync("refreshToken"); // 移除 Refresh Token
   uni.showToast({
     title: "登录过期，请重新登录",
@@ -113,7 +113,7 @@ const network = un.create({
 // --- 请求拦截器 ---
 network.interceptors.request.use(
   async function (config) {
-    const token = uni.getStorageSync("token");
+    const token = uni.getStorageSync("accessToken");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
