@@ -96,12 +96,6 @@
           }
         },
         {
-          "path": "notifications/notifications",
-          "style": {
-            "navigationBarTitleText": "消息通知"
-          }
-        },
-        {
           "path": "legal/privacy-policy",
           "style": {
             "navigationBarTitleText": "隐私政策"

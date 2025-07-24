@@ -196,33 +196,33 @@ const copyCustomerServiceEmail = () => {
   .search-input {
     flex: 1;
     height: 70rpx;
-    background-color: #f5f5f5;
-    border-radius: 35rpx;
     padding: 0 30rpx;
     font-size: 28rpx;
     color: #333;
+    background-color: #f5f5f5;
+    border-radius: 35rpx;
   }
 
   .search-icon {
-    font-family: "iconfont";
+    margin-left: 20rpx;
+    font-family: iconfont;
     font-size: 40rpx;
     color: #999;
-    margin-left: 20rpx;
   }
 }
 
 .faq-section,
 .contact-section {
-  background-color: #fff;
-  margin-top: 20rpx;
   padding: 0 30rpx;
+  margin-top: 20rpx;
+  background-color: #fff;
 }
 
 .section-title {
+  padding: 30rpx 0;
   font-size: 32rpx;
   font-weight: bold;
   color: #333;
-  padding: 30rpx 0;
   border-bottom: 1rpx solid #f0f0f0;
 }
 
@@ -232,21 +232,22 @@ const copyCustomerServiceEmail = () => {
 
 .faq-item {
   margin-bottom: 30rpx;
+
   &:last-child {
     margin-bottom: 0;
   }
 
   .question {
+    margin-bottom: 10rpx;
     font-size: 30rpx;
     font-weight: bold;
     color: #333;
-    margin-bottom: 10rpx;
   }
 
   .answer {
     font-size: 28rpx;
-    color: #666;
     line-height: 1.6;
+    color: #666;
   }
 }
 
@@ -261,15 +262,15 @@ const copyCustomerServiceEmail = () => {
   }
 
   .contact-label {
+    flex: 1;
     font-size: 30rpx;
     color: #333;
-    flex: 1;
   }
 
   .contact-value {
+    margin-right: 20rpx;
     font-size: 30rpx;
     color: #666;
-    margin-right: 20rpx;
   }
 }
 </style>

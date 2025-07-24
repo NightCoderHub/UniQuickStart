@@ -240,34 +240,34 @@ onShow(() => {
 }
 
 .permissions-scroll-view {
+  box-sizing: border-box;
   flex: 1;
   padding: 20rpx;
-  box-sizing: border-box;
 }
 
 .setting-group {
-  background-color: #ffffff;
   margin-bottom: 20rpx;
-  border-radius: 16rpx;
   overflow: hidden;
+  background-color: #fff;
+  border-radius: 16rpx;
 
   .setting-item {
+    position: relative;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     padding: 28rpx 30rpx;
     font-size: 32rpx;
-    color: #333333;
-    position: relative;
+    color: #333;
 
     &:not(:last-child)::after {
-      content: "";
       position: absolute;
-      left: 30rpx;
       right: 0;
       bottom: 0;
+      left: 30rpx;
       height: 1rpx;
-      background-color: #eeeeee;
+      content: "";
+      background-color: #eee;
       transform: scaleY(0.5);
       transform-origin: 0 100%;
     }
@@ -287,39 +287,39 @@ onShow(() => {
     }
 
     .item-value {
-      color: #999999;
-      font-size: 28rpx;
       margin-right: 15rpx;
+      font-size: 28rpx;
+      color: #999;
     }
 
     .iconfont {
       font-size: 30rpx;
-      color: #cccccc;
+      color: #ccc;
     }
   }
 }
 
 .permission-description {
   display: block;
-  border-bottom: 1px solid #eee;
-  font-size: 24rpx;
-  color: #666666;
   padding: 0 30rpx 20rpx;
+  font-size: 24rpx;
   line-height: 1.4;
+  color: #666;
+  border-bottom: 1px solid #eee;
 }
 
 .permission-tip {
   font-size: 26rpx;
-  color: #999999;
+  color: #999;
   text-align: center;
 }
 
 .permission-intro {
+  margin-bottom: 20rpx;
   font-size: 24rpx;
-  color: #666666;
   line-height: 1.5;
+  color: #666;
   background-color: #f8f8f8;
   border-radius: 16rpx;
-  margin-bottom: 20rpx;
 }
 </style>

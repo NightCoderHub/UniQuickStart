@@ -95,8 +95,8 @@ const copyToClipboard = (content) => {
   flex-direction: column;
   align-items: center;
   padding: 60rpx 0 40rpx;
-  background-color: #fff;
   margin-bottom: 20rpx;
+  background-color: #fff;
 
   .app-logo {
     width: 160rpx;
@@ -105,16 +105,16 @@ const copyToClipboard = (content) => {
   }
 
   .app-name {
+    margin-bottom: 10rpx;
     font-size: 36rpx;
     font-weight: bold;
     color: #333;
-    margin-bottom: 10rpx;
   }
 
   .app-slogan {
+    margin-bottom: 10rpx;
     font-size: 28rpx;
     color: #666;
-    margin-bottom: 10rpx;
   }
 
   .app-version {
@@ -124,31 +124,31 @@ const copyToClipboard = (content) => {
 }
 
 .app-description-section {
-  background-color: #fff;
   padding: 30rpx;
-  margin-bottom: 20rpx;
-  border-radius: 16rpx;
   margin: 0 20rpx 20rpx;
+  margin-bottom: 20rpx;
+  background-color: #fff;
+  border-radius: 16rpx;
 
   .app-description {
     font-size: 28rpx;
-    color: #666;
     line-height: 1.6;
+    color: #666;
     text-align: justify;
   }
 }
 
 .info-list {
-  background-color: #fff;
   padding: 0 30rpx;
   margin: 0 20rpx;
+  background-color: #fff;
   border-radius: 16rpx;
 }
 
 .info-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   padding: 30rpx 0;
   border-bottom: 1rpx solid #f0f0f0;
 
@@ -173,8 +173,8 @@ const copyToClipboard = (content) => {
 }
 
 .footer-section {
-  flex: 1;
   display: flex;
+  flex: 1;
   align-items: flex-end;
   justify-content: center;
   padding-bottom: 40rpx;

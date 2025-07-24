@@ -1,6 +1,6 @@
 // 主色调
-$color-black: #000000;
-$color-white: #ffffff;
+$color-black: #000;
+$color-white: #fff;
 $color-primary: #0ab7ee;
 // 状态色
 $color-success: #40c393; // 绿色
@@ -18,7 +18,7 @@ $color-text-alpha-90: rgba($color-black, 0.9); // 90% 不透明度的黑色文�
 
 // --- 基础灰色调板 ---
 // 从视觉上对颜色进行排序，从深到浅或从浅到深
-$color-gray-900: #333333; // 极深灰，接近黑色，通常用于主要文本
+$color-gray-900: #333; // 极深灰，接近黑色，通常用于主要文本
 $color-gray-800: #3d3d3d; // 深灰，比900稍亮，也常用于主要文本或标题
 $color-gray-700: #828282; // 中等偏深灰，适合次要文本
 $color-gray-600: #8c8c8c; // 中等偏深灰，与700类似，可根据视觉差异选择

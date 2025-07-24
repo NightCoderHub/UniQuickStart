@@ -47,24 +47,27 @@ export default {
 </script>
 
 <style lang="scss">
-/*每个页面公共css */
+/* 每个页面公共css */
 @import "@/style/iconfont/iconfont.css";
 @import "@/style/wot-ui-variable.scss";
+
 ::-webkit-scrollbar {
   display: none;
   width: 0;
   height: 0;
   color: transparent;
 }
+
 view,
 scroll-view {
   box-sizing: border-box;
 }
+
 :root,
 page {
-  background-color: $background-color-content;
-  color: $color-gray-800;
   font-family: PingFangSC;
+  color: $color-gray-800;
+  background-color: $background-color-content;
 }
 
 uni-tabbar {

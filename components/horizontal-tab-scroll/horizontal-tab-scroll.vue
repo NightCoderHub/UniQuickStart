@@ -193,17 +193,17 @@ export default {
 <style lang="scss" scoped>
 /* 组件根容器 */
 .horizontal-tab-scroll {
-  width: 100%;
   position: relative;
+  width: 100%;
 }
 
 /* Tab 栏容器，用于定位下拉按钮 */
 .tab-container {
-  background-color: $background-color-content;
+  position: relative;
   // box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
   display: flex;
   align-items: center;
-  position: relative;
+  background-color: $background-color-content;
   // ** 将 position: relative; 放在这里，让 dropdown-overlay 可以在其内部定位 **
   // height: 120rpx;
   // padding-top: 24rpx;
@@ -211,62 +211,63 @@ export default {
 
 /* 横向滚动的 scroll-view */
 .horizontal-scroll {
+  box-sizing: border-box;
   width: calc(100% - 80rpx);
   // height: 80rpx;
   white-space: nowrap;
-  box-sizing: border-box;
 }
 
 /* Tab 项容器 */
 .item-container {
-  display: flex;
-  align-items: center;
-  flex-direction: row;
-  padding: 0 10rpx;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   height: 100rpx;
+  padding: 0 10rpx;
 }
 
 /* Tab 项样式 */
 .scroll-item {
-  padding: 0 16rpx;
-  height: 44rpx;
-  line-height: 44rpx;
-  flex-shrink: 0;
-  margin: 0 10rpx;
-  border-radius: 50rpx;
   display: flex;
-  justify-content: center;
+  flex-shrink: 0;
   align-items: center;
+  justify-content: center;
+  height: 44rpx;
+  padding: 0 16rpx;
+  margin: 0 10rpx;
   font-size: 28rpx;
+  line-height: 44rpx;
   color: #828282;
   border: 2rpx solid transparent;
+  border-radius: 50rpx;
   transition: all 0.2s ease; /* 添加过渡效果 */
   &:active {
     opacity: 0.7; /* 点击反馈 */
   }
 }
+
 /* 选中项样式 */
 .scroll-item.active {
-  border-color: $color-success;
-  color: $color-success;
   font-weight: normal;
+  color: $color-success;
+  border-color: $color-success;
 }
 
 /* ================== 下拉按钮样式 ================== */
 .dropdown-btn {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 80rpx;
   height: 80rpx;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
   background-color: $background-color-content;
-  box-shadow: -4rpx 0 8rpx rgba(0, 0, 0, 0.05);
-  z-index: 10;
+  box-shadow: -4rpx 0 8rpx rgb(0 0 0 / 5%);
+  transform: translateY(-50%);
 }
 
 .dropdown-btn .icon {
@@ -284,13 +285,13 @@ export default {
   position: absolute;
   top: 100%;
   left: 0;
-  width: 100%;
   z-index: 9; /* z-index 略低于 Tab 栏，避免遮挡 */
+  width: 100%;
 
   // ** 动画效果关键样式 **
   max-height: 0; // 初始隐藏状态
-  opacity: 0; // 初始透明度
   overflow: hidden; // 隐藏溢出内容
+  opacity: 0; // 初始透明度
   transition:
     max-height 0.25s ease-in-out,
     opacity 0.25s ease-in-out; // 添加过渡
@@ -299,47 +300,49 @@ export default {
 /* 动画展开状态 */
 .dropdown-overlay.show {
   max-height: 50vh; // 展开后足够大的高度，确保内容完全显示
-  opacity: 1; // 展开后完全显示
   overflow-y: auto;
+  opacity: 1; // 展开后完全显示
 }
 
 .dropdown-content {
-  width: 100%;
   box-sizing: border-box;
-  // background-color: $background-color-content;
-  background-color: #fff;
-  border-radius: 0 0 20rpx 20rpx;
-  padding: 30rpx;
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
-  box-shadow: 0 6rpx 6rpx rgba(0, 0, 0, 0.05);
+  width: 100%;
+  padding: 30rpx;
+  // background-color: $background-color-content;
+  background-color: #fff;
+  border-radius: 0 0 20rpx 20rpx;
+  box-shadow: 0 6rpx 6rpx rgb(0 0 0 / 5%);
 }
 
 .dropdown-header {
   width: 100%;
+  margin-bottom: 20rpx;
   font-size: 32rpx;
   font-weight: bold;
-  margin-bottom: 20rpx;
   color: #333;
 }
 
 .dropdown-item {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 25%;
   padding: 20rpx 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   font-size: 30rpx;
   color: #333;
-  box-sizing: border-box;
   transition: all 0.2s ease;
+
   &:active {
     background-color: #f5f5f5; /* 点击反馈 */
   }
 }
+
 .dropdown-item.active {
-  color: $color-success;
   font-weight: bold;
+  color: $color-success;
 }
 </style>

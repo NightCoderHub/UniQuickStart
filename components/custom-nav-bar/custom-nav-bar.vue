@@ -61,12 +61,13 @@ export default {
 
 <style scoped>
 .custom-nav-bar {
-  width: 100%;
   /* 确保组件在页面顶部并固定 */
+
   /* position: fixed; */
   top: 0;
   left: 0;
   z-index: 999; /* 确保层级在内容之上 */
+  width: 100%;
 }
 
 .status-bar-placeholder {
@@ -74,11 +75,12 @@ export default {
 }
 
 .nav-bar-content {
-  width: 100%;
+  box-sizing: border-box; /* 包含 padding 和 border */
   display: flex;
   align-items: center;
+  width: 100%;
+
   /* 导航栏内容的自定义样式，可根据需求修改 */
   padding: 0 15px; /* 左右内边距 */
-  box-sizing: border-box; /* 包含 padding 和 border */
 }
 </style>

@@ -225,63 +225,60 @@ const handleUpdate = () => {
 <style lang="scss" scoped>
 .update-popup-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  inset: 0;
+  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  background-color: rgb(0 0 0 / 60%);
 
   .update-popup-content {
-    background-color: #fff;
-    border-radius: 16rpx;
-    width: 600rpx;
-    overflow: visible; /* 允许子元素超出边界 */
     position: relative; /* 为子元素的绝对定位提供参考 */
     display: flex;
     flex-direction: column;
-    box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
+    width: 600rpx;
     padding-top: 80rpx; /* 为图片留出顶部空间 */
+    overflow: visible; /* 允许子元素超出边界 */
+    background-color: #fff;
+    border-radius: 16rpx;
+    box-shadow: 0 4rpx 20rpx rgb(0 0 0 / 10%);
 
     .upgrade-icon {
       position: absolute;
       top: -80rpx; /* 向上偏移，具体数值根据图片大小和设计调整 */
       left: 50%;
-      transform: translateX(-50%); /* 水平居中 */
+      z-index: 10000; /* 确保图片在最上层 */
       width: 240rpx; /* 根据图片实际大小调整 */
       height: auto;
-      z-index: 10000; /* 确保图片在最上层 */
+      transform: translateX(-50%); /* 水平居中 */
     }
 
     .update-popup-main {
-      padding: 40rpx;
+      position: relative; /* 确保内容在图片下方 */
       display: flex;
       flex-direction: column;
       align-items: center;
+      padding: 40rpx;
       background-color: #fff; /* 确保内容区域背景是白色 */
       border-radius: 16rpx; /* 确保圆角 */
-      position: relative; /* 确保内容在图片下方 */
 
       .update-popup-title {
+        margin-bottom: 20rpx;
         font-size: 38rpx;
         font-weight: bold;
         color: #333;
-        margin-bottom: 20rpx;
       }
 
       .update-popup-scroll-view {
-        max-height: 200rpx; // 限制内容高度，超出可滚动
         width: 100%;
+        max-height: 200rpx; // 限制内容高度，超出可滚动
         margin-bottom: 40rpx;
       }
 
       .update-popup-description {
         font-size: 28rpx;
-        color: #666;
         line-height: 1.6;
+        color: #666;
         white-space: pre-wrap; // 保留换行符和空格
       }
 
@@ -292,38 +289,39 @@ const handleUpdate = () => {
       }
 
       .download-progress-text {
+        margin-bottom: 30rpx;
         font-size: 24rpx;
         color: #409eff;
-        margin-bottom: 30rpx;
       }
 
       .update-popup-actions {
         display: flex;
-        width: 100%;
         gap: 20rpx;
+        width: 100%;
 
         .action-button {
           flex: 1;
           height: 80rpx;
-          line-height: 80rpx;
-          border-radius: 40rpx;
+          padding: 0; // 移除默认padding
           font-size: 32rpx;
+          line-height: 80rpx;
           text-align: center;
           border: none;
-          padding: 0; // 移除默认padding
+          border-radius: 40rpx;
+
           &::after {
             // 移除button自带的边框
             border: none;
           }
 
           &.cancel-button {
-            background-color: #f2f2f2;
             color: #666;
+            background-color: #f2f2f2;
           }
 
           &.update-button {
-            background-color: #409eff;
             color: #fff;
+            background-color: #409eff;
 
             &.full-width {
               flex: none;

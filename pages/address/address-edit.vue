@@ -394,26 +394,28 @@ watch(
 }
 
 .bottom-buttons {
-  background-color: #fff;
-  padding: 24rpx;
-  box-shadow: 0 -2rpx 8rpx rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   gap: 20rpx;
+  padding: 24rpx;
+  background-color: #fff;
+  box-shadow: 0 -2rpx 8rpx rgb(0 0 0 / 5%);
 
   .delete-button {
-    background-color: #f5222d;
     color: #fff;
+    background-color: #f5222d;
   }
 }
 
 .location-container {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+
   .wd-textarea {
     flex: 1;
   }
+
   .wd-icon {
     margin-right: 24rpx;
   }

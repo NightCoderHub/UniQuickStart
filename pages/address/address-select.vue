@@ -149,11 +149,11 @@ const deleteAddress = (id) => {
 }
 
 .address-card {
-  background-color: #fff;
-  border-radius: 16rpx;
   padding: 32rpx;
   margin-bottom: 24rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  background-color: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 8rpx rgb(0 0 0 / 5%);
 
   &:last-child {
     margin-bottom: 0;
@@ -163,8 +163,8 @@ const deleteAddress = (id) => {
     display: flex;
     align-items: center;
     margin-bottom: 16rpx;
-    font-weight: bold;
     font-size: 32rpx;
+    font-weight: bold;
     color: #333;
 
     .consignee {
@@ -178,18 +178,19 @@ const deleteAddress = (id) => {
 
     .default-tag {
       margin-left: 16rpx;
-      background-color: #e6f7ff;
+
       /* 更柔和的蓝色 */
       color: #1890ff;
+      background-color: #e6f7ff;
       border: 1px solid #91d5ff;
     }
   }
 
   .address-detail {
-    font-size: 28rpx;
-    color: #666;
-    line-height: 1.5;
     margin-bottom: 24rpx;
+    font-size: 28rpx;
+    line-height: 1.5;
+    color: #666;
   }
 
   .address-actions {
@@ -204,8 +205,8 @@ const deleteAddress = (id) => {
   align-items: center;
   justify-content: center;
   padding: 100rpx 0;
-  color: #999;
   font-size: 32rpx;
+  color: #999;
 
   .placeholder-text {
     margin-top: 32rpx;

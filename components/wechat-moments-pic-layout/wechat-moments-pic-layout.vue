@@ -221,18 +221,19 @@ const saveCurrentImage = async () => {
 
 <style lang="scss" scoped>
 .wechat-moments-pic-layout {
-  width: 100%;
   box-sizing: border-box;
+  width: 100%;
+
   .single-image-wrapper {
-    width: 100%;
     display: flex;
     justify-content: center;
+    width: 100%;
   }
 
   .double-image-wrapper {
     display: flex;
-    justify-content: space-between;
     gap: 8rpx;
+    justify-content: space-between;
   }
 
   .triple-image-wrapper {
@@ -244,6 +245,7 @@ const saveCurrentImage = async () => {
     display: flex;
     flex-direction: column;
     gap: 8rpx;
+
     .quad-row {
       display: flex;
       gap: 8rpx;
@@ -256,8 +258,9 @@ const saveCurrentImage = async () => {
     gap: 8rpx;
 
     .grid-item-native {
-      width: calc((100% - 2 * 8rpx) / 3);
       box-sizing: border-box;
+      width: calc((100% - 2 * 8rpx) / 3);
+
       &:nth-child(3n + 1):last-child:nth-last-child(-n + 2),
       &:nth-child(3n + 2):last-child:nth-last-child(-n + 1) {
         margin-right: auto;
@@ -268,54 +271,52 @@ const saveCurrentImage = async () => {
   /* --- 图片预览叠加层样式 --- */
   .image-preview-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #000;
+    inset: 0;
     z-index: 999;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    background-color: #000;
 
     .preview-header {
       position: absolute;
       top: var(--status-bar-height);
-      left: 0;
       right: 0;
-      height: 80rpx;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 30rpx;
-      color: #fff;
-      font-size: 32rpx;
+      left: 0;
       z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 80rpx;
+      padding: 0 30rpx;
+      font-size: 32rpx;
+      color: #fff;
 
       .close-btn {
+        padding: 0 10rpx;
         font-size: 60rpx;
         line-height: 1;
-        padding: 0 10rpx;
       }
+
       .indicator {
         margin-left: auto;
       }
     }
 
     .preview-swiper {
+      display: flex;
+      flex: 1;
+      align-items: center;
+      justify-content: center;
       width: 100%;
       height: 100%;
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
 
       .swiper-item-content {
-        display: flex;
-        justify-content: center;
-        align-items: center;
         position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
         .preview-image {
           width: 100%;
@@ -325,10 +326,10 @@ const saveCurrentImage = async () => {
         .image-loading,
         .image-error {
           position: absolute;
-          color: #fff;
-          font-size: 28rpx;
-          background-color: rgba(0, 0, 0, 0.5);
           padding: 10rpx 20rpx;
+          font-size: 28rpx;
+          color: #fff;
+          background-color: rgb(0 0 0 / 50%);
           border-radius: 10rpx;
         }
       }
@@ -337,22 +338,23 @@ const saveCurrentImage = async () => {
     .preview-footer {
       position: absolute;
       bottom: env(safe-area-inset-bottom);
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20rpx 0;
       z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 20rpx 0;
 
       .save-btn {
-        background-color: rgba(255, 255, 255, 0.2);
-        color: #fff;
-        font-size: 28rpx;
         padding: 10rpx 30rpx;
-        border-radius: 40rpx;
+        font-size: 28rpx;
         line-height: normal;
+        color: #fff;
+        background-color: rgb(255 255 255 / 20%);
+        border-radius: 40rpx;
+
         &:active {
-          background-color: rgba(255, 255, 255, 0.4);
+          background-color: rgb(255 255 255 / 40%);
         }
       }
     }

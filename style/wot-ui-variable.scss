@@ -1,4 +1,5 @@
-@import "@/style/theme.scss";
+@import "./theme.scss";
+
 :root,
 page {
   --wot-color-theme: #{$color-primary};

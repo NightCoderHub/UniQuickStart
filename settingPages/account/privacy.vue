@@ -22,10 +22,6 @@
           @change="toggleLocationAccess"
         />
       </view>
-      <view class="setting-item" @click="navigateToNotificationSettings">
-        <text class="item-text">通知设置</text>
-        <text class="arrow">></text>
-      </view>
       <view class="setting-item" @click="navigateToAccountDeletion">
         <text class="item-text">注销账户</text>
         <text class="arrow">></text>
@@ -66,12 +62,6 @@ const toggleLocationAccess = (e) => {
   });
 };
 
-const navigateToNotificationSettings = () => {
-  uni.navigateTo({
-    url: "/settingPages/notifications/notifications", // 假设有通知设置页面
-  });
-};
-
 const navigateToAccountDeletion = () => {
   uni.showModal({
     title: "注销账户",
@@ -95,16 +85,16 @@ const navigateToAccountDeletion = () => {
 }
 
 .setting-list {
-  background-color: #fff;
   margin-top: 20rpx;
-  border-radius: 16rpx;
   overflow: hidden;
+  background-color: #fff;
+  border-radius: 16rpx;
 }
 
 .setting-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   padding: 24rpx 32rpx;
   border-bottom: 1rpx solid #eee;
 
@@ -113,15 +103,15 @@ const navigateToAccountDeletion = () => {
   }
 
   .item-text {
+    flex: 1;
     font-size: 32rpx;
     color: #333;
-    flex: 1;
   }
 
   .arrow {
+    margin-left: 20rpx;
     font-size: 32rpx;
     color: #999;
-    margin-left: 20rpx;
   }
 }
 </style>

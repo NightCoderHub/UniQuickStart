@@ -141,22 +141,22 @@ const submitFeedback = () => {
 </script>
 <style lang="scss" scoped>
 .feedback-page {
-  background-color: #f5f5f5;
-  padding: 16px;
   box-sizing: border-box; // 确保内边距不会增加总宽度
+  padding: 16px;
+  background-color: #f5f5f5;
 
   .form-section {
-    background-color: #fff;
-    border-radius: 8px;
     padding: 16px;
     margin-bottom: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 5%);
 
     .section-title {
+      margin-bottom: 12px;
       font-size: 16px;
       font-weight: bold;
       color: #333;
-      margin-bottom: 12px;
     }
 
     .feedback-textarea {
@@ -165,9 +165,10 @@ const submitFeedback = () => {
       ::v-deep .wd-textarea__textarea {
         min-height: 100px; // 设定最小高度
       }
+
       ::v-deep .wd-textarea__word-limit {
-        color: #999;
         font-size: 12px;
+        color: #999;
       }
     }
 

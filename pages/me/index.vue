@@ -264,29 +264,29 @@ const handleMenuClick = (type) => {
 
 <style lang="scss" scoped>
 .profile-page {
-  background: linear-gradient(0deg, #f2f3f8 0%, rgba(64, 195, 147, 0.5) 100%);
   min-height: 100vh;
+  background: linear-gradient(0deg, #f2f3f8 0%, rgb(64 195 147 / 50%) 100%);
 }
 
 .user-section {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   padding: 40rpx;
-  position: relative;
-  z-index: 1;
 
   .user-info {
     display: flex;
-    align-items: center;
     flex: 1;
+    align-items: center;
 
     .avatar {
+      flex-shrink: 0;
       width: 152rpx;
       height: 152rpx;
-      border-radius: 50%;
       margin-right: 30rpx;
-      border: 4rpx solid rgba(255, 255, 255, 0.8);
-      flex-shrink: 0;
+      border: 4rpx solid rgb(255 255 255 / 80%);
+      border-radius: 50%;
     }
 
     .user-details {
@@ -296,21 +296,21 @@ const handleMenuClick = (type) => {
       min-height: 152rpx; // 确保未登录时也有足够高度
 
       .user-name {
-        font-size: 48rpx;
-        font-family: PingFangSC-Medium;
-        color: #000;
         margin-bottom: 10rpx;
-        white-space: nowrap;
         overflow: hidden;
+        font-family: PingFangSC-Medium;
+        font-size: 48rpx;
+        color: #000;
         text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .rating-info {
         display: flex;
-        align-items: center;
         gap: 20rpx;
-        color: $color-gray-800;
+        align-items: center;
         font-size: 24rpx;
+        color: $color-gray-800;
 
         .divider {
           color: $color-gray-800;
@@ -323,21 +323,22 @@ const handleMenuClick = (type) => {
         align-items: flex-start;
 
         .login-text {
-          font-size: 36rpx;
-          color: #000;
           margin-bottom: 20rpx;
+          font-size: 36rpx;
           font-weight: 600;
+          color: #000;
         }
 
         .login-button {
-          background-color: $color-success;
-          color: #ffffff;
-          padding: 10rpx 40rpx;
-          font-size: 28rpx;
-          border-radius: 40rpx;
           height: auto;
-          line-height: normal;
+          padding: 10rpx 40rpx;
           margin: 0;
+          font-size: 28rpx;
+          line-height: normal;
+          color: #fff;
+          background-color: $color-success;
+          border-radius: 40rpx;
+
           &::after {
             border: none;
           }
@@ -347,32 +348,33 @@ const handleMenuClick = (type) => {
   }
 
   .settings-icon {
-    margin-left: auto;
     padding: 20rpx;
+    margin-left: auto;
+
     .iconfont {
       font-size: 44rpx;
-      color: #333333;
+      color: #333;
     }
   }
 }
 
 .menu-section {
-  padding: 0 24rpx;
   position: relative;
   z-index: 2;
+  padding: 0 24rpx;
 
   .menu-card {
-    border-radius: 24rpx;
-    background: #ffffff;
     margin-bottom: 30rpx;
     overflow: hidden;
-    box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+    background: #fff;
+    border-radius: 24rpx;
+    box-shadow: 0 4rpx 20rpx rgb(0 0 0 / 5%);
 
     .card-title {
+      padding: 30rpx 40rpx 0;
       font-size: 32rpx;
       font-weight: bold;
       color: $color-text-heading;
-      padding: 30rpx 40rpx 0;
     }
 
     &.dashboard-card {
@@ -385,16 +387,16 @@ const handleMenuClick = (type) => {
         border-bottom: 1rpx solid #f0f0f0;
 
         .service-item {
-          width: 45%;
-          height: 90rpx;
           box-sizing: border-box;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          font-size: 30rpx;
-          color: $color-text-heading;
-          font-weight: 600;
+          width: 45%;
+          height: 90rpx;
           padding: 0 20rpx;
+          font-size: 30rpx;
+          font-weight: 600;
+          color: $color-text-heading;
           border-radius: 12rpx;
           transition: background-color 0.2s ease-in-out;
 
@@ -407,8 +409,8 @@ const handleMenuClick = (type) => {
           }
 
           .iconfont {
-            font-size: 52rpx;
             margin-left: 20rpx;
+            font-size: 52rpx;
 
             &.icon-yue {
               color: #fdd650;
@@ -433,27 +435,26 @@ const handleMenuClick = (type) => {
     .menu-grid {
       display: flex;
       flex-wrap: wrap;
+      gap: 30rpx 0;
       align-items: flex-start;
-      row-gap: 30rpx;
-      column-gap: 0;
       padding: 30rpx 0;
 
       .menu-item {
-        width: 25%;
+        box-sizing: border-box;
         display: flex;
         flex-direction: column;
         align-items: center;
-        transition: background-color 0.2s ease-in-out;
+        width: 25%;
         padding: 16rpx 0;
-        box-sizing: border-box;
+        transition: background-color 0.2s ease-in-out;
 
         &:active {
           background-color: #f5f5f5;
         }
 
         .menu-icon {
-          font-size: 56rpx;
           margin-bottom: 12rpx;
+          font-size: 56rpx;
           color: $color-success;
         }
 

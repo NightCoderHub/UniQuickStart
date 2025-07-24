@@ -1,8 +1,8 @@
 /*eslint no-undef: "off"*/
-const postcssScss = require("postcss-scss");
+// const postcssScss = require("postcss-scss");
 
 module.exports = {
-  customSyntax: postcssScss,
+  // customSyntax: postcssScss,
   // Stylelint 15+ 版本不再需要 'processors' 来解析 Vue SFC，
   // 而是通过 'extends' 中的 `stylelint-config-html/vue` 来处理。
   // 如果你没有特殊的后处理需求，可以移除或留空 'processors'。
@@ -24,6 +24,12 @@ module.exports = {
   rules: {
     "declaration-property-value-no-unknown": null, // 禁用此规则
     "selector-class-pattern": null,
+    "selector-type-no-unknown": [
+      true,
+      {
+        ignoreTypes: ["page", "scroll-view", "uni-tabbar"],
+      },
+    ],
     "font-family-no-missing-generic-family-keyword": null,
     // 'at-rule-descriptor-no-unknown': null,
     "unit-no-unknown": [
@@ -56,6 +62,20 @@ module.exports = {
         ],
       },
     ],
+    "import-notation": "string",
+    "no-empty-source": null,
+    "function-no-unknown": [
+      true,
+      {
+        ignoreFunctions: ["constant", "env"],
+      },
+    ],
+    "selector-pseudo-element-no-unknown": [
+      true,
+      {
+        ignorePseudoElements: ["v-deep"],
+      },
+    ],
   },
   // 忽略文件
   ignoreFiles: [
@@ -67,5 +87,6 @@ module.exports = {
     "**/*.md",
     "node_modules/**",
     "dist/**",
+    "style/iconfont/iconfont.css",
   ],
 };

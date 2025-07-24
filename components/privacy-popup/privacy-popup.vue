@@ -149,28 +149,28 @@ const gotoPrivacyPage = () => {
 
 <style lang="scss">
 .privacy-content {
-  width: 600rpx;
-  border-radius: 16rpx;
-  padding: 40rpx;
   box-sizing: border-box;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 600rpx;
+  padding: 40rpx;
+  overflow: hidden;
+  border-radius: 16rpx;
 }
 
 .privacy-title {
+  margin-bottom: 30rpx;
   font-size: 36rpx;
   font-weight: bold;
-  margin-bottom: 30rpx;
 }
 
 .privacy-text {
-  font-size: 28rpx;
-  color: #666;
-  line-height: 1.5;
-  text-align: center;
   margin-bottom: 50rpx;
+  font-size: 28rpx;
+  line-height: 1.5;
+  color: #666;
+  text-align: center;
 }
 
 .privacy-link {

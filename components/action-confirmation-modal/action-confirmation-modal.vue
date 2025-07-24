@@ -63,35 +63,35 @@ const onConfirm = () => {
 
 <style>
 :deep(.action-modal-wrapper) {
-  border-radius: 32rpx;
   width: 600rpx;
+  border-radius: 32rpx;
 }
 </style>
 <style lang="scss" scoped>
 .action-modal-content {
-  padding: 52rpx 48rpx;
-  background: #fff;
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 52rpx 48rpx;
+  background: #fff;
 }
 
 .modal-title {
+  margin-bottom: 16rpx;
   font-family: PingFangSC-Medium;
   font-size: 32rpx;
-  margin-bottom: 16rpx;
   color: #000;
   text-align: center;
 }
 
 .modal-description {
   width: 500rpx;
-  text-align: justify;
-  text-align-last: center;
+  margin-right: auto;
+  margin-left: auto;
   font-size: 28rpx;
   color: #333;
-  margin-left: auto;
-  margin-right: auto;
+  text-align: justify;
+  text-align-last: center;
 
   .link {
     color: #007aff;
@@ -101,20 +101,20 @@ const onConfirm = () => {
 
 .modal-actions {
   display: flex;
-  justify-content: space-around;
   align-items: center;
-  border-top: 1rpx solid #eee;
+  justify-content: space-around;
   height: 100rpx;
+  border-top: 1rpx solid #eee;
 }
 
 .btn-cancel,
 .btn-confirm {
-  flex: 1;
   display: flex;
+  flex: 1;
   align-items: center;
   justify-content: center;
-  font-size: 28rpx;
   height: 100%;
+  font-size: 28rpx;
   cursor: pointer;
 }
 
@@ -123,8 +123,8 @@ const onConfirm = () => {
 }
 
 .btn-confirm {
-  color: #007aff;
   font-weight: bold;
+  color: #007aff;
 }
 
 .btn-divider {

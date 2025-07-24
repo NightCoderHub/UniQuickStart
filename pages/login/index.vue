@@ -228,12 +228,12 @@ const handleLogin = async () => {
 }
 
 .title {
-  font-family: PingFangSC-Medium;
-  font-size: 64rpx;
   margin-top: 64rpx;
   margin-bottom: 20rpx;
+  font-family: PingFangSC-Medium;
+  font-size: 64rpx;
+  color: #000;
   text-align: center;
-  color: #000000;
 }
 
 .subtitle {
@@ -243,8 +243,8 @@ const handleLogin = async () => {
 }
 
 .form {
-  margin-top: 60rpx;
   padding: 0 32rpx;
+  margin-top: 60rpx;
 }
 
 .input-container {
@@ -255,15 +255,15 @@ const handleLogin = async () => {
 
 .input-item {
   display: flex;
+  gap: 32rpx;
   align-items: center;
   height: 100rpx;
-  line-height: 100rpx;
-  border-bottom: 1px solid #eee;
   padding: 0 32rpx;
-  background-color: #fff;
-  border-radius: 200rpx;
-  gap: 32rpx;
   font-size: 26rpx;
+  line-height: 100rpx;
+  background-color: #fff;
+  border-bottom: 1px solid #eee;
+  border-radius: 200rpx;
 }
 
 .input-item .iconfont {
@@ -278,15 +278,15 @@ const handleLogin = async () => {
 
 .options {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
+  justify-content: flex-end;
   margin-top: 24rpx;
   margin-bottom: 48rpx;
 }
 
 .forget {
-  color: #165dff;
   font-size: 28rpx;
+  color: #165dff;
 }
 
 .agreement {
@@ -299,8 +299,8 @@ const handleLogin = async () => {
 .agree-text {
   margin-left: 10rpx;
   font-size: 28rpx;
-  color: #666;
   line-height: 1.4;
+  color: #666;
 }
 
 .highlight-link {
@@ -310,27 +310,26 @@ const handleLogin = async () => {
 .login-btn {
   width: 100%;
   height: 88rpx;
-  line-height: 88rpx;
-  background-color: #57c051;
-  color: #fff;
-  font-size: 16px;
-  border-radius: 44rpx;
   margin-bottom: 48rpx;
+  font-size: 32rpx;
+  line-height: 88rpx;
+  color: #fff;
   letter-spacing: 12rpx;
+  background-color: #57c051;
+  border-radius: 44rpx;
 }
 
 .login-btn[disabled] {
-  background-color: #57c051;
   color: #fff;
-
+  background-color: #57c051;
   opacity: 0.5;
 }
 
 .verify-login {
   font-size: 28rpx;
   font-weight: normal;
-  text-align: center;
   color: #57c051;
+  text-align: center;
 }
 
 .uni-input-placeholder {

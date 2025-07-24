@@ -235,13 +235,14 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
 }
+
 .title {
-  font-family: PingFangSC-Medium;
-  font-size: 64rpx;
   margin-top: 64rpx;
   margin-bottom: 20rpx;
+  font-family: PingFangSC-Medium;
+  font-size: 64rpx;
+  color: #000;
   text-align: center;
-  color: #000000;
 }
 
 .subtitle {
@@ -251,8 +252,8 @@ onUnmounted(() => {
 }
 
 .form {
-  margin-top: 60rpx;
   padding: 0 32rpx;
+  margin-top: 60rpx;
 }
 
 .input-container {
@@ -263,15 +264,15 @@ onUnmounted(() => {
 
 .input-item {
   display: flex;
+  gap: 32rpx;
   align-items: center;
   height: 100rpx;
-  line-height: 100rpx;
-  border-bottom: 1px solid #eee;
   padding: 0 32rpx;
-  background-color: #fff;
-  border-radius: 200rpx;
-  gap: 32rpx;
   font-size: 26rpx;
+  line-height: 100rpx;
+  background-color: #fff;
+  border-bottom: 1px solid #eee;
+  border-radius: 200rpx;
 }
 
 .input-item .iconfont {
@@ -287,18 +288,18 @@ onUnmounted(() => {
 .submit-button {
   width: 100%;
   height: 88rpx;
-  line-height: 88rpx;
-  background-color: #57c051;
-  color: #fff;
-  font-size: 16px;
-  border-radius: 44rpx;
   margin-top: 48rpx;
+  font-size: 16px;
+  line-height: 88rpx;
+  color: #fff;
   letter-spacing: 12rpx;
+  background-color: #57c051;
+  border-radius: 44rpx;
 }
 
 .submit-button[disabled] {
-  background-color: #57c051;
   color: #fff;
+  background-color: #57c051;
   opacity: 0.5;
 }
 
@@ -313,6 +314,7 @@ onUnmounted(() => {
 .link-item {
   padding: 10rpx 0;
   color: #57c051;
+
   &:active {
     opacity: 0.7;
   }
@@ -329,16 +331,16 @@ onUnmounted(() => {
 
 .get-code-button {
   position: absolute;
-  right: 32rpx;
   top: 50%;
-  transform: translateY(-50%);
+  right: 32rpx;
+  height: auto;
+  padding: 0;
+  font-size: 28rpx;
+  line-height: normal;
+  color: #57c051;
   background-color: transparent;
   border: none;
-  color: #57c051;
-  font-size: 28rpx;
-  padding: 0;
-  height: auto;
-  line-height: normal;
+  transform: translateY(-50%);
 
   &::after {
     border: none;

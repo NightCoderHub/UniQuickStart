@@ -170,6 +170,7 @@ defineExpose({
 
 <style lang="scss" scoped>
 /* 这里可以放置 CustomTabbar 自身的样式，例如调整 tabbar 的背景色、边框等 */
+
 /* wd-tabbar 已经提供了很多样式控制的 props，通常不需要额外设置 */
 
 .action-modal-wrapper {

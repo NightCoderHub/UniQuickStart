@@ -13,6 +13,7 @@ statusBarHeight.value = uni.getWindowInfo().statusBarHeight;
 
 <style scoped>
 /* 可以在这里添加额外的样式，例如背景色 */
+
 /* view {
   background-color: #f0f0f0;
 } */

@@ -140,14 +140,14 @@
 // }
 
 .agreement-content {
-  flex: 1; /* 占据剩余空间，使其可滚动 */
   // padding: 24rpx;
   box-sizing: border-box;
-  background-color: #fff;
+  flex: 1; /* 占据剩余空间，使其可滚动 */
   // margin-top: var(--status-bar-height); /* 适应顶部状态栏 */
   // margin-top: 44px; /* uni-nav-bar 的高度 */
   padding-bottom: constant(safe-area-inset-bottom); /* 适配底部安全区 */
   padding-bottom: env(safe-area-inset-bottom); /* 适配底部安全区 */
+  background-color: #fff;
 }
 
 .content-padding {
@@ -155,41 +155,43 @@
 }
 
 .section-title {
-  font-size: 36rpx;
-  font-weight: bold;
-  color: #333;
   margin-top: 40rpx;
   margin-bottom: 20rpx;
+  font-size: 36rpx;
+  font-weight: bold;
   line-height: 1.5;
+  color: #333;
 }
 
 .paragraph {
-  font-size: 28rpx;
-  color: #666;
-  line-height: 1.8;
   margin-bottom: 16rpx;
+  font-size: 28rpx;
+  line-height: 1.8;
+  color: #666;
   white-space: pre-wrap; /* 保留文本中的换行符 */
 }
 
 .footer-text {
   margin-top: 40rpx;
-  text-align: center;
   color: #999;
+  text-align: center;
 }
 
 .bottom-bar {
-  padding: 24rpx;
-  background-color: #fff;
-  border-top: 1px solid #f0f0f0;
   position: sticky; /* 或者 fixed，根据需求选择 */
   bottom: 0;
-  width: 100%;
   box-sizing: border-box;
+  width: 100%;
+  padding: 24rpx;
   padding-bottom: calc(
     24rpx + constant(safe-area-inset-bottom)
   ); /* 适配底部安全区 */
+
   padding-bottom: calc(
     24rpx + env(safe-area-inset-bottom)
   ); /* 适配底部安全区 */
+
+  background-color: #fff;
+  border-top: 1px solid #f0f0f0;
 }
 </style>

@@ -36,16 +36,6 @@
         </view>
       </view>
 
-      <view v-if="userStore.isLoggedIn" class="setting-group">
-        <view
-          class="setting-item"
-          @click="navigateTo('/settingPages/notifications/notifications')"
-        >
-          <text class="item-text">消息通知</text>
-          <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
-        </view>
-      </view>
-
       <view class="setting-group">
         <view class="setting-item" @click="clearCache">
           <text class="item-text">清除缓存</text>
@@ -306,40 +296,40 @@ const logout = () => {
 }
 
 .settings-scroll-view {
+  box-sizing: border-box;
   flex: 1;
   padding: 20rpx;
-  box-sizing: border-box;
 }
 
 .setting-group {
-  background-color: #ffffff;
   margin-bottom: 20rpx;
-  border-radius: 16rpx;
   overflow: hidden;
+  background-color: #fff;
+  border-radius: 16rpx;
 
   &:last-child {
     margin-bottom: 0;
   }
 
   .setting-item {
+    position: relative;
     display: flex;
-    justify-content: space-between; /* 恢复 space-between 以适应无左侧图标的情况 */
     align-items: center;
+    justify-content: space-between; /* 恢复 space-between 以适应无左侧图标的情况 */
     padding: 28rpx 30rpx;
     font-size: 32rpx;
-    color: #333333;
-    position: relative;
+    color: #333;
 
     /* 移除了针对左侧图标的样式 */
 
     &:not(:last-child)::after {
-      content: "";
       position: absolute;
-      left: 30rpx;
       right: 0;
       bottom: 0;
+      left: 30rpx;
       height: 1rpx;
-      background-color: #eeeeee;
+      content: "";
+      background-color: #eee;
       transform: scaleY(0.5);
       transform-origin: 0 100%;
     }
@@ -354,32 +344,35 @@ const logout = () => {
     }
 
     .item-value {
-      color: #999999;
-      font-size: 28rpx;
       margin-right: 15rpx;
+      font-size: 28rpx;
+      color: #999;
     }
 
     .iconfont:last-child {
       font-size: 30rpx;
-      color: #cccccc;
+      color: #ccc;
     }
   }
 }
 
 .logout-section {
   padding: 20rpx 0;
+
   .logout-button {
     width: 100%;
     height: 90rpx;
-    line-height: 90rpx;
-    background-color: #ffffff;
-    color: #e54d42;
     font-size: 34rpx;
-    border-radius: 16rpx;
+    line-height: 90rpx;
+    color: #e54d42;
+    background-color: #fff;
     border: none;
+    border-radius: 16rpx;
+
     &::after {
       border: none;
     }
+
     &:active {
       background-color: #f5f5f5;
     }
@@ -387,19 +380,21 @@ const logout = () => {
 }
 
 .logout-notice-popup {
+  position: relative;
   display: flex;
   flex-direction: column;
-  position: relative;
   height: 80vh;
+
   .popup-title {
     position: relative;
-    background-color: #ffffff;
     height: 120rpx;
+    padding: 30rpx;
     font-size: 36rpx;
     font-weight: bold;
     text-align: center;
-    padding: 30rpx;
-    border-bottom: 1rpx solid #eeeeee;
+    background-color: #fff;
+    border-bottom: 1rpx solid #eee;
+
     .popup-close {
       position: absolute;
       top: 24rpx;
@@ -409,19 +404,19 @@ const logout = () => {
 
   .popup-content {
     flex: 1;
-    overflow-y: scroll;
     padding: 30rpx;
+    overflow-y: scroll;
     font-size: 28rpx;
-    color: #666666;
     line-height: 1.8;
+    color: #666;
 
     .notice-item {
       display: flex;
       margin-bottom: 20rpx;
 
       .notice-number {
-        margin-right: 10rpx;
         flex-shrink: 0;
+        margin-right: 10rpx;
       }
 
       .notice-text {
@@ -431,9 +426,9 @@ const logout = () => {
   }
 
   .popup-footer {
-    background-color: #ffffff;
     padding: 20rpx 30rpx;
-    border-top: 1rpx solid #eeeeee;
+    background-color: #fff;
+    border-top: 1rpx solid #eee;
   }
 }
 </style>

@@ -71,36 +71,37 @@ export default {
   padding: 0 24rpx;
   background-color: #fff;
 }
+
 .search-section {
   position: relative;
-  padding: 0 24rpx;
   display: flex;
   align-items: center;
-  border-radius: 32rpx;
+  padding: 0 24rpx;
   background-color: #f5f5f5;
+  border-radius: 32rpx;
 }
 
 .search-input-container {
-  flex: 1;
   // background-color: #f5f5f5;
 
   display: flex;
+  flex: 1;
   align-items: center;
   // padding: 0 24rpx;
 }
 
 .search-icon {
+  margin-right: 16rpx;
   font-size: 32rpx;
   color: #000;
-  margin-right: 16rpx;
 }
 
 .search-input {
   flex: 1;
   // height: 100%;
   height: 64rpx;
-  line-height: 64rpx;
   font-size: 28rpx;
+  line-height: 64rpx;
   color: #333;
   background: transparent;
   border: none;
@@ -117,14 +118,15 @@ export default {
 .search-suffix {
   z-index: 1;
   display: flex;
-  align-items: center;
   gap: 20rpx;
+  align-items: center;
   margin-left: auto; // 使用margin-left:auto实现右对齐
 }
 
 .qr-icon {
   font-size: 40rpx;
   color: #000;
+
   /* 禁用状态样式 */
   // opacity: v-bind(isEnabled ? 1: 0.5);
 }
@@ -132,6 +134,7 @@ export default {
 .ai-tag {
   width: 40rpx;
   height: 40rpx;
+
   /* 禁用状态样式 */
   // opacity: v-bind(isEnabled ? 1: 0.5);
 }

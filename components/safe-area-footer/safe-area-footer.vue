@@ -119,11 +119,11 @@ const placeholderHeight = computed(() => {
 .safe-area-footer-wrapper.is-fixed {
   .safe-area-footer-content {
     position: fixed;
+    right: 0;
     bottom: 0;
     left: 0;
-    right: 0;
     z-index: 100;
-    box-shadow: 0 -2rpx 8rpx rgba(0, 0, 0, 0.05);
+    box-shadow: 0 -2rpx 8rpx rgb(0 0 0 / 5%);
   }
 
   .safe-area-footer-placeholder {

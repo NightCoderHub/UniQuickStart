@@ -213,8 +213,8 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 /* 你的样式保持不变 */
 .muqian-content {
-  overflow: hidden;
   position: relative;
+  overflow: hidden;
 
   .muqian-image {
     display: block;
@@ -223,8 +223,8 @@ onUnmounted(() => {
 
   .muqain-load {
     position: absolute;
-    left: 0;
     top: 0;
+    left: 0;
   }
 }
 </style>
