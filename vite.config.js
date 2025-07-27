@@ -28,6 +28,13 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/tencent_map_api/, ""), // 重写路径，移除 /tencent_map_api 前缀
         secure: true, // 如果目标是 HTTPS，设置为 true
       },
+      "/services": {
+        // 当你的前端请求以 '/api' 开头时，例如 fetch('/api/top/anime?sfw')
+        target: "https://api.jikan.moe", // 目标 API 的源
+        changeOrigin: true, // 开启跨域
+        rewrite: (path) => path.replace(/^\/services/, ""), // 重写路径，将 '/api' 替换为空
+        secure: true, // 如果目标是 HTTPS，建议设置为 true
+      },
     },
   },
 });
