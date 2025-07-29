@@ -73,4 +73,9 @@ page {
 uni-tabbar {
   display: none;
 }
+
+.wd-tabbar {
+  right: var(--window-right) !important;
+  left: var(--window-left) !important;
+}
 </style>
