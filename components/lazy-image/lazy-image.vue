@@ -188,9 +188,7 @@ onMounted(() => {
 });
 
 // 处理加载中图片的 @load 事件 (init 方法的替代)
-const handleLoadInit = () => {
-  // Logic remains the same
-};
+const handleLoadInit = () => {};
 
 // 组件卸载时清理 IntersectionObserver
 onUnmounted(() => {
