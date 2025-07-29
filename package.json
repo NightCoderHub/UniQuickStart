@@ -1,5 +1,5 @@
 {
-  "name": "UniQuickStart",
+  "name": "uni-quick-start",
   "version": "1.0.0",
   "description": "一个高效的 UniApp 模板，可快速启动跨平台应用程序。",
   "main": "index.js",
