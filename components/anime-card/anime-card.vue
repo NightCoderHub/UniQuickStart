@@ -187,11 +187,11 @@ const playTrailer = () => {
 .anime-card {
   display: flex;
   flex-direction: column;
+  margin-bottom: 30rpx;
+  overflow: hidden;
   background-color: #fff;
   border-radius: 12rpx;
-  overflow: hidden;
-  margin-bottom: 30rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4rpx 16rpx rgb(0 0 0 / 8%);
   transition: transform 0.2s ease-in-out;
 
   &:active {
@@ -205,10 +205,10 @@ const playTrailer = () => {
   }
 
   .card-content {
-    padding: 30rpx;
     display: flex;
     flex-direction: column;
     gap: 15rpx;
+    padding: 30rpx;
   }
 
   .title-section {
@@ -219,14 +219,14 @@ const playTrailer = () => {
     .anime-title {
       font-size: 38rpx;
       font-weight: bold;
-      color: #333;
       line-height: 1.3;
+      color: #333;
     }
 
     .anime-title-jp {
+      margin-top: 5rpx;
       font-size: 26rpx;
       color: #666;
-      margin-top: 5rpx;
     }
   }
 
@@ -237,9 +237,9 @@ const playTrailer = () => {
     color: #555;
 
     .info-label {
-      font-weight: bold;
-      margin-right: 10rpx;
       flex-shrink: 0; /* 防止标签被压缩 */
+      margin-right: 10rpx;
+      font-weight: bold;
     }
 
     .info-value {
@@ -249,8 +249,8 @@ const playTrailer = () => {
     }
 
     .score {
-      color: #ff9800; /* 突出评分颜色 */
       font-weight: bold;
+      color: #ff9800; /* 突出评分颜色 */
     }
   }
 
@@ -261,45 +261,48 @@ const playTrailer = () => {
       flex-wrap: wrap;
       gap: 10rpx; /* 标签之间的间距 */
     }
+
     .genre-tag {
-      background-color: #e0f2f7;
-      color: #007bff;
       padding: 8rpx 16rpx;
-      border-radius: 10rpx;
       font-size: 24rpx;
+      color: #007bff;
+      background-color: #e0f2f7;
+      border-radius: 10rpx;
     }
   }
 
   .synopsis-section {
     margin-top: 10rpx;
+
     .synopsis-text {
       font-size: 28rpx;
-      color: #666;
       line-height: 1.6;
+      color: #666;
     }
+
     .expand-btn {
-      color: #007bff;
-      font-size: 26rpx;
-      margin-top: 10rpx;
       display: inline-block; /* 使其可点击 */
+      margin-top: 10rpx;
+      font-size: 26rpx;
+      color: #007bff;
     }
   }
 
   .card-actions {
-    margin-top: 20rpx;
     display: flex;
-    justify-content: space-around; /* 按钮之间均匀分布 */
     gap: 20rpx; /* 按钮间距 */
+    justify-content: space-around; /* 按钮之间均匀分布 */
+    margin-top: 20rpx;
 
     .action-button {
       flex: 1; /* 按钮等宽 */
-      font-size: 30rpx;
       padding: 18rpx 0;
-      border-radius: 10rpx;
-      background-color: #007bff;
+      font-size: 30rpx;
+      line-height: 1; /* 解决按钮默认行高问题 */
       color: #fff;
       text-align: center;
-      line-height: 1; /* 解决按钮默认行高问题 */
+      background-color: #007bff;
+      border-radius: 10rpx;
 
       &:active {
         background-color: #0056b3;
