@@ -1,10 +1,11 @@
 <template>
   <view class="anime-card">
-    <image
-      class="card-image"
-      :src="anime.images.jpg.image_url"
-      mode="aspectFill"
-    ></image>
+    <view class="card-image">
+      <lazy-image
+        :src="anime.images.jpg.image_url"
+        mode="aspectFill"
+      ></lazy-image>
+    </view>
     <view class="card-content">
       <view class="title-section">
         <text class="anime-title">{{
@@ -77,6 +78,7 @@
 
 <script setup>
 import { ref, computed } from "vue";
+
 const props = defineProps({
   anime: {
     type: Object,

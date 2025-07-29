@@ -1,28 +1,28 @@
 <template>
   <view class="wechat-moments-pic-layout">
     <view v-if="images.length === 1" class="single-image-wrapper">
-      <muqian-lazyLoad
+      <lazy-image
         :src="images[0]"
         mode="widthFix"
         width="640rpx"
         class="single-image"
         @click="openPreview(0)"
-      ></muqian-lazyLoad>
+      ></lazy-image>
     </view>
 
     <view v-else-if="images.length === 2" class="double-image-wrapper">
-      <muqian-lazyLoad
+      <lazy-image
         v-for="(image, index) in images"
         :key="index"
         :src="image"
         height="300rpx"
         class="double-image"
         @click="openPreview(index)"
-      ></muqian-lazyLoad>
+      ></lazy-image>
     </view>
 
     <view v-else-if="images.length === 3" class="triple-image-wrapper">
-      <muqian-lazyLoad
+      <lazy-image
         v-for="(image, index) in images"
         :key="index"
         :src="image"
@@ -30,12 +30,12 @@
         height="200rpx"
         class="triple-image"
         @click="openPreview(index)"
-      ></muqian-lazyLoad>
+      ></lazy-image>
     </view>
 
     <view v-else-if="images.length === 4" class="quad-image-wrapper">
       <view v-for="i in 2" :key="i - 1" class="quad-row">
-        <muqian-lazyLoad
+        <lazy-image
           v-for="(image, index) in images.slice((i - 1) * 2, i * 2)"
           :key="index + (i - 1) * 2"
           :src="image"
@@ -43,7 +43,7 @@
           height="240rpx"
           class="quad-image"
           @click="openPreview(index + (i - 1) * 2)"
-        ></muqian-lazyLoad>
+        ></lazy-image>
       </view>
     </view>
 
@@ -56,12 +56,12 @@
         :key="index"
         class="grid-item-native"
       >
-        <muqian-lazyLoad
+        <lazy-image
           :src="image"
           mode="aspectFill"
           height="200rpx"
           @click="openPreview(index)"
-        ></muqian-lazyLoad>
+        ></lazy-image>
       </view>
     </view>
 

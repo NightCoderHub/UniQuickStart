@@ -1,5 +1,5 @@
 <template>
-  <view>
+  <view class="container">
     <block v-for="item in typeList" :key="item.mal_id">
       <anime-card :anime="item"></anime-card>
     </block>
@@ -19,4 +19,8 @@ getTypeList().then((res) => {
 });
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.container {
+  padding: 24rpx;
+}
+</style>
