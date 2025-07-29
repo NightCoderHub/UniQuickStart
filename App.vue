@@ -66,8 +66,8 @@ scroll-view {
 :root,
 page {
   font-family: PingFangSC;
-  color: $color-gray-800;
-  background-color: $background-color-content;
+  color: $uni-text-color-grey;
+  background-color: $uni-bg-color-grey;
 }
 
 uni-tabbar {

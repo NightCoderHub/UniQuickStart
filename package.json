@@ -41,7 +41,8 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,vue,json,css,scss,less,html,md}": "prettier --write",
-    "*.{js,jsx,ts,tsx,vue}": "pnpm lint"
+    "*.{js,jsx,ts,tsx,vue}": "pnpm lint",
+    "*.{css,scss,vue}": "pnpm lint:style"
   },
   "dependencies": {
     "wot-design-uni": "^1.9.1",

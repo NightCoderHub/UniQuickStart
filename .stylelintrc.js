@@ -79,5 +79,7 @@ module.exports = {
     "node_modules/**",
     "dist/**",
     "style/iconfont/iconfont.css",
+    "style/wot-ui-variable.scss",
+    "uni.scss",
   ],
 };

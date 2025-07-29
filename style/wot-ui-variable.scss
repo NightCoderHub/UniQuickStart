@@ -1,9 +1,7 @@
-@import "./theme.scss";
-
 :root,
 page {
-  --wot-color-theme: #{$color-primary};
-  --wot-color-success: #{$color-success};
+  --wot-color-theme: #{$uni-color-primary};
+  --wot-color-success: #{$uni-color-success};
 
   /* search */
   --wot-search-padding: 0 24rpx;
@@ -13,14 +11,14 @@ page {
   --wot-search-input-fs: 24rpx;
   --wot-search-icon-size: 30rpx;
   --wot-search-icon-color: #000;
-  --wot-input-placeholder-color: #{$color-gray-800};
-  --wot-input-disabled-color: #{$color-gray-800};
+  --wot-input-placeholder-color: #{$uni-text-color-grey};
+  --wot-input-disabled-color: #{$uni-text-color-grey};
 
   /* tabs */
   // --wot-tabs-nav-height: 90rpx;
   --wot-tabs-nav-color: #000;
   --wot-tabs-nav-fs: 28rpx;
-  --wot-tabs-nav-line-bg-color: #{$color-success};
+  --wot-tabs-nav-line-bg-color: var(--wot-color-success);
   --wot-tabs-nav-line-width: 100rpx;
 
   /* card */
