@@ -90,11 +90,11 @@ const props = defineProps({
   },
   minTimeOut: {
     type: [String, Number],
-    default: 300,
+    default: 100,
   },
   showDistance: {
     type: Object,
-    default: () => ({ bottom: 20 }),
+    default: () => ({ bottom: 0 }),
   },
   effect: {
     type: String,
