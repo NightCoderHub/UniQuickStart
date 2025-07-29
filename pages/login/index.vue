@@ -186,8 +186,8 @@ const handleLogin = async () => {
       }, 1000);
     });
     // 保存 token 到 userStore（单独设置）
-    userStore.setToken(loginRes.access_token);
-    userStore.setRefreshToken(loginRes.refresh_token);
+    uni.setStorageSync("accessToken", loginRes.token);
+    uni.setStorageSync("refreshToken", loginRes.refreshToken);
 
     // 2. 请求用户信息接口（mock 示例，实际请替换为真实 API）
     const userInfoRes = await new Promise((resolve) => {
