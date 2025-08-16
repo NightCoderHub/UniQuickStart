@@ -1,7 +1,7 @@
 {
-  "name": "UniQuickStart",
+  "name": "uni-quick-start",
   "appid": "__UNI__801DBAD",
-  "description": "高效、灵活且功能丰富的 UniApp 模板项目",
+  "description": "An efficient and opinionated UniApp template to quickly bootstrap cross-platform applications.",
   "versionName": "1.0.0",
   "versionCode": "100",
   "transformPx": false,
@@ -104,6 +104,13 @@
           "key": "AD7BZ-55HLM-72N6E-6ZXGL-MKOLS-D3BJN"
         }
       }
+    },
+    "router": {
+      "mode": "history",
+      "base": "/h5/"
+    },
+    "devServer": {
+      "https": false
     }
   }
 }
