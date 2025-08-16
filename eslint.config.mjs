@@ -7,7 +7,7 @@ import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended"
 export default defineConfig([
   // 忽略文件配置，替代 .eslintignore
   {
-    ignores: ["node_modules/**", "dist/**", "unpackage/**", "uni_modules/**"],
+    ignores: ["node_modules/**", "dist/**", "unpackage/**", "uni_modules/**", "manifest.json"],
   },
   {
     files: ["**/*.js", "**/*.vue"],
