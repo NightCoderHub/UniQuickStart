@@ -78,6 +78,7 @@ module.exports = {
     "**/*.md",
     "node_modules/**",
     "dist/**",
+    "unpackage/**",
     "style/iconfont/iconfont.css",
     "style/wot-ui-variable.scss",
     "uni.scss",
