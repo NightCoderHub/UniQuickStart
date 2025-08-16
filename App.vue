@@ -48,8 +48,8 @@ export default {
 
 <style lang="scss">
 /* 每个页面公共css */
-@import "@/style/iconfont/iconfont.css";
-@import "@/style/wot-ui-variable.scss";
+@import "@/styles/iconfont/iconfont.scss";
+@import "@/styles/wot-ui-variable.scss";
 
 ::-webkit-scrollbar {
   display: none;
@@ -72,6 +72,12 @@ page {
 
 uni-tabbar {
   display: none;
+}
+
+.z-paging-content-fixed,
+.zp-loading-fixed {
+  right: var(--window-right) !important;
+  left: var(--window-left) !important;
 }
 
 .wd-tabbar {
