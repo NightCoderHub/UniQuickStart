@@ -9,7 +9,7 @@ UniQuickStart 是一个基于 UniApp 框架的跨平台应用开发模板，旨�
 ### ✨ 主要特性
 
 - 🚀 **快速启动**: 开箱即用的项目模板
-- 📱 **跨平台支持**: 支持 H5、微信小程序、支付宝小程序、百度小程序、抖音小程序、Android、iOS
+- 📱 **跨平台支持**: 支持 H5、微信小程序、Android
 - 🎨 **现代化 UI**: 集成 wot-design-uni 组件库
 - 📄 **分页组件**: 内置 z-paging 分页组件
 - 🔐 **用户认证**: 完整的登录注册流程
@@ -51,24 +51,6 @@ cd UniQuickStart
 ```bash
 pnpm install
 ```
-
-### 3. 运行项目
-
-#### H5 开发
-
-```bash
-pnpm dev:h5
-```
-
-#### 微信小程序开发
-
-```bash
-pnpm dev:mp-weixin
-```
-
-#### 其他平台
-
-请在 HBuilderX 中打开项目，选择对应平台进行运行。
 
 ## 📁 项目结构
 
@@ -200,31 +182,6 @@ const result = await request.post("/api/login", {
 </template>
 ```
 
-## 📦 构建部署
-
-### H5 部署
-
-```bash
-# 构建 H5
-pnpm build:h5
-
-# 构建产物在 dist/build/h5 目录
-```
-
-### 小程序部署
-
-1. 在 HBuilderX 中选择对应平台
-2. 点击发行 -> 小程序
-3. 按照平台要求配置 AppID
-4. 上传代码到对应平台
-
-### App 部署
-
-1. 在 HBuilderX 中选择 App 平台
-2. 配置证书和签名
-3. 点击发行 -> 原生 App-云打包
-4. 下载安装包进行分发
-
 ## 🔑 配置说明
 
 ### 环境配置
@@ -245,20 +202,11 @@ export const APP_CONFIG = {
 在 `manifest.json` 中配置各平台参数：
 
 - 微信小程序：配置 `mp-weixin.appid`
-- 支付宝小程序：配置 `mp-alipay.appid`
 - 地图服务：配置腾讯地图 API Key
-
-## 🤝 贡献指南
-
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 打开 Pull Request
 
 ### 提交规范
 
-请遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范：
+遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范：
 
 - `feat`: 新功能
 - `fix`: 修复 bug
@@ -279,14 +227,6 @@ export const APP_CONFIG = {
 - [wot-design-uni](https://wot-design-uni.netlify.app/) - UniApp 组件库
 - [z-paging](https://z-paging.zxlee.cn/) - 分页组件
 - [Pinia](https://pinia.vuejs.org/) - Vue 状态管理库
-
-## 📞 联系我们
-
-如有问题或建议，请通过以下方式联系：
-
-- 提交 Issue
-- 发送邮件至：[your-email@example.com]
-- 加入讨论群：[群号]
 
 ---
 
