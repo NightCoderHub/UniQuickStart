@@ -1,9 +1,15 @@
 <script>
 import { setupUpdateManager } from "@/utils/updateManager.js";
+import { useDeviceStore } from "@/stores";
 export default {
   onLaunch: function () {
     console.log("App Launch");
     setupUpdateManager();
+
+    // 初始化设备信息
+    const deviceStore = useDeviceStore();
+    deviceStore.initSystemInfo();
+    deviceStore.setNetworkStatus(uni.getNetworkType());
     // #ifndef H5
     uni.hideTabBar();
     // #endif
@@ -48,8 +54,15 @@ export default {
 
 <style lang="scss">
 /* 每个页面公共css */
-@import "@/styles/iconfont/iconfont.scss";
+@import "@/styles/iconfont/iconfont.css";
 @import "@/styles/wot-ui-variable.scss";
+
+/* 导入扩展样式文件 */
+@import "@/styles/mixins.scss";
+@import "@/styles/utilities.scss";
+@import "@/styles/components.scss";
+@import "@/styles/layout.scss";
+@import "@/styles/animations.scss";
 
 ::-webkit-scrollbar {
   display: none;

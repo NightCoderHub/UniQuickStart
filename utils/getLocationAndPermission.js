@@ -108,11 +108,9 @@ export function reverseGeocode(latitude, longitude) {
       url: url,
       method: "GET",
       success: (res) => {
-        console.log("腾讯地图逆地址解析响应:res", res);
         if (res.statusCode === 200 && res.data.status === 0) {
           // status 为 0 表示请求成功
           const locationData = res.data.result;
-          console.log("逆地址解析成功，城市:", locationData.ad_info.city);
           resolve(locationData); // 返回包含位置信息的result对象
         } else {
           // 请求失败或返回的status不为0
