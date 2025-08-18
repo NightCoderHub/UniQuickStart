@@ -1,0 +1,164 @@
+/**
+ * 常用 SCSS Mixins
+ * 提供项目中常用的样式混入，提高开发效率
+ */
+
+// 文本省略号处理
+@mixin text-ellipsis($lines: 1) {
+  @if $lines ==1 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  } @else {
+    display: -webkit-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: $lines;
+    -webkit-box-orient: vertical;
+  }
+}
+
+// Flex 布局快捷方式
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-around {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin flex-column-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+// 卡片样式 mixin
+@mixin card-base {
+  overflow: hidden;
+  background-color: $uni-bg-color;
+  border-radius: $uni-border-radius-lg;
+  box-shadow: $uni-shadow-base;
+}
+
+@mixin card-padding {
+  padding: $uni-padding-card;
+}
+
+@mixin card-hover {
+  transition: all $uni-transition-duration-base $uni-transition-timing-function;
+
+  &:hover {
+    box-shadow: $uni-shadow-heavy;
+    transform: translateY(-4rpx);
+  }
+}
+
+// 响应式断点 mixin
+@mixin mobile-only {
+  @media (width <= 750rpx) {
+    @content;
+  }
+}
+
+@mixin tablet-up {
+  @media (width >= 751rpx) {
+    @content;
+  }
+}
+
+@mixin desktop-up {
+  @media (width >= 1200rpx) {
+    @content;
+  }
+}
+
+// 动画/过渡效果 mixin
+@mixin fade-in($duration: $uni-transition-duration-base) {
+  animation: fadeIn $duration $uni-transition-timing-function;
+}
+
+@mixin slide-up($duration: $uni-transition-duration-base) {
+  animation: slideUp $duration $uni-transition-timing-function;
+}
+
+@mixin scale-in($duration: $uni-transition-duration-base) {
+  animation: scaleIn $duration $uni-transition-timing-function;
+}
+
+// 安全区域处理
+@mixin safe-area-padding($position: "bottom") {
+  @if $position == "top" {
+    padding-top: constant(safe-area-inset-top);
+    padding-top: env(safe-area-inset-top);
+  } @else if $position == "bottom" {
+    padding-bottom: constant(safe-area-inset-bottom);
+    padding-bottom: env(safe-area-inset-bottom);
+  } @else if $position == "left" {
+    padding-left: constant(safe-area-inset-left);
+    padding-left: env(safe-area-inset-left);
+  } @else if $position == "right" {
+    padding-right: constant(safe-area-inset-right);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+// 绝对定位居中
+@mixin absolute-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+// 清除浮动
+@mixin clearfix {
+  &::after {
+    display: table;
+    clear: both;
+    content: "";
+  }
+}
+
+// 隐藏滚动条
+@mixin hide-scrollbar {
+  scrollbar-width: none;
+
+  /* Firefox */
+  -ms-overflow-style: none;
+
+  /* IE 10+ */
+
+  &::-webkit-scrollbar {
+    display: none;
+
+    /* Chrome Safari */
+  }
+}
+
+// 图片适配
+@mixin image-cover {
+  object-fit: cover;
+  object-position: center;
+}
+
+@mixin image-contain {
+  object-fit: contain;
+  object-position: center;
+}

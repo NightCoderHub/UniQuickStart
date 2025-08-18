@@ -1,12 +1,12 @@
 import { defineConfig } from "vite";
 import uni from "@dcloudio/vite-plugin-uni";
-// import VueDevTools from "vite-plugin-vue-devtools";
+import VueDevTools from "vite-plugin-vue-devtools";
 import viteCompression from "vite-plugin-compression";
 
 export default defineConfig({
   plugins: [
     uni(),
-    // VueDevTools(),
+    VueDevTools(),
     viteCompression({
       verbose: true, // 是否在控制台输出压缩结果
       disable: process.env.UNI_PLATFORM.startsWith("mp-"), // 是否禁用插件，设置为 true 则不压缩
@@ -16,6 +16,13 @@ export default defineConfig({
       deleteOriginFile: false, // 压缩后是否删除原文件，建议设置为 false，让服务器决定是否使用压缩文件
     }),
   ],
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `@use "@/styles/mixins.scss" as *;`,
+      },
+    },
+  },
   server: {
     port: 8080, // 开发服务器端口
     host: "0.0.0.0", // 允许局域网访问

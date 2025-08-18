@@ -81,6 +81,11 @@ module.exports = {
     "unpackage/**",
     "styles/iconfont/iconfont.css",
     "styles/wot-ui-variable.scss",
+    "styles/mixins.scss",
+    "styles/utilities.scss",
+    "styles/components.scss",
+    "styles/layout.scss",
+    "styles/animations.scss",
     "uni.scss",
   ],
 };
