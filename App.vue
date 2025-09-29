@@ -86,6 +86,38 @@ uni-tabbar {
   display: none;
 }
 
+// 针对性地重置表单组件的样式
+
+/* 移除按钮的默认样式 */
+button {
+  padding: 0; /* 取消默认 padding */
+
+  /* 规范字体 */
+  font-size: 32rpx;
+  line-height: 1; /* 取消默认行高 */
+  background-color: transparent;
+
+  /* 移除边框、背景色 */
+  border: none;
+  border-radius: 0; /* 取消默认圆角 */
+
+  /* 避免 iOS 上的点击阴影 */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 避免按钮被点击时的透明度变化 */
+button::after {
+  border: none;
+}
+
+/* 统一输入框的字体和边框 */
+input,
+textarea {
+  font-size: 32rpx;
+  border: none;
+  outline: none;
+}
+
 .z-paging-content-fixed,
 .zp-loading-fixed {
   right: var(--window-right) !important;
