@@ -2,7 +2,7 @@
 // /api-cts/cts/wechat
 
 const ENV_BASE_URL = {
-  development: "https://api.ztc.gzhtsk.com/cts/wechat", //开发环境
+  development: "/services", //开发环境
   production: "https://api.ztc.gzhtsk.com/cts/wechat", // 生产环境
 };
 
