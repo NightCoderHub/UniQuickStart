@@ -250,8 +250,8 @@ export default {
 /* 选中项样式 */
 .scroll-item.active {
   font-weight: normal;
-  color: $color-success;
-  border-color: $color-success;
+  color: $uni-color-success;
+  border-color: $uni-color-success;
 }
 
 /* ================== 下拉按钮样式 ================== */
@@ -343,6 +343,6 @@ export default {
 
 .dropdown-item.active {
   font-weight: bold;
-  color: $color-success;
+  color: $uni-color-success;
 }
 </style>

@@ -335,7 +335,7 @@ const handleMenuClick = (type) => {
           font-size: 28rpx;
           line-height: normal;
           color: #fff;
-          background-color: $color-success;
+          background-color: $uni-color-success;
           border-radius: 40rpx;
 
           &::after {
@@ -454,7 +454,7 @@ const handleMenuClick = (type) => {
         .menu-icon {
           margin-bottom: 12rpx;
           font-size: 56rpx;
-          color: $color-success;
+          color: $uni-color-success;
         }
 
         .menu-text {
