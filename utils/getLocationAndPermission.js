@@ -35,7 +35,7 @@ export async function getLocationAndPermission() {
 
     if (hasPermission) {
       return new Promise((resolve, reject) => {
-        uni.getLocation({
+        uni.getFuzzyLocation({
           type: "gcj02", // wgs84 返回 GPS 坐标，gcj02 返回国测局坐标
           success: function (res) {
             console.log("获取地理位置成功：", res.latitude, res.longitude);
