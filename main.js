@@ -3,8 +3,8 @@ import { createSSRApp } from "vue";
 import { createPinia } from "pinia";
 import { navigateTo } from "@/utils/util";
 // #ifdef H5
-import VConsole from "vconsole";
-new VConsole();
+// import VConsole from "vconsole";
+// new VConsole();
 // #endif
 uni.$devToast = () => {
   uni.showToast({
