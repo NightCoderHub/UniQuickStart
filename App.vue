@@ -62,7 +62,6 @@ export default {
 @import "@/styles/utilities.scss";
 @import "@/styles/components.scss";
 @import "@/styles/layout.scss";
-@import "@/styles/animations.scss";
 
 ::-webkit-scrollbar {
   display: none;
