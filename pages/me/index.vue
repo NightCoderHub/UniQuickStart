@@ -373,7 +373,7 @@ const handleMenuClick = (type) => {
       padding: 30rpx 40rpx 0;
       font-size: 32rpx;
       font-weight: bold;
-      color: $color-text-heading;
+      color: $uni-color-title;
     }
 
     &.dashboard-card {
@@ -395,7 +395,7 @@ const handleMenuClick = (type) => {
           padding: 0 20rpx;
           font-size: 30rpx;
           font-weight: 600;
-          color: $color-text-heading;
+          color: $uni-color-title;
           border-radius: 12rpx;
           transition: background-color 0.2s ease-in-out;
 
@@ -459,7 +459,7 @@ const handleMenuClick = (type) => {
 
         .menu-text {
           font-size: 26rpx;
-          color: $color-text-primary;
+          color: $uni-color-title;
           text-align: center;
         }
       }
