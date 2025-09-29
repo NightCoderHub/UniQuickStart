@@ -60,7 +60,6 @@ export default {
 /* 导入扩展样式文件 */
 @import "@/styles/mixins.scss";
 @import "@/styles/utilities.scss";
-@import "@/styles/components.scss";
 @import "@/styles/layout.scss";
 
 ::-webkit-scrollbar {
