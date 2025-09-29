@@ -23,6 +23,21 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          // 判断文件是否来自 node_modules 目录下的 wot-design-uni
+          // 这里使用 id.includes() 进行宽松匹配，因为内部路径可能比较复杂
+          if (id.includes("node_modules/wot-design-uni")) {
+            return "wot-design-uni"; // 将所有相关的 JS/CSS 打包到 'wot-design-uni' 块中
+          }
+          // 对于其他文件，使用 Rollup 的默认分块策略
+          return undefined;
+        },
+      },
+    },
+  },
   server: {
     port: 8080, // 开发服务器端口
     host: "0.0.0.0", // 允许局域网访问
