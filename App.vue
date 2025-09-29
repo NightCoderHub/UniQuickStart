@@ -78,7 +78,6 @@ scroll-view {
 
 :root,
 page {
-  font-family: PingFangSC;
   color: $uni-text-color-grey;
   background-color: $uni-bg-color-grey;
 }

@@ -239,7 +239,6 @@ onUnmounted(() => {
 .title {
   margin-top: 64rpx;
   margin-bottom: 20rpx;
-  font-family: PingFangSC-Medium;
   font-size: 64rpx;
   color: #000;
   text-align: center;

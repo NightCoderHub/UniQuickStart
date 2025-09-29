@@ -78,7 +78,6 @@ const onConfirm = () => {
 
 .modal-title {
   margin-bottom: 16rpx;
-  font-family: PingFangSC-Medium;
   font-size: 32rpx;
   color: #000;
   text-align: center;

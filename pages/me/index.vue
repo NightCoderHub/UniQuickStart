@@ -298,7 +298,6 @@ const handleMenuClick = (type) => {
       .user-name {
         margin-bottom: 10rpx;
         overflow: hidden;
-        font-family: PingFangSC-Medium;
         font-size: 48rpx;
         color: #000;
         text-overflow: ellipsis;

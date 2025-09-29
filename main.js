@@ -14,17 +14,6 @@ uni.$devToast = () => {
   });
 };
 uni.$navigateTo = navigateTo;
-// #ifndef MP-WEIXIN
-uni.loadFontFace({
-  family: "PingFangSC-Medium",
-  source: 'url("/static/fonts/PingFangSC-Medium.woff2")',
-});
-
-uni.loadFontFace({
-  family: "PingFangSC",
-  source: 'url("/static/fonts/PingFangSC-Regular.woff2")',
-});
-// #endif
 export function createApp() {
   const app = createSSRApp(App);
   const pinia = createPinia();
