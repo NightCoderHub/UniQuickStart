@@ -13,6 +13,11 @@ uni.$devToast = () => {
     duration: 1200,
   });
 };
+uni.$zp = {
+  config: {
+    "empty-view-img-style": { width: "400rpx", height: "400rpx" },
+  },
+};
 uni.$navigateTo = navigateTo;
 export function createApp() {
   const app = createSSRApp(App);
