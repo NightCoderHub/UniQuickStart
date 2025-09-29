@@ -8,14 +8,6 @@
   min-height: 100vh;
   background-color: $uni-bg-color;
   color: $uni-text-color;
-
-  &.page-with-navbar {
-    padding-top: var(--status-bar-height);
-  }
-
-  &.page-with-tabbar {
-    padding-bottom: var(--tabbar-height, 100rpx);
-  }
 }
 
 .container {
@@ -23,49 +15,6 @@
   max-width: 750rpx;
   margin: 0 auto;
   padding: 0 $uni-spacing-row-base;
-
-  &.container-fluid {
-    max-width: none;
-  }
-
-  &.container-sm {
-    max-width: 600rpx;
-  }
-
-  &.container-lg {
-    max-width: 900rpx;
-  }
-}
-
-// 安全区域处理
-.safe-area {
-  @include safe-area-padding;
-}
-
-.safe-area-top {
-  padding-top: constant(safe-area-inset-top);
-  padding-top: env(safe-area-inset-top);
-}
-
-.safe-area-bottom {
-  padding-bottom: constant(safe-area-inset-bottom);
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-.safe-area-left {
-  padding-left: constant(safe-area-inset-left);
-  padding-left: env(safe-area-inset-left);
-}
-
-.safe-area-right {
-  padding-right: constant(safe-area-inset-right);
-  padding-right: env(safe-area-inset-right);
-}
-
-// 状态栏高度
-.status-bar {
-  height: var(--status-bar-height);
-  width: 100%;
 }
 
 // 网格系统
@@ -74,12 +23,79 @@
   flex-wrap: wrap;
   margin: 0 (-$uni-spacing-row-sm);
 
+  // 间距类
   &.no-gutters {
     margin: 0;
 
     .col {
       padding: 0;
     }
+  }
+
+  // 超小间距 (5rpx)
+  &.gutter-xs {
+    margin: 0 -5rpx;
+
+    .col {
+      padding: 0 5rpx;
+    }
+  }
+
+  // 小间距 (10rpx)
+  &.gutter-sm {
+    margin: 0 -10rpx;
+
+    .col {
+      padding: 0 10rpx;
+    }
+  }
+
+  // 中等间距 (20rpx) - 默认
+  &.gutter-md {
+    margin: 0 -20rpx;
+
+    .col {
+      padding: 0 20rpx;
+    }
+  }
+
+  // 大间距 (30rpx)
+  &.gutter-lg {
+    margin: 0 -30rpx;
+
+    .col {
+      padding: 0 30rpx;
+    }
+  }
+
+  // 超大间距 (40rpx)
+  &.gutter-xl {
+    margin: 0 -40rpx;
+
+    .col {
+      padding: 0 40rpx;
+    }
+  }
+
+  // 垂直间距类
+  &.gutter-y-xs > .col {
+    margin-bottom: 10rpx;
+  }
+
+  &.gutter-y-sm > .col {
+    margin-bottom: 20rpx;
+  }
+
+  &.gutter-y-md > .col {
+    margin-bottom: 30rpx;
+  }
+
+  &.gutter-y-lg > .col {
+    margin-bottom: 40rpx;
+  }
+
+  &.gutter-y-xl > .col {
+    margin-bottom: 60rpx;
   }
 
   &.justify-start {
@@ -144,118 +160,6 @@
   }
 }
 
-// 导航栏样式
-.navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: $uni-zindex-navbar;
-  background-color: $uni-bg-color;
-  border-bottom: 2rpx solid $uni-border-color;
-
-  .navbar-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 88rpx;
-    padding: 0 $uni-spacing-row-base;
-  }
-
-  .navbar-title {
-    font-size: $uni-font-size-lg;
-    font-weight: 600;
-    color: $uni-text-color;
-    text-align: center;
-    flex: 1;
-  }
-
-  .navbar-left,
-  .navbar-right {
-    display: flex;
-    align-items: center;
-    gap: $uni-spacing-row-sm;
-    min-width: 80rpx;
-  }
-
-  .navbar-left {
-    justify-content: flex-start;
-  }
-
-  .navbar-right {
-    justify-content: flex-end;
-  }
-
-  .navbar-back {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 60rpx;
-    height: 60rpx;
-    border-radius: $uni-border-radius-base;
-    color: $uni-text-color;
-
-    &:active {
-      background-color: $uni-bg-color-hover;
-    }
-  }
-}
-
-// 底部导航栏样式
-.tabbar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: $uni-zindex-navbar;
-  background-color: $uni-bg-color;
-  border-top: 2rpx solid $uni-border-color;
-
-  .tabbar-content {
-    display: flex;
-    height: 100rpx;
-    padding-bottom: constant(safe-area-inset-bottom);
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-
-  .tabbar-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: $uni-spacing-xs;
-    color: $uni-text-color-grey;
-    font-size: $uni-font-size-sm;
-
-    &.active {
-      color: $uni-color-primary;
-    }
-
-    .tabbar-icon {
-      font-size: 44rpx;
-    }
-
-    .tabbar-text {
-      font-size: $uni-font-size-sm;
-    }
-  }
-}
-
-// 内容区域
-.content {
-  flex: 1;
-  overflow: hidden;
-
-  &.content-with-navbar {
-    margin-top: 88rpx;
-  }
-
-  &.content-with-tabbar {
-    margin-bottom: 100rpx;
-  }
-}
-
 // 滚动容器
 .scroll-view {
   height: 100%;
@@ -272,142 +176,28 @@
   }
 }
 
-// 列表布局
-.list {
-  background-color: $uni-bg-color;
+// 水平滚动内容容器
+.scroll-row {
+  display: flex;
+  width: max-content;
 
-  .list-item {
-    display: flex;
-    align-items: center;
-    padding: $uni-spacing-col-base $uni-spacing-row-base;
-    border-bottom: 2rpx solid $uni-border-color;
-    background-color: $uni-bg-color;
-    transition: background-color $uni-transition-duration ease;
+  // 滚动项目基础样式
+  .scroll-item {
+    flex-shrink: 0;
+    margin-right: 20rpx;
 
     &:last-child {
-      border-bottom: none;
-    }
-
-    &:active {
-      background-color: $uni-bg-color-hover;
-    }
-
-    &.list-item-disabled {
-      opacity: $uni-opacity-disabled;
-      pointer-events: none;
+      margin-right: 0;
     }
   }
-
-  .list-item-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: $uni-spacing-xs;
-  }
-
-  .list-item-title {
-    font-size: $uni-font-size-base;
-    color: $uni-text-color;
-    font-weight: 500;
-  }
-
-  .list-item-subtitle {
-    font-size: $uni-font-size-sm;
-    color: $uni-text-color-grey;
-  }
-
-  .list-item-extra {
-    display: flex;
-    align-items: center;
-    gap: $uni-spacing-row-sm;
-    color: $uni-text-color-grey;
-    font-size: $uni-font-size-sm;
-  }
-
-  .list-item-arrow {
-    color: $uni-text-color-placeholder;
-    font-size: $uni-font-size-base;
-  }
-}
-
-// 分组列表
-.list-group {
-  margin-bottom: $uni-spacing-col-base;
-
-  .list-group-title {
-    padding: $uni-spacing-col-sm $uni-spacing-row-base;
-    background-color: $uni-bg-color-grey;
-    color: $uni-text-color-grey;
-    font-size: $uni-font-size-sm;
-    font-weight: 500;
-    border-bottom: 2rpx solid $uni-border-color;
-  }
-}
-
-// 卡片布局
-.card-grid {
-  display: grid;
-  gap: $uni-spacing-col-base;
-  padding: $uni-spacing-col-base;
-
-  &.grid-1 {
-    grid-template-columns: 1fr;
-  }
-
-  &.grid-2 {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  &.grid-3 {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  &.grid-4 {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-// 瀑布流布局
-.masonry {
-  column-count: 2;
-  column-gap: $uni-spacing-row-base;
-
-  .masonry-item {
-    break-inside: avoid;
-    margin-bottom: $uni-spacing-col-base;
-  }
-
-  &.masonry-3 {
-    column-count: 3;
-  }
-}
-
-// 固定定位辅助类
-.fixed-top {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: $uni-zindex-navbar;
-}
-
-.fixed-bottom {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: $uni-zindex-navbar;
-}
-
-.sticky-top {
-  position: sticky;
-  top: 0;
-  z-index: $uni-zindex-navbar;
 }
 
 // 居中布局
 .center {
-  @include absolute-center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .center-x {
@@ -420,14 +210,4 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-}
-
-// 全屏布局
-.fullscreen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: $uni-zindex-modal;
 }
