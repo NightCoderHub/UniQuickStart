@@ -4,6 +4,8 @@ export const useUserStore = defineStore("user", {
   state: () => ({
     // 从本地存储获取初始数据
     userInfo: uni.getStorageSync("userInfo") || null,
+    token: uni.getStorageSync("token") || "",
+    refreshToken: uni.getStorageSync("refreshToken") || "",
   }),
   getters: {
     // 检查用户是否已登录
@@ -23,11 +25,28 @@ export const useUserStore = defineStore("user", {
       this.userInfo = data;
       uni.setStorageSync("userInfo", data);
     },
+    // 设置token
+    setToken(token) {
+      this.token = token;
+      uni.setStorageSync("token", token);
+    },
+    // 设置刷新token
+    setRefreshToken(refreshToken) {
+      this.refreshToken = refreshToken;
+      uni.setStorageSync("refreshToken", refreshToken);
+    },
+    // 更新用户信息
+    updateProfile(userInfo) {
+      this.userInfo = { ...this.userInfo, ...userInfo };
+      uni.setStorageSync("userInfo", this.userInfo);
+    },
     // 清除用户信息和token（例如：登出时调用）
     clearUserInfo() {
       this.userInfo = null;
+      this.token = "";
+      this.refreshToken = "";
       uni.removeStorageSync("userInfo");
-      uni.removeStorageSync("accessToken");
+      uni.removeStorageSync("token");
       uni.removeStorageSync("refreshToken");
     },
   },

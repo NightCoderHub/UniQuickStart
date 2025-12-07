@@ -18,6 +18,8 @@ export const useDeviceStore = defineStore("device", {
     networkStatus: "unknown",
     // 位置信息
     location: null,
+    // 县级区域
+    district: "定位中...",
     // 权限信息
     permissions: {},
   }),
@@ -90,16 +92,22 @@ export const useDeviceStore = defineStore("device", {
             ...locationData,
             geocode: geocodeResult,
           };
+          // 提取县级区域
+          this.district = geocodeResult?.address_component?.district || "定位失败";
           console.log("位置信息和逆地址解析更新成功:", this.location);
         } catch (geocodeError) {
           console.warn("逆地址解析失败，仅保存经纬度信息:", geocodeError);
           // 即使逆地址解析失败，也保存经纬度信息
           this.location = locationData;
+          // 提取县级区域
+          this.district = "定位失败";
         }
       } catch (error) {
         console.error("获取位置失败:", error);
         // 清空位置信息
         this.location = null;
+        // 清空县级区域
+        this.district = "定位失败";
       }
     },
   },
