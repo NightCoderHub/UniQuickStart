@@ -126,9 +126,9 @@ const checkPermissionStatus = async () => {
     uni.getSetting({
       success(res) {
         console.log("uni.getSetting:", res.authSetting);
-        if (res.authSetting["scope.userLocation"]) {
+        if (res.authSetting["scope.userFuzzyLocation"]) {
           permissions.value.location = "已授权";
-        } else if (res.authSetting["scope.userLocation"] === false) {
+        } else if (res.authSetting["scope.userFuzzyLocation"] === false) {
           permissions.value.location = "已拒绝";
         } else {
           permissions.value.location = "未设置";
@@ -214,7 +214,7 @@ onShow(() => {
   margin-bottom: 20rpx;
   overflow: hidden;
   background-color: #fff;
-  border-radius: 16rpx;
+  border-radius: $uni-border-radius-lg;
 
   .setting-item {
     position: relative;
@@ -225,17 +225,17 @@ onShow(() => {
     font-size: 32rpx;
     color: #333;
 
-    &:not(:last-child)::after {
-      position: absolute;
-      right: 0;
-      bottom: 0;
-      left: 30rpx;
-      height: 1rpx;
-      content: "";
-      background-color: #eee;
-      transform: scaleY(0.5);
-      transform-origin: 0 100%;
-    }
+    // &:not(:last-child)::after {
+    //   content: "";
+    //   position: absolute;
+    //   left: 30rpx;
+    //   right: 0;
+    //   bottom: 0;
+    //   height: 1rpx;
+    //   background-color: #eeeeee;
+    //   transform: scaleY(0.5);
+    //   transform-origin: 0 100%;
+    // }
 
     &:active {
       background-color: #f5f5f5;
@@ -285,6 +285,6 @@ onShow(() => {
   line-height: 1.5;
   color: #666;
   background-color: #f8f8f8;
-  border-radius: 16rpx;
+  border-radius: $uni-border-radius-lg;
 }
 </style>

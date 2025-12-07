@@ -330,10 +330,10 @@
 
         <view class="demo-label">z-index</view>
         <view class="demo-box position-container" style="height: 200rpx">
-          <view class="demo-item absolute z-0" style="left: 20rpx; top: 20rpx">z-0</view>
-          <view class="demo-item absolute z-10" style="left: 40rpx; top: 40rpx">z-10</view>
-          <view class="demo-item absolute z-20" style="left: 60rpx; top: 60rpx">z-20</view>
-          <view class="demo-item absolute z-30" style="left: 80rpx; top: 80rpx">z-30</view>
+          <view class="demo-item absolute z-0" style=" top: 20rpx;left: 20rpx">z-0</view>
+          <view class="demo-item absolute z-10" style=" top: 40rpx;left: 40rpx">z-10</view>
+          <view class="demo-item absolute z-20" style=" top: 60rpx;left: 60rpx">z-20</view>
+          <view class="demo-item absolute z-30" style=" top: 80rpx;left: 80rpx">z-30</view>
         </view>
       </view>
 
@@ -355,19 +355,19 @@
 </template>
 
 <script setup>
-import { getTypeList } from "@/api";
+// import { getTypeList } from "@/api";
 import { ref } from "vue";
 
 const typeList = ref([]);
 
 // 获取动漫列表数据
-getTypeList()
-  .then((res) => {
-    typeList.value = res;
-  })
-  .catch((err) => {
-    console.error("获取动漫列表失败:", err);
-  });
+// getTypeList()
+//   .then((res) => {
+//     typeList.value = res;
+//   })
+//   .catch((err) => {
+//     console.error("获取动漫列表失败:", err);
+//   });
 </script>
 
 <style lang="scss" scoped>
@@ -421,8 +421,8 @@ getTypeList()
   color: #0277bd;
   text-align: center;
   background-color: #e1f5fe;
-  border-radius: 8rpx;
   border: 1px dashed #0277bd;
+  border-radius: 8rpx;
 }
 
 .demo-box-plain {
@@ -443,7 +443,7 @@ getTypeList()
   margin: 5rpx;
   font-size: 24rpx;
   color: #0277bd;
-  background-color: rgba(1, 119, 189, 0.1);
+  background-color: rgb(1 119 189 / 10%);
   border-radius: 4rpx;
 }
 

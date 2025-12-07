@@ -1,33 +1,78 @@
 <template>
   <view class="help-center-container">
+    <!-- 搜索区域 -->
     <view class="search-section">
-      <input v-model="searchQuery" class="search-input" placeholder="搜索常见问题" @confirm="searchFAQ" />
-      <wd-icon name="search" class="search-icon" @click="searchFAQ"></wd-icon>
+      <view class="search-box">
+        <wd-icon name="search" size="18px" color="#999"></wd-icon>
+        <input
+          v-model="searchQuery"
+          class="search-input"
+          placeholder="搜索常见问题"
+          placeholder-class="placeholder"
+          @confirm="searchFAQ"
+        />
+      </view>
     </view>
 
-    <view class="faq-section">
-      <view class="section-title">常见问题</view>
+    <!-- 常见问题 -->
+    <view class="card faq-section">
+      <view class="section-header">
+        <view class="title-line"></view>
+        <text class="section-title">常见问题</text>
+      </view>
+
       <wd-collapse v-model="activeNames" accordion>
         <wd-collapse-item v-for="(category, index) in filteredFaqs" :key="index" :title="category.title" :name="category.name">
           <view class="faq-list">
             <view v-for="(item, itemIndex) in category.items" :key="itemIndex" class="faq-item">
-              <view class="question">{{ item.question }}</view>
+              <view class="question-box">
+                <text class="q-tag">Q</text>
+                <text class="question">{{ item.question }}</text>
+              </view>
               <view class="answer">{{ item.answer }}</view>
             </view>
           </view>
         </wd-collapse-item>
       </wd-collapse>
+
+      <!-- 空状态 -->
+      <view v-if="filteredFaqs.length === 0" class="empty-state">
+        <wd-icon name="search" size="48px" color="#ddd"></wd-icon>
+        <text>未找到相关问题</text>
+      </view>
     </view>
 
-    <view class="contact-section">
-      <view class="section-title">联系客服</view>
-      <view class="contact-item" @click="callCustomerService">
-        <text class="contact-label">客服热线</text>
-        <text class="contact-value">{{ COMPANY_INFO.phone }}</text>
+    <!-- 联系客服 -->
+    <view class="card contact-section">
+      <view class="section-header">
+        <view class="title-line"></view>
+        <text class="section-title">联系客服</text>
       </view>
+
+      <view class="contact-item" @click="callCustomerService">
+        <view class="left">
+          <view class="icon-wrapper blue">
+            <wd-icon name="phone" size="18px" color="#4c92fc"></wd-icon>
+          </view>
+          <text class="label">客服热线</text>
+        </view>
+        <view class="right">
+          <text class="value">{{ COMPANY_INFO.phone }}</text>
+          <wd-icon name="arrow-right" size="16px" color="#999"></wd-icon>
+        </view>
+      </view>
+
       <view class="contact-item" @click="copyCustomerServiceEmail">
-        <text class="contact-label">客服邮箱</text>
-        <text class="contact-value">{{ COMPANY_INFO.email }}</text>
+        <view class="left">
+          <view class="icon-wrapper orange">
+            <wd-icon name="mail" size="18px" color="#ff9f3e"></wd-icon>
+          </view>
+          <text class="label">客服邮箱</text>
+        </view>
+        <view class="right">
+          <text class="value">{{ COMPANY_INFO.email }}</text>
+          <wd-icon name="copy" size="16px" color="#999"></wd-icon>
+        </view>
       </view>
     </view>
   </view>
@@ -166,48 +211,64 @@ const copyCustomerServiceEmail = () => {
 
 <style lang="scss" scoped>
 .help-center-container {
-  display: flex;
-  flex-direction: column;
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: 30rpx;
+  background-color: #f8f9fb;
 }
 
 .search-section {
+  margin-bottom: 30rpx;
+
+  .search-box {
+    display: flex;
+    align-items: center;
+    height: 88rpx;
+    padding: 0 30rpx;
+    background: #fff;
+    border-radius: 44rpx;
+    box-shadow: 0 4rpx 16rpx rgb(0 0 0 / 4%);
+
+    .search-input {
+      flex: 1;
+      height: 100%;
+      margin-left: 20rpx;
+      font-size: 28rpx;
+      color: #333;
+    }
+
+    :deep(.placeholder) {
+      color: #999;
+    }
+  }
+}
+
+.card {
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgb(0 0 0 / 4%);
+}
+
+.section-header {
   display: flex;
   align-items: center;
-  padding: 20rpx 30rpx;
-  background-color: #fff;
-  border-bottom: 1rpx solid #f0f0f0;
+  margin-bottom: 30rpx;
 
-  .search-input {
-    flex: 1;
-    height: 70rpx;
-    padding: 0 30rpx;
-    font-size: 28rpx;
+  .title-line {
+    width: 8rpx;
+    height: 32rpx;
+    margin-right: 16rpx;
+    background: linear-gradient(180deg, #4c92fc 0%, #2c75ea 100%);
+    border-radius: 4rpx;
+  }
+
+  .section-title {
+    font-size: 32rpx;
+    font-weight: bold;
     color: #333;
-    background-color: #f5f5f5;
-    border-radius: 35rpx;
   }
-
-  .search-icon {
-    margin-left: 20rpx;
-    font-family: iconfont;
-    font-size: 40rpx;
-    color: #999;
-  }
-}
-
-.faq-section,
-.contact-section {
-  padding: 0 30rpx;
-  margin-top: 20rpx;
-  background-color: #fff;
-}
-
-.section-title {
-  padding: 30rpx 0;
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #333;
-  border-bottom: 1rpx solid #f0f0f0;
 }
 
 .faq-list {
@@ -215,46 +276,119 @@ const copyCustomerServiceEmail = () => {
 }
 
 .faq-item {
-  margin-bottom: 30rpx;
+  margin-bottom: 40rpx;
 
   &:last-child {
     margin-bottom: 0;
   }
 
-  .question {
-    margin-bottom: 10rpx;
-    font-size: 30rpx;
-    font-weight: bold;
-    color: #333;
+  .question-box {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 16rpx;
+
+    .q-tag {
+      display: inline-flex;
+      flex-shrink: 0;
+      align-items: center;
+      justify-content: center;
+      width: 36rpx;
+      height: 36rpx;
+      margin-top: 4rpx;
+      margin-right: 16rpx;
+      font-size: 24rpx;
+      font-weight: bold;
+      color: #4c92fc;
+      background: rgb(76 146 252 / 10%);
+      border-radius: 8rpx;
+    }
+
+    .question {
+      font-size: 30rpx;
+      font-weight: 500;
+      line-height: 1.4;
+      color: #333;
+    }
   }
 
   .answer {
+    padding-left: 52rpx;
     font-size: 28rpx;
     line-height: 1.6;
     color: #666;
+    text-align: justify;
   }
 }
 
 .contact-item {
   display: flex;
   align-items: center;
-  padding: 30rpx 0;
-  border-bottom: 1rpx solid #f0f0f0;
+  justify-content: space-between;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
 
   &:last-child {
+    padding-bottom: 0;
     border-bottom: none;
   }
 
-  .contact-label {
-    flex: 1;
-    font-size: 30rpx;
-    color: #333;
+  /* Remove top padding for the first item to align better with the header */
+  &:first-of-type {
+    padding-top: 0;
   }
 
-  .contact-value {
-    margin-right: 20rpx;
-    font-size: 30rpx;
-    color: #666;
+  .left {
+    display: flex;
+    align-items: center;
+
+    .icon-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 72rpx;
+      height: 72rpx;
+      margin-right: 24rpx;
+      border-radius: 16rpx;
+
+      &.blue {
+        background: rgb(76 146 252 / 10%);
+      }
+
+      &.orange {
+        background: rgb(255 159 62 / 10%);
+      }
+    }
+
+    .label {
+      font-size: 30rpx;
+      font-weight: 500;
+      color: #333;
+    }
+  }
+
+  .right {
+    display: flex;
+    align-items: center;
+
+    .value {
+      margin-right: 12rpx;
+      font-size: 28rpx;
+      color: #666;
+    }
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60rpx 0;
+
+  text {
+    margin-top: 20rpx;
+    font-size: 28rpx;
+    color: #999;
   }
 }
 </style>

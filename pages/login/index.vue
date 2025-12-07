@@ -49,9 +49,9 @@
         <wd-checkbox v-model="isAgree" size="large"></wd-checkbox>
         <text class="agree-text">
           同意
-          <text class="highlight-link" @click="openPolicy('privacy')">《隐私政策》</text>
+          <text class="highlight-link" @click="openPolicy('privacy')">《服务协议》</text>
           和
-          <text class="highlight-link" @click="openPolicy('agreement')">《服务协议》</text>
+          <text class="highlight-link" @click="openPolicy('agreement')">《隐私政策》</text>
         </text>
       </view>
 
@@ -81,11 +81,12 @@
 <script setup>
 import { reactive, ref } from "vue";
 import { useUserStore } from "@/stores";
+import { login, getUserInfo } from "@/api";
 const userStore = useUserStore();
 
 const loginForm = reactive({
-  phone: "13800000000",
-  password: "123456",
+  phone: "",
+  password: "",
 });
 const isLoggingIn = ref(false);
 
@@ -138,45 +139,23 @@ const handleLogin = async () => {
   }
   isLoggingIn.value = true;
   try {
-    // 1. 登录接口，获得 token 和 refreshToken（mock 示例，实际请替换为真实 API）
-    const loginRes = await new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (loginForm.phone === "13800000000" && loginForm.password === "123456") {
-          resolve({
-            access_token: "mock_access_token_12345",
-            refresh_token: "mock_refresh_token_abcde",
-          });
-        } else {
-          reject(new Error("手机号或密码错误"));
-        }
-      }, 1000);
+    // 1. 登录接口，获得 token
+    const loginRes = await login({
+      account: loginForm.phone,
+      password: loginForm.password,
     });
+    const access_token = loginRes;
     // 保存 token 到 userStore（单独设置）
-    uni.setStorageSync("accessToken", loginRes.token);
-    uni.setStorageSync("refreshToken", loginRes.refreshToken);
+    userStore.setToken(access_token);
+    // userStore.setRefreshToken(loginRes.refresh_token);
 
-    // 2. 请求用户信息接口（mock 示例，实际请替换为真实 API）
-    const userInfoRes = await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          nickname: "测试用户",
-          userId: "12345678",
-          gender: 1,
-          birthday: "1990-01-01",
-          phone: "13800000000",
-          email: "test@example.com",
-          rating: "4.8",
-          completion: "95%",
-          avatar: "/static/default_avator.png",
-        });
-      }, 500);
-    });
+    // 2. 请求用户信息接口
+    const userInfoRes = await getUserInfo();
     // 合并用户信息到 userStore
     userStore.setUserInfo({
       ...userInfoRes,
     });
-
-    uni.showToast({ title: "登录成功", icon: "success" });
+    uni.showToast({ title: "登录成功", icon: "none" });
     // 3. 跳转首页
     uni.switchTab({ url: "/pages/index/index" });
   } catch (err) {
@@ -187,7 +166,7 @@ const handleLogin = async () => {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .login-page {
   display: flex;
   flex-direction: column;
@@ -196,6 +175,7 @@ const handleLogin = async () => {
 .title {
   margin-top: 64rpx;
   margin-bottom: 20rpx;
+  font-family: PingFangSC-Medium;
   font-size: 64rpx;
   color: #000;
   text-align: center;
@@ -229,6 +209,8 @@ const handleLogin = async () => {
   background-color: #fff;
   border-bottom: 1px solid #eee;
   border-radius: 200rpx;
+
+  /* color: #C8C9CC; */
 }
 
 .input-item .iconfont {
@@ -248,6 +230,17 @@ const handleLogin = async () => {
   margin-top: 24rpx;
   margin-bottom: 48rpx;
 }
+
+/* .remember {
+  display: flex;
+  align-items: center;
+}
+
+.remember text {
+  margin-left: 10rpx;
+  font-size: 28rpx;
+  color: #333;
+} */
 
 .forget {
   font-size: 28rpx;
@@ -276,26 +269,64 @@ const handleLogin = async () => {
   width: 100%;
   height: 88rpx;
   margin-bottom: 48rpx;
-  font-size: 32rpx;
+  font-size: 16px;
   line-height: 88rpx;
   color: #fff;
   letter-spacing: 12rpx;
-  background-color: #57c051;
+  background-color: $uni-color-primary;
   border-radius: 44rpx;
-}
-
-.login-btn[disabled] {
-  color: #fff;
-  background-color: #57c051;
-  opacity: 0.5;
 }
 
 .verify-login {
   font-size: 28rpx;
   font-weight: normal;
-  color: #57c051;
+  color: $uni-color-primary;
   text-align: center;
 }
+
+/*
+.other-login {
+  margin-top: auto;
+  padding-bottom: 60rpx;
+}
+
+.divider {
+  position: relative;
+  text-align: center;
+  margin-bottom: 60rpx;
+}
+
+.divider text {
+  background-color: #fff;
+  padding: 0 20rpx;
+  color: #999;
+  font-size: 14px;
+  position: relative;
+  z-index: 1;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 1px;
+  background-color: #eee;
+  z-index: 0;
+}
+
+.social-login {
+  display: flex;
+  justify-content: center;
+  gap: 80rpx;
+}
+
+.social-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+} */
 
 .uni-input-placeholder {
   font-size: 26rpx;

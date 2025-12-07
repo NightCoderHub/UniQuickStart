@@ -212,6 +212,7 @@ onUnmounted(() => {
 .title {
   margin-top: 64rpx;
   margin-bottom: 20rpx;
+  font-family: PingFangSC-Medium;
   font-size: 64rpx;
   color: #000;
   text-align: center;
@@ -265,14 +266,8 @@ onUnmounted(() => {
   line-height: 88rpx;
   color: #fff;
   letter-spacing: 12rpx;
-  background-color: #57c051;
+  background-color: $uni-color-primary;
   border-radius: 44rpx;
-}
-
-.submit-button[disabled] {
-  color: #fff;
-  background-color: #57c051;
-  opacity: 0.5;
 }
 
 .links {
@@ -285,7 +280,7 @@ onUnmounted(() => {
 
 .link-item {
   padding: 10rpx 0;
-  color: #57c051;
+  color: $uni-color-primary;
 
   &:active {
     opacity: 0.7;
@@ -309,7 +304,7 @@ onUnmounted(() => {
   padding: 0;
   font-size: 28rpx;
   line-height: normal;
-  color: #57c051;
+  color: $uni-color-primary;
   background-color: transparent;
   border: none;
   transform: translateY(-50%);

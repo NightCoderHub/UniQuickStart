@@ -32,13 +32,17 @@
     {
       "path": "pages/register/register",
       "style": {
-        "navigationBarTitleText": "注册"
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F7F8FA",
+        "navigationBarTextStyle": "black"
       }
     },
     {
       "path": "pages/forgot-password/forgot-password",
       "style": {
-        "navigationBarTitleText": "忘记密码"
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F7F8FA",
+        "navigationBarTextStyle": "black"
       }
     },
     {
@@ -70,6 +74,12 @@
       "path": "pages/feedback/feedback",
       "style": {
         "navigationBarTitleText": "意见反馈"
+      }
+    },
+    {
+      "path": "pages/settings/settings",
+      "style": {
+        "navigationBarTitleText": "系统设置"
       }
     }
   ],

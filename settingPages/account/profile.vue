@@ -1,74 +1,89 @@
 <template>
   <view class="profile-page">
     <scroll-view scroll-y class="profile-scroll-view">
+      <!-- 基本信息 -->
       <view class="profile-group">
-        <view class="profile-item avatar-item group-item-first" @click="changeAvatar">
-          <text class="item-text">头像</text>
-          <image class="avatar" :src="userInfo.avatar || '/static/132.jpg'" mode="aspectFill"></image>
-          <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
+        <view class="profile-item avatar-item" @click="changeAvatar">
+          <text class="item-label">头像</text>
+          <view class="item-content">
+            <image class="avatar" :src="userInfo.avatar || '/static/default-avatar.jpg'" mode="aspectFill"></image>
+            <text class="iconfont icon-arrow-right"></text>
+          </view>
         </view>
-        <view class="item-separator"></view>
 
         <view class="profile-item" @click="editNickname">
-          <text class="item-text">昵称</text>
-          <text class="item-value">{{ userInfo.nickname || "未设置" }}</text>
-          <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
+          <text class="item-label">昵称</text>
+          <view class="item-content">
+            <text class="item-value">{{ userInfo.nickname || "未设置" }}</text>
+            <text class="iconfont icon-arrow-right"></text>
+          </view>
         </view>
-        <view class="item-separator"></view>
-
-        <view class="profile-item">
-          <text class="item-text">用户ID</text>
-          <text class="item-value">{{ userInfo.userId || "无" }}</text>
-        </view>
-        <view class="item-separator"></view>
 
         <view class="profile-item" @click="changeGender">
-          <text class="item-text">性别</text>
-          <text class="item-value">{{ formatGender(userInfo.gender) || "未设置" }}</text>
-          <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
+          <text class="item-label">性别</text>
+          <view class="item-content">
+            <text class="item-value">{{ formatGender(userInfo.gender) }}</text>
+            <text class="iconfont icon-arrow-right"></text>
+          </view>
         </view>
-        <view class="item-separator"></view>
 
-        <view class="profile-item group-item-last" @click="showBirthdayPicker = true">
-          <text class="item-text">生日</text>
-          <text class="item-value">{{ userInfo.birthday || "未设置" }}</text>
-          <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
+        <wd-datetime-picker
+          v-model="userInfo.birthday"
+          align-right
+          :min-date="new Date(1960, 0, 1).getTime()"
+          :max-date="new Date().getTime()"
+          type="date"
+          label="生日"
+          @confirm="saveProfile"
+        />
+      </view>
+
+      <!-- 联系方式 -->
+      <view class="profile-group">
+        <view class="profile-item">
+          <text class="item-label">手机号</text>
+          <view class="item-content">
+            <text class="item-value">{{ userInfo.phone ? formatPhoneNumber(userInfo.phone) : "未绑定" }}</text>
+          </view>
+        </view>
+
+        <view class="profile-item" @click="editEmail">
+          <text class="item-label">邮箱</text>
+          <view class="item-content">
+            <text class="item-value">{{ userInfo.email || "未绑定" }}</text>
+            <text class="iconfont icon-arrow-right"></text>
+          </view>
         </view>
       </view>
 
-      <view class="profile-group security-group">
-        <view class="profile-item group-item-first" @click="navigateTo('/settingPages/account/security?type=phone')">
-          <text class="item-text">手机号</text>
-          <text class="item-value">{{ userInfo.phone ? formatPhoneNumber(userInfo.phone) : "未绑定" }}</text>
-          <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
-        </view>
-        <view class="item-separator"></view>
-
-        <view class="profile-item group-item-last" @click="navigateTo('/settingPages/account/security?type=email')">
-          <text class="item-text">邮箱</text>
-          <text class="item-value">{{ userInfo.email || "未绑定" }}</text>
-          <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
+      <!-- 安全设置 -->
+      <view class="profile-group">
+        <view class="profile-item" @click="changePassword">
+          <text class="item-label">修改密码</text>
+          <view class="item-content">
+            <text class="iconfont icon-arrow-right"></text>
+          </view>
         </view>
       </view>
     </scroll-view>
 
+    <!-- 底部保存按钮 -->
+    <view class="submit-section">
+      <bottom-fixed-button :fixed="false" size="large" @click="saveProfile">保 存</bottom-fixed-button>
+    </view>
+
+    <!-- 组件 -->
     <wd-action-sheet v-model="showActionSheet" :actions="actionSheet" @select="handleActionSheetSelect" />
-    <wd-datetime-picker
-      v-model="userInfo.birthday"
-      v-model:show="showBirthdayPicker"
-      align-right
-      type="date"
-      label="生日"
-      @confirm="onBirthdayConfirm"
-    />
+    <wd-message-box></wd-message-box>
   </view>
-  <wd-message-box></wd-message-box>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from "vue";
 import { useUserStore } from "@/stores";
-import { useMessage } from "wot-design-uni";
+import { useMessage, useUpload } from "wot-design-uni";
+import { getUserInfo, updateUserInfo } from "@/api";
+import { uploadActionUrl } from "@/config";
 
 const message = useMessage();
 const userStore = useUserStore();
@@ -76,37 +91,30 @@ const userStore = useUserStore();
 // 模拟用户信息，实际应从 userStore 中获取
 const userInfo = reactive({
   avatar: "", // 示例头像，可替换为实际图片路径
-  nickname: "测试用户",
-  userId: "12345678",
-  gender: 1, // 0: 保密, 1: 男, 2: 女
-  birthday: "1990-01-01",
-  phone: "13812345678",
-  email: "test@example.com",
+  nickname: "",
+  gender: "0", // 0: 保密, 1: 男, 2: 女
+  birthday: "",
+  phone: "",
+  email: "",
 });
-
-// 控制生日选择器显示
-const showBirthdayPicker = ref(false);
 
 // 获取用户信息的模拟方法，实际应调用 userStore 的方法
 onMounted(() => {
-  // 实际项目中，这里会调用接口获取用户最新信息
-  // Object.assign(userInfo, userStore.userInfo);
-  // 模拟从 store 加载数据
-  userInfo.avatar = userStore.userInfo.avatar;
-  userInfo.nickname = userStore.userInfo.nickname;
-  userInfo.userId = userStore.userInfo.userId;
-  userInfo.gender = userStore.userInfo.gender;
-  userInfo.birthday = userStore.userInfo.birthday;
-  userInfo.phone = userStore.userInfo.phone;
-  userInfo.email = userStore.userInfo.email;
+  getUserInfo().then((data) => {
+    Object.assign(userInfo, data, {
+      phone: data.mobile,
+      // 将时间戳转换为Date对象
+      birthday: data.birthday ? new Date(parseInt(data.birthday)).getTime() : "",
+    });
+  });
 });
 
 // 格式化性别显示
 const formatGender = (gender) => {
   switch (gender) {
-    case 1:
+    case "1":
       return "男";
-    case 2:
+    case "2":
       return "女";
     default:
       return "保密";
@@ -119,34 +127,75 @@ const formatPhoneNumber = (phone) => {
   return phone.replace(/(\d{3})\d{4}(\d{4})/, "$1****$2");
 };
 
-// 导航到其他页面
-const navigateTo = (url) => {
-  uni.navigateTo({ url });
-};
-
 // 修改头像
-const changeAvatar = () => {
-  uni.chooseImage({
-    count: 1, // 最多选择一张图片
-    sizeType: ["compressed"], // 可以指定是原图还是压缩图，默认二者都有
-    sourceType: ["album", "camera"], // 可以指定来源是相册还是相机，默认二者都有
-    success: (res) => {
-      const tempFilePath = res.tempFilePaths[0];
-      // 实际开发中，这里需要上传图片到服务器
+const changeAvatar = async () => {
+  const { startUpload, chooseFile, UPLOAD_STATUS } = useUpload();
+
+  try {
+    // 使用chooseFile替代uni.chooseImage
+    const files = await chooseFile({
+      accept: "image",
+      multiple: false,
+      maxCount: 1,
+    });
+    if (files && files.length > 0) {
+      const tempFilePath = files[0].path;
+
+      // 构建上传文件对象
+      const file = {
+        url: tempFilePath,
+        status: UPLOAD_STATUS.PENDING,
+        percent: 0,
+        uid: new Date().getTime(),
+      };
+
       uni.showLoading({ title: "上传中" });
-      // 模拟上传
-      setTimeout(() => {
-        userInfo.avatar = tempFilePath; // 更新本地显示
+
+      try {
+        // 开始上传
+        await startUpload(file, {
+          action: uploadActionUrl,
+          header: {
+            "e-token": userStore.token,
+          },
+          onSuccess: (res) => {
+            console.log("上传成功", res);
+            const data = JSON.parse(res.data);
+            userInfo.avatar = data.data; // 假设服务器返回的数据中包含url字段
+            uni.showToast({
+              title: "头像更新成功",
+              icon: "none",
+            });
+            saveProfile();
+          },
+          onError: (err) => {
+            console.error("上传失败", err);
+            uni.showToast({
+              title: "头像上传失败",
+              icon: "none",
+            });
+          },
+          onProgress: (res) => {
+            console.log("上传进度:", res.progress);
+          },
+        });
+      } catch (error) {
+        console.error("上传失败:", error);
+        uni.showToast({
+          title: "头像上传失败",
+          icon: "none",
+        });
+      } finally {
         uni.hideLoading();
-        message.success("头像更新成功");
-        // 实际：调用 userStore.updateAvatar(imageUrl) 并同步到后端
-      }, 1000);
-    },
-    fail: (err) => {
-      console.error("选择图片失败", err);
-      message.error("选择头像失败");
-    },
-  });
+      }
+    }
+  } catch (err) {
+    console.error("选择图片失败", err);
+    uni.showToast({
+      title: "选择头像失败",
+      icon: "none",
+    });
+  }
 };
 
 // 编辑昵称
@@ -160,15 +209,32 @@ const editNickname = () => {
       inputValue: userInfo.nickname,
       showCancel: true,
     })
-    .then((value) => {
+    .then(({ value }) => {
       if (value && value.trim() !== userInfo.nickname) {
-        uni.showLoading({ title: "保存中" });
-        // 实际：调用 userStore.updateNickname(value) 并同步到后端
-        setTimeout(() => {
-          userInfo.nickname = value.trim();
-          uni.hideLoading();
-          message.success("昵称修改成功");
-        }, 500);
+        userInfo.nickname = value.trim();
+        saveProfile();
+      }
+    })
+    .catch(() => {
+      // 用户取消
+    });
+};
+
+// 编辑邮箱
+const editEmail = () => {
+  message
+    .prompt({
+      msg: "请输入新邮箱",
+      title: "修改邮箱",
+      inputPattern: /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/, // 邮箱格式
+      inputError: "请输入正确的邮箱格式",
+      inputValue: userInfo.email,
+      showCancel: true,
+    })
+    .then(({ value }) => {
+      if (value && value.trim() !== userInfo.email) {
+        userInfo.email = value.trim();
+        saveProfile();
       }
     })
     .catch(() => {
@@ -182,39 +248,45 @@ const changeGender = () => {
 };
 const showActionSheet = ref(false);
 const actionSheet = [
-  { name: "男", value: 1 },
-  { name: "女", value: 2 },
-  { name: "保密", value: 0 },
+  { name: "男", value: "1" },
+  { name: "女", value: "2" },
+  { name: "保密", value: "0" },
 ];
 
 const handleActionSheetSelect = (item) => {
   userInfo.gender = item.item.value;
+  saveProfile();
 };
 
-// 生日选择器确认
-const onBirthdayConfirm = (value) => {
-  userInfo.birthday = value.value;
-  showBirthdayPicker.value = false;
+const changePassword = () => {
+  uni.navigateTo({ url: "/settingPages/account/change-password" });
+};
+
+const saveProfile = () => {
+  uni.showLoading({ title: "保存中" });
+  const params = {
+    nickname: userInfo.nickname,
+    avatar: userInfo.avatar,
+    mobile: userInfo.phone,
+    gender: parseInt(userInfo.gender), // 转换为整数类型
+    email: userInfo.email,
+    birthday: userInfo.birthday ? userInfo.birthday.toString() : "", // 转换为字符串类型
+  };
+  updateUserInfo(params)
+    .then(() => {
+      userStore.updateProfile(params);
+      uni.showToast({
+        title: "保存成功",
+        icon: "none",
+      });
+    })
+    .finally(() => {
+      uni.hideLoading();
+    });
 };
 </script>
 
 <style lang="scss" scoped>
-// Picker component deep styles
-:deep(.wd-picker__cell) {
-  padding-top: 28rpx;
-  padding-bottom: 28rpx;
-}
-
-:deep(.wd-picker__label) {
-  font-size: 32rpx;
-  color: #333 !important;
-}
-
-:deep(.wd-picker__value) {
-  font-size: 28rpx;
-  color: #999 !important;
-}
-
 .profile-page {
   display: flex;
   flex-direction: column;
@@ -226,10 +298,9 @@ const onBirthdayConfirm = (value) => {
   padding: 20rpx;
 }
 
-// Group container for a block of profile items
 .profile-group {
-  margin-bottom: 20rpx; /* Spacing between groups */
-  overflow: hidden; /* Ensures content respects border-radius */
+  margin-bottom: 20rpx;
+  overflow: hidden;
   background-color: #fff;
   border-radius: 16rpx;
 }
@@ -239,51 +310,111 @@ const onBirthdayConfirm = (value) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 28rpx 30rpx;
+  padding: 30rpx;
   font-size: 32rpx;
   color: #333;
+  background-color: #fff;
+  transition: background-color 0.2s;
 
-  // Active state
   &:active {
-    background-color: #f5f5f5;
+    background-color: #f9f9f9;
   }
 
-  .item-text {
+  /* 分隔线：除了每一组的最后一个元素 */
+  &:not(:last-child)::after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 30rpx;
+    height: 1px;
+    content: "";
+    background-color: #eee;
+    transform: scaleY(0.5);
+  }
+
+  .item-label {
     flex: 1;
-    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  .item-content {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
   }
 
   .item-value {
-    margin-right: 15rpx;
+    margin-right: 12rpx;
     font-size: 28rpx;
     color: #999;
   }
-}
 
-// Separator between profile items within a group
-.item-separator {
-  height: 1rpx;
-  margin-left: 30rpx; /* Align with item text padding */
-  background-color: #eee;
-  transform: scaleY(0.5); /* For sharper line on high-DPI screens */
-  transform-origin: 0 100%;
+  .iconfont {
+    font-size: 32rpx;
+    color: #c7c7cc;
+  }
 }
 
 .avatar-item {
-  padding: 20rpx 30rpx;
+  padding: 24rpx 30rpx;
 
   .avatar {
+    display: block;
     width: 100rpx;
     height: 100rpx;
-    margin-right: 15rpx;
+    margin-right: 12rpx;
     background-color: #f0f0f0;
     border-radius: 50%;
   }
+}
 
-  .item-text {
-    align-self: center;
+/* 底部按钮区域 */
+.submit-section {
+  padding: 30rpx 40rpx;
+  padding-bottom: calc(30rpx + env(safe-area-inset-bottom));
+  background-color: #f5f5f5;
+}
+
+/* 覆盖 wot-design 组件样式以匹配 profile-item */
+:deep(.wd-picker__cell) {
+  padding: 30rpx !important;
+  font-size: 32rpx !important;
+  line-height: normal !important;
+  color: #333 !important;
+  background-color: #fff !important;
+  border-bottom: none !important;
+
+  /* 确保 label 样式一致 */
+  .wd-picker__label {
+    font-size: 32rpx !important;
+    line-height: normal !important;
+    color: #333 !important;
+  }
+
+  /* 确保 value 样式一致 */
+  .wd-picker__value {
+    font-size: 28rpx !important;
+    line-height: normal !important;
+    color: #999 !important;
+  }
+
+  /* 调整 picker 内部箭头的位置或样式 */
+  .wd-picker__arrow {
+    right: 30rpx !important;
+    font-size: 32rpx !important;
+    color: #c7c7cc !important;
+  }
+
+  /* 分隔线 */
+  &::after {
+    left: 30rpx !important;
+    display: block;
+    background-color: #eee !important;
   }
 }
 
-// No .submit-section found in the template, so its styles are removed.
+/* 如果 picker 是组内最后一个元素，隐藏分隔线 */
+.profile-group > :last-child :deep(.wd-picker__cell)::after {
+  display: none !important;
+}
 </style>
