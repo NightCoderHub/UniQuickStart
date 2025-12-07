@@ -12,7 +12,15 @@
  * @param {string} formatStr 格式字符串，如 'YYYY-MM-DD HH:mm:ss'，默认为 'YYYY-MM-DD HH:mm'
  * @returns {string} 格式化后的时间字符串
  */
-export function formattedTime(dateObj = new Date(), formatStr = "YYYY-MM-DD HH:mm") {
+export function formattedTime(timestamp = new Date(), formatStr = "YYYY-MM-DD HH:mm") {
+  // 如果传入的是时间戳字符串，转换为 Date 对象
+  let dateObj;
+  if (typeof timestamp === "string" || typeof timestamp === "number") {
+    dateObj = new Date(timestamp);
+  } else {
+    dateObj = timestamp;
+  }
+
   const year = dateObj.getFullYear();
   const month = dateObj.getMonth() + 1; // 月份从0开始，所以要加1
   const date = dateObj.getDate();
@@ -22,6 +30,7 @@ export function formattedTime(dateObj = new Date(), formatStr = "YYYY-MM-DD HH:m
 
   const replacements = {
     YYYY: year,
+    YY: String(year).slice(-2),
     MM: String(month).padStart(2, "0"),
     DD: String(date).padStart(2, "0"),
     HH: String(hours).padStart(2, "0"),
@@ -36,6 +45,19 @@ export function formattedTime(dateObj = new Date(), formatStr = "YYYY-MM-DD HH:m
   }
 
   return formattedString;
+}
+
+/**
+ * 格式化时间为ISO 8601标准格式 (UTC)
+ * 生成符合java.time.Instant要求的UTC格式时间戳
+ *
+ * @param {Date} dateObj 要格式化的 Date 对象，默认为当前时间
+ * @returns {string} 格式化后的ISO时间字符串，如 '2023-01-01T12:30:45.123Z'
+ */
+export function formatISOTime(dateObj = new Date()) {
+  // 直接使用Date对象的toISOString方法获取UTC格式的时间字符串
+  // 这会自动转换为UTC时间并添加Z后缀，完全符合Instant格式要求
+  return dateObj.toISOString();
 }
 
 /**
@@ -81,217 +103,115 @@ export function navigateTo(options) {
 }
 
 /**
- * @class PreciseMoney
- * @description 一个用于高精度金额计算的工具库
- */
-class PreciseMoney {
-  // 内部存储值，以最小单位（分）的整数形式
-  #amount = 0;
-  // 精度，即小数点后的位数，默认为2（元 -> 分）
-  #precision = 2;
-  // 精度因子，用于在元和分之间转换
-  #factor = 100;
-
+ * @description 四则算术运算
+ * */
+export const calculate = {
   /**
-   * 构造函数
-   * @param {number|string|PreciseMoney} initialValue - 初始金额
-   * @param {object} [options] - 配置项
-   * @param {number} [options.precision=2] - 精度，小数点后的位数
+   * 处理传入的参数，不管传入的是数组还是以逗号分隔的参数都处理为数组
+   * @param args
+   * @returns {*}
    */
-  constructor(initialValue, options = {}) {
-    this.#precision = options.precision ?? 2;
-    this.#factor = Math.pow(10, this.#precision);
-
-    if (initialValue instanceof PreciseMoney) {
-      // 如果传入的是另一个 PreciseMoney 实例，直接拷贝其内部值
-      // 注意：如果精度不同，需要进行转换，这里简化为假设精度一致
-      if (this.#precision !== initialValue.#precision) {
-        console.warn(
-          "Creating PreciseMoney from another instance with different precision. This may lead to unexpected results.",
-        );
-      }
-      this.#amount = initialValue.#amount;
-      return;
-    }
-
-    this.#amount = this._parse(initialValue);
-  }
+  getParam(args) {
+    return Array.prototype.concat.apply([], args);
+  },
 
   /**
-   * @private
-   * 将输入值解析为内部的整数表示（分）
-   * @param {number|string} value - 要解析的金额
+   * 获取每个数的乘数因子，根据小数位数计算
+   * 1.首先判断是否有小数点，如果没有，则返回1；
+   * 2.有小数点时，将小数位数的长度作为Math.pow()函数的参数进行计算
+   * 例如2的乘数因子为1，2.01的乘数因子为100
+   * @param x
    * @returns {number}
    */
-  _parse(value) {
-    if (typeof value === "number" && !Number.isFinite(value)) {
-      throw new Error("Invalid number provided. Must be a finite number.");
-    }
-    if (typeof value === "string") {
-      value = value.trim();
-      if (value === "") {
-        return 0;
-      }
-      // 移除非法字符，除了数字、小数点和负号
-      const cleanValue = parseFloat(value.replace(/[^0-9.-]/g, ""));
-      if (isNaN(cleanValue)) {
-        throw new Error(`Invalid money string provided: "${value}"`);
-      }
-      value = cleanValue;
-    }
-    if (typeof value !== "number") {
-      throw new Error("Invalid input type. Must be a number, string, or PreciseMoney instance.");
-    }
-
-    // 将浮点数乘以精度因子并四舍五入，避免浮点数乘法误差
-    return Math.round(value * this.#factor);
-  }
+  multiplier(x) {
+    let parts = x.toString().split(".");
+    return parts.length < 2 ? 1 : Math.pow(10, parts[1].length);
+  },
 
   /**
-   * @private
-   * 创建一个新的 PreciseMoney 实例（用于链式调用）
-   * @param {number} amount - 内部整数值
-   * @returns {PreciseMoney}
+   * 获取多个数据中最大的乘数因子
+   * 例如1.3的乘数因子为10，2.13的乘数因子为100
+   * 则1.3和2.13的最大乘数因子为100
+   * @returns {*}
    */
-  _newInstance(amount) {
-    const newInstance = new PreciseMoney(0, { precision: this.#precision });
-    newInstance.#amount = amount;
-    return newInstance;
-  }
+  correctionFactor() {
+    let args = Array.prototype.slice.call(arguments);
+    let argArr = this.getParam(args);
+    return argArr.reduce((accum, next) => {
+      let num = this.multiplier(next);
+      return Math.max(accum, num);
+    }, 1);
+  },
 
   /**
-   * 加法
-   * @param {number|string|PreciseMoney} value - 要加上的金额
-   * @returns {PreciseMoney} - 返回一个新的 PreciseMoney 实例
-   */
-  add(value) {
-    const other = new PreciseMoney(value, { precision: this.#precision });
-    return this._newInstance(this.#amount + other.#amount);
-  }
-
-  /**
-   * 减法
-   * @param {number|string|PreciseMoney} value - 要减去的金额
-   * @returns {PreciseMoney} - 返回一个新的 PreciseMoney 实例
-   */
-  subtract(value) {
-    const other = new PreciseMoney(value, { precision: this.#precision });
-    return this._newInstance(this.#amount - other.#amount);
-  }
-
-  /**
-   * 乘法
-   * @param {number|string} factor - 乘数
-   * @returns {PreciseMoney} - 返回一个新的 PreciseMoney 实例
-   */
-  multiply(factor) {
-    if (typeof factor !== "number" && typeof factor !== "string") {
-      throw new Error("Multiplier must be a number or a string.");
-    }
-    const multiplier = parseFloat(factor);
-    if (isNaN(multiplier)) {
-      throw new Error(`Invalid multiplier: "${factor}"`);
-    }
-    // (a * 100) * b = (a * b) * 100
-    const newAmount = Math.round(this.#amount * multiplier);
-    return this._newInstance(newAmount);
-  }
-
-  /**
-   * 除法
-   * @param {number|string} divisor - 除数
-   * @returns {PreciseMoney} - 返回一个新的 PreciseMoney 实例
-   */
-  divide(divisor) {
-    if (typeof divisor !== "number" && typeof divisor !== "string") {
-      throw new Error("Divisor must be a number or a string.");
-    }
-    const divider = parseFloat(divisor);
-    if (isNaN(divider) || divider === 0) {
-      throw new Error(`Invalid divisor: "${divisor}". Cannot be zero.`);
-    }
-    // (a * 100) / b = (a / b) * 100
-    const newAmount = Math.round(this.#amount / divider);
-    return this._newInstance(newAmount);
-  }
-
-  /**
-   * 分配/均分
-   * 将当前金额均分为 N 份。处理无法整除的情况，将余数分配给第一份。
-   * @param {number} n - 份数
-   * @returns {PreciseMoney[]} - 返回一个包含 N 个 PreciseMoney 实例的数组
-   */
-  allocate(n) {
-    if (!Number.isInteger(n) || n <= 0) {
-      throw new Error("Allocate count must be a positive integer.");
-    }
-    const base = Math.floor(this.#amount / n);
-    const remainder = this.#amount % n;
-    const result = [];
-    for (let i = 0; i < n; i++) {
-      let amount = base;
-      if (i < remainder) {
-        amount++; // 将余数逐一分配给前面的部分
-      }
-      result.push(this._newInstance(amount));
-    }
-    return result;
-  }
-
-  /**
-   * 获取金额的数字形式（元）
+   * 加法运算
+   * @param args*
    * @returns {number}
    */
-  getValue() {
-    return this.#amount / this.#factor;
-  }
+  add(...args) {
+    let calArr = this.getParam(args);
+    // 获取参与运算值的最大乘数因子
+    let corrFactor = this.correctionFactor(calArr);
+    let sum = calArr.reduce((accum, curr) => {
+      // 将浮点数乘以最大乘数因子，转换为整数参与运算
+      return accum + Math.round(curr * corrFactor);
+    }, 0);
+    // 除以最大乘数因子
+    return sum / corrFactor;
+  },
 
   /**
-   * 获取格式化后的金额字符串
-   * @param {object} [options] - 格式化选项
-   * @param {boolean} [options.thousands=false] - 是否使用千分位分隔符
-   * @param {string} [options.symbol=''] - 货币符号
-   * @returns {string}
+   * 减法运算
+   * @param args
+   * @returns {number}
    */
-  getFormatted(options = {}) {
-    const { thousands = false, symbol = "" } = options;
-    const value = this.getValue().toFixed(this.#precision);
-
-    let [integerPart, decimalPart] = value.split(".");
-
-    if (thousands) {
-      integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    }
-
-    return `${symbol}${integerPart}.${decimalPart}`;
-  }
+  subtract(...args) {
+    let calArr = this.getParam(args);
+    let corrFactor = this.correctionFactor(calArr);
+    let diﬀ = calArr.reduce((accum, curr, curIndex) => {
+      // reduce()函数在未传入初始值时，curIndex从1开始，第一位参与运算的值需要
+      // 乘以最大乘数因子
+      if (curIndex === 1) {
+        return Math.round(accum * corrFactor) - Math.round(curr * corrFactor);
+      }
+      // accum作为上一次运算的结果，就无须再乘以最大因子
+      return Math.round(accum) - Math.round(curr * corrFactor);
+    });
+    // 除以最大乘数因子
+    return diﬀ / corrFactor;
+  },
 
   /**
-   * 比较两个金额
-   * @param {number|string|PreciseMoney} otherValue
-   * @returns {-1 | 0 | 1} - -1: 小于, 0: 等于, 1: 大于
+   * 乘法运算
+   * @param args
+   * @returns {*}
    */
-  compare(otherValue) {
-    const other = new PreciseMoney(otherValue, { precision: this.#precision });
-    if (this.#amount < other.#amount) return -1;
-    if (this.#amount > other.#amount) return 1;
-    return 0;
-  }
+  multiply(...args) {
+    let calArr = this.getParam(args);
+    let corrFactor = this.correctionFactor(calArr);
+    calArr = calArr.map((item) => {
+      // 乘以最大乘数因子
+      return item * corrFactor;
+    });
+    let multi = calArr.reduce((accum, curr) => {
+      return Math.round(accum) * Math.round(curr);
+    }, 1);
+    // 除以最大乘数因子
+    return multi / Math.pow(corrFactor, calArr.length);
+  },
 
-  isGreaterThan(otherValue) {
-    return this.compare(otherValue) > 0;
-  }
-
-  isLessThan(otherValue) {
-    return this.compare(otherValue) < 0;
-  }
-
-  isEqualTo(otherValue) {
-    return this.compare(otherValue) === 0;
-  }
-}
-
-// 工厂函数，方便使用，无需 new
-export function PreciseMoneyFactory(initialValue, options) {
-  return new PreciseMoney(initialValue, options);
-}
+  /**
+   * 除法运算
+   * @param args
+   * @returns {*}
+   */
+  divide(...args) {
+    let calArr = this.getParam(args);
+    let quotient = calArr.reduce((accum, curr) => {
+      let corrFactor = this.correctionFactor(accum, curr);
+      // 同时转换为整数参与运算
+      return Math.round(accum * corrFactor) / Math.round(curr * corrFactor);
+    });
+    return quotient;
+  },
+};
