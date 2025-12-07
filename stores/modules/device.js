@@ -1,9 +1,6 @@
 // stores/modules/device.js
 import { defineStore } from "pinia";
-import {
-  getLocationAndPermission,
-  reverseGeocode,
-} from "@/utils/getLocationAndPermission.js";
+import { getLocationAndPermission, reverseGeocode } from "@/utils/getLocationAndPermission.js";
 
 export const useDeviceStore = defineStore("device", {
   state: () => ({
@@ -87,10 +84,7 @@ export const useDeviceStore = defineStore("device", {
 
         // 进行逆地址解析
         try {
-          const geocodeResult = await reverseGeocode(
-            locationData.latitude,
-            locationData.longitude,
-          );
+          const geocodeResult = await reverseGeocode(locationData.latitude, locationData.longitude);
           // 将经纬度和逆地址解析结果合并存储
           this.location = {
             ...locationData,

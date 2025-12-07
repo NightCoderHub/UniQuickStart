@@ -12,10 +12,7 @@
  * @param {string} formatStr 格式字符串，如 'YYYY-MM-DD HH:mm:ss'，默认为 'YYYY-MM-DD HH:mm'
  * @returns {string} 格式化后的时间字符串
  */
-export function formattedTime(
-  dateObj = new Date(),
-  formatStr = "YYYY-MM-DD HH:mm",
-) {
+export function formattedTime(dateObj = new Date(), formatStr = "YYYY-MM-DD HH:mm") {
   const year = dateObj.getFullYear();
   const month = dateObj.getMonth() + 1; // 月份从0开始，所以要加1
   const date = dateObj.getDate();
@@ -35,10 +32,7 @@ export function formattedTime(
   let formattedString = formatStr;
   for (const key in replacements) {
     // 使用全局替换，确保所有匹配项都被替换
-    formattedString = formattedString.replace(
-      new RegExp(key, "g"),
-      replacements[key],
-    );
+    formattedString = formattedString.replace(new RegExp(key, "g"), replacements[key]);
   }
 
   return formattedString;
@@ -146,9 +140,7 @@ class PreciseMoney {
       value = cleanValue;
     }
     if (typeof value !== "number") {
-      throw new Error(
-        "Invalid input type. Must be a number, string, or PreciseMoney instance.",
-      );
+      throw new Error("Invalid input type. Must be a number, string, or PreciseMoney instance.");
     }
 
     // 将浮点数乘以精度因子并四舍五入，避免浮点数乘法误差

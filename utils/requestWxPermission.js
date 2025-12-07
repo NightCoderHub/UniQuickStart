@@ -39,9 +39,7 @@ export async function requestWxPermission(scope, authDesc) {
       // 权限已被拒绝，且不是首次拒绝（用户点击了“拒绝”且不再提示）。引导用户前往设置页开启。
       const modalRes = await uni.showModal({
         title: "授权提示",
-        content:
-          authDesc ||
-          `我们需要您的${getPermissionName(scope)}权限才能为您提供服务，请在设置中开启。`,
+        content: authDesc || `我们需要您的${getPermissionName(scope)}权限才能为您提供服务，请在设置中开启。`,
         confirmText: "去设置",
         cancelText: "取消",
       });
@@ -71,10 +69,7 @@ export async function requestWxPermission(scope, authDesc) {
         return true; // 授权成功
       } catch (authorizeErr) {
         // 用户拒绝了授权请求 (这是用户意图，通常不作为错误抛出，而是返回false)
-        console.warn(
-          `用户拒绝了 ${getPermissionName(scope)} 权限：`,
-          authorizeErr,
-        );
+        console.warn(`用户拒绝了 ${getPermissionName(scope)} 权限：`, authorizeErr);
         return false;
       }
     }

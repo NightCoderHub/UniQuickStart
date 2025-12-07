@@ -9,11 +9,7 @@ export class NativePopup {
   constructor(options = {}) {
     this.sysInfo = uni.getSystemInfoSync();
 
-    const {
-      bgColor = "#fff",
-      titleColor = "#000",
-      contentColor = "#272727",
-    } = options;
+    const { bgColor = "#fff", titleColor = "#000", contentColor = "#272727" } = options;
 
     this.bgColor = bgColor;
     this.titleColor = titleColor;
@@ -149,9 +145,7 @@ export function requestAndroidPermission(permissionName, permissionDesc) {
   return new Promise((resolve) => {
     // 检查是否在 App 环境运行
     if (typeof plus === "undefined" || !plus.android) {
-      console.warn(
-        "当前环境不支持 plus.android 模块，权限请求功能受限。请在 App 环境运行。",
-      );
+      console.warn("当前环境不支持 plus.android 模块，权限请求功能受限。请在 App 环境运行。");
       resolve(false);
       return;
     }
@@ -167,12 +161,7 @@ export function requestAndroidPermission(permissionName, permissionDesc) {
     if (hasShownDesc) {
       console.log(`检测到已展示过权限说明，跳过应用内弹窗。`);
       // 直接执行内部权限请求逻辑
-      return requestPermissionInternal(
-        permissions,
-        resolve,
-        storageKey,
-        defaultPermissionExplainMap[permissionName].name,
-      );
+      return requestPermissionInternal(permissions, resolve, storageKey, defaultPermissionExplainMap[permissionName].name);
     } else {
       // D: 展示权限说明弹窗 (使用 popup.js)
       // 注意：popup.show() 是非阻塞的，它会立即显示，然后代码会继续执行
@@ -181,23 +170,13 @@ export function requestAndroidPermission(permissionName, permissionDesc) {
       uni.setStorageSync(storageKey, true); // 记录已展示过说明
 
       // 立即执行内部权限请求逻辑，系统弹窗将随后出现
-      requestPermissionInternal(
-        permissions,
-        resolve,
-        storageKey,
-        defaultPermissionExplainMap[permissionName].name,
-      );
+      requestPermissionInternal(permissions, resolve, storageKey, defaultPermissionExplainMap[permissionName].name);
     }
   });
 }
 
 // 提取公共的权限请求逻辑 (略有修改，增加 storageKey 参数)
-function requestPermissionInternal(
-  permissions,
-  resolve,
-  storageKey,
-  permissionName,
-) {
+function requestPermissionInternal(permissions, resolve, storageKey, permissionName) {
   if (!permissionName) {
     console.warn("permissionName 未定义!");
   }
@@ -234,8 +213,7 @@ function requestPermissionInternal(
                 fail(err) {
                   console.error("跳转应用授权设置页失败:", err);
                   uni.showToast({
-                    title:
-                      "无法自动跳转，请手动前往系统设置->应用管理->本应用->权限，进行设置",
+                    title: "无法自动跳转，请手动前往系统设置->应用管理->本应用->权限，进行设置",
                     icon: "none",
                     duration: 4000,
                   });
@@ -249,9 +227,7 @@ function requestPermissionInternal(
           },
         });
       } else {
-        console.log(
-          `部分权限被临时拒绝: ${deniedPresent ? deniedPresent.join(", ") : "无"}`,
-        );
+        console.log(`部分权限被临时拒绝: ${deniedPresent ? deniedPresent.join(", ") : "无"}`);
         console.log(`用户拒绝了权限请求，但未选择永久拒绝。`);
         // 如果是临时拒绝，也可以考虑清理记录，以便下次仍可提示顶部说明
         // uni.removeStorageSync(storageKey); // 根据产品需求决定是否清理
@@ -261,10 +237,7 @@ function requestPermissionInternal(
     (requestError) => {
       // 请求完成后，关闭顶部说明弹窗
       popup.close();
-      console.error(
-        "请求 Android 权限失败 (API参数错误或内部错误):",
-        requestError,
-      );
+      console.error("请求 Android 权限失败 (API参数错误或内部错误):", requestError);
       // 发生错误，清理记录
       uni.removeStorageSync(storageKey);
       resolve(false);

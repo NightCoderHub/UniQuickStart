@@ -15,8 +15,7 @@ export const useUserStore = defineStore("user", {
     // 获取用户完单率，如果未登录则显示默认文本
     userCompletion: (state) => state.userInfo?.completion || "N/A",
     // 获取用户头像，如果未登录则显示默认头像
-    userAvatar: (state) =>
-      state.userInfo?.avatar || "/static/default-avatar.jpg",
+    userAvatar: (state) => state.userInfo?.avatar || "/static/default-avatar.jpg",
   },
   actions: {
     // 设置用户信息（例如：登录成功后调用）

@@ -216,14 +216,12 @@ export const defaultPermissionExplainMap = {
   },
   "android.permission.FOREGROUND_SERVICE": {
     title: "前台服务权限申请说明",
-    content:
-      "应用需要运行前台服务，以便提供持续运行的功能，如音乐播放、导航等。",
+    content: "应用需要运行前台服务，以便提供持续运行的功能，如音乐播放、导航等。",
     name: "前台服务",
   },
   "android.permission.SYSTEM_ALERT_WINDOW": {
     title: "悬浮窗权限申请说明",
-    content:
-      "应用需要显示悬浮窗，以便提供浮动窗口功能，如聊天气泡、屏幕录制等。",
+    content: "应用需要显示悬浮窗，以便提供浮动窗口功能，如聊天气泡、屏幕录制等。",
     name: "悬浮窗",
   },
   "android.permission.WRITE_SETTINGS": {
