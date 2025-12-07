@@ -16,13 +16,6 @@ export default defineConfig({
       deleteOriginFile: false, // 压缩后是否删除原文件，建议设置为 false，让服务器决定是否使用压缩文件
     }),
   ],
-  css: {
-    preprocessorOptions: {
-      scss: {
-        additionalData: `@use "@/styles/mixins.scss" as *;`,
-      },
-    },
-  },
   build: {
     rollupOptions: {
       output: {

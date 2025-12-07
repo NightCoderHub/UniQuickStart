@@ -1,33 +1,18 @@
 <template>
   <wd-tabbar
     v-model="activeTab"
-    fixed
+    :fixed="fixed"
+    placeholder
     bordered
     safe-area-inset-bottom
-    placeholder
-    active-color="#40C393"
+    active-color="#4C92FC"
     inactive-color="#808080"
     @change="onTabbarChange"
   >
-    <wd-tabbar-item
-      v-for="item in tabbarList"
-      :key="item.pagePath"
-      :title="item.text"
-      :name="item.pagePath"
-    >
+    <wd-tabbar-item v-for="item in tabbarList" :key="item.pagePath" :title="item.text" :name="item.pagePath">
       <template #icon="{ active }">
-        <wd-img
-          v-if="active"
-          height="40rpx"
-          width="40rpx"
-          :src="'/' + item.selectedIconPath"
-        ></wd-img>
-        <wd-img
-          v-else
-          height="40rpx"
-          width="40rpx"
-          :src="'/' + item.iconPath"
-        ></wd-img>
+        <wd-img v-if="active" height="46rpx" width="46rpx" :src="'/' + item.selectedIconPath"></wd-img>
+        <wd-img v-else height="46rpx" width="46rpx" :src="'/' + item.iconPath"></wd-img>
       </template>
     </wd-tabbar-item>
   </wd-tabbar>
@@ -36,6 +21,22 @@
 <script setup>
 import { ref, computed } from "vue";
 import { onShow } from "@dcloudio/uni-app"; // 引入页面生命周期
+import { useUserStore } from "@/stores"; // 导入用户状态管理
+
+// 获取用户状态
+const userStore = useUserStore();
+
+// 防抖函数
+const debounce = (fn, delay = 300) => {
+  let timer = null;
+  return function (...args) {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      fn.apply(this, args);
+      timer = null;
+    }, delay);
+  };
+};
 
 const tabbarList = [
   {
@@ -43,6 +44,18 @@ const tabbarList = [
     text: "首页",
     iconPath: "static/tabbar/home.png",
     selectedIconPath: "static/tabbar/home_selected.png",
+  },
+  {
+    pagePath: "pages/technician-list/technician-list",
+    text: "专家",
+    iconPath: "static/tabbar/technician.png",
+    selectedIconPath: "static/tabbar/technician_selected.png",
+  },
+  {
+    pagePath: "pages/community-feed/community-feed",
+    text: "附近",
+    iconPath: "static/tabbar/community-feed.png",
+    selectedIconPath: "static/tabbar/community-feed_selected.png",
   },
   {
     pagePath: "pages/me/index",
@@ -63,14 +76,16 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+
+  // 是否固定在底部
+  fixed: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 // 定义组件可以触发的事件
-const emit = defineEmits([
-  "update:currentPath",
-  "beforeTabChange",
-  "afterTabChange",
-]);
+const emit = defineEmits(["update:currentPath", "beforeTabChange", "afterTabChange"]);
 
 // 内部维护的 activeTab 状态，通过计算属性与 props.currentPath 双向绑定
 const activeTab = computed({
@@ -82,8 +97,8 @@ const activeTab = computed({
   },
 });
 
-// 监听 wd-tabbar 的 change 事件
-const onTabbarChange = (e) => {
+// 定义原始的tabbar切换处理函数
+const handleTabbarChange = (e) => {
   const targetPath = e.value; // 获取点击的 item 的 value，即 pagePath
 
   if (props.enableIntercept) {
@@ -93,8 +108,14 @@ const onTabbarChange = (e) => {
     // 获取浏览模式状态
     const browsingMode = uni.getStorageSync("browsing_mode");
 
+    // 需要登录才能访问的页面路径
+    const requireLoginPages = ["pages/me/index", "pages/technician-list/technician-list", "pages/community-feed/community-feed"];
+
+    // 检查是否是需要登录的页面
+    const needsLogin = requireLoginPages.includes(targetPath);
+
     // 如果处于浏览模式，并且目标页面是需要登录或限制的页面
-    if (browsingMode && targetPath === "pages/me/index") {
+    if (browsingMode && needsLogin) {
       uni.showToast({
         title: "浏览模式下无法访问此功能，请登录",
         icon: "none",
@@ -109,6 +130,27 @@ const onTabbarChange = (e) => {
           url: "/pages/login/index", // 登录页面的路径
         });
       }, 2000); // 2秒后跳转
+
+      return;
+    }
+    console.log("userStore", userStore);
+    // 检查用户是否已登录（非浏览模式下）
+    if (!browsingMode && needsLogin && !userStore.isLoggedIn) {
+      uni.showToast({
+        title: "请先登录后再访问",
+        icon: "none",
+        duration: 2000,
+      });
+
+      // 阻止跳转，并保持当前tabbar选中状态不变
+      activeTab.value = currentPageRoute.value;
+
+      // 延迟跳转到登录页
+      setTimeout(() => {
+        uni.navigateTo({
+          url: "/pages/login/index",
+        });
+      }, 2000);
 
       return;
     }
@@ -143,6 +185,9 @@ const onTabbarChange = (e) => {
     },
   });
 };
+
+// 监听 wd-tabbar 的 change 事件 (使用防抖包装)
+const onTabbarChange = debounce(handleTabbarChange, 300);
 
 // 监听当前页面路由变化，更新 activeTab
 // Uniapp 页面组件没有路由守卫，但可以通过监听路由变化来同步tabbar状态

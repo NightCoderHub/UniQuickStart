@@ -11,14 +11,13 @@ page {
   --wot-search-input-fs: 24rpx;
   --wot-search-icon-size: 30rpx;
   --wot-search-icon-color: #000;
-  --wot-input-placeholder-color: #{$uni-text-color-grey};
-  --wot-input-disabled-color: #{$uni-text-color-grey};
+  --wot-input-disabled-color: #3d3d3d;
 
   /* tabs */
   // --wot-tabs-nav-height: 90rpx;
   --wot-tabs-nav-color: #000;
   --wot-tabs-nav-fs: 28rpx;
-  --wot-tabs-nav-line-bg-color: var(--wot-color-success);
+  --wot-tabs-nav-line-bg-color: #{$uni-color-success};
   --wot-tabs-nav-line-width: 100rpx;
 
   /* card */
@@ -27,4 +26,8 @@ page {
 
   //
   --wot-checkbox-bg: transparent;
+
+  // tabbar
+  --wot-tabbar-item-title-font-size: 24rpx;
+  --wot-tabbar-height: 55px;
 }

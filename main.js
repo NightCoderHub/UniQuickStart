@@ -15,7 +15,12 @@ uni.$devToast = () => {
 };
 uni.$zp = {
   config: {
-    "empty-view-img-style": { width: "400rpx", height: "400rpx" },
+    "empty-view-img-style": { width: "400rpx", height: "200rpx" },
+    "empty-view-img": "/static/empty/img_data_3x.png",
+    "empty-view-error-img": "/static/empty/img_network_3x.png",
+    "show-refresher-when-reload": true,
+    "auto-show-back-to-top": true,
+    "safe-area-inset-bottom": true,
   },
 };
 uni.$navigateTo = navigateTo;

@@ -17,9 +17,9 @@
     </view>
 
     <view class="modal-actions">
-      <view class="btn-cancel" @click="onCancel">{{ cancelText }}</view>
+      <view class="btn-cancel" hover-class="btn-hover" @click="onCancel">{{ cancelText }}</view>
       <view class="btn-divider"></view>
-      <view class="btn-confirm" @click="onConfirm">{{ confirmText }}</view>
+      <view class="btn-confirm" hover-class="btn-hover" @click="onConfirm">{{ confirmText }}</view>
     </view>
   </wd-popup>
 </template>
@@ -63,8 +63,8 @@ const onConfirm = () => {
 
 <style>
 :deep(.action-modal-wrapper) {
-  width: 600rpx;
-  border-radius: 32rpx;
+  width: 680rpx;
+  border-radius: 24rpx;
 }
 </style>
 <style lang="scss" scoped>
@@ -72,48 +72,48 @@ const onConfirm = () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 52rpx 48rpx;
+  padding: 64rpx 48rpx 0;
   background: #fff;
 }
 
 .modal-title {
-  margin-bottom: 16rpx;
-  font-size: 32rpx;
-  color: #000;
+  font-family: PingFangSC-Medium;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: rgb(51 51 51);
   text-align: center;
 }
 
 .modal-description {
-  width: 500rpx;
-  margin-right: auto;
-  margin-left: auto;
-  font-size: 28rpx;
-  color: #333;
+  padding: 32rpx 0;
+  margin-bottom: 32rpx;
+  font-size: 30rpx;
+  font-weight: 400;
+  color: rgb(127 127 127);
   text-align: justify;
   text-align-last: center;
 
   .link {
-    color: #007aff;
+    color: $uni-color-active;
     text-decoration: underline;
   }
 }
 
 .modal-actions {
   display: flex;
-  align-items: center;
   justify-content: space-around;
-  height: 100rpx;
-  border-top: 1rpx solid #eee;
+  height: 113rpx;
+  border-top: 1px solid #eee;
 }
 
 .btn-cancel,
 .btn-confirm {
-  display: flex;
   flex: 1;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  font-size: 28rpx;
+  height: 112rpx;
+  font-size: 34rpx;
+  font-weight: 700;
+  line-height: 112rpx;
+  text-align: center;
   cursor: pointer;
 }
 
@@ -123,12 +123,16 @@ const onConfirm = () => {
 
 .btn-confirm {
   font-weight: bold;
-  color: #007aff;
+  color: $uni-color-active;
 }
 
 .btn-divider {
   width: 1px;
   height: 100%;
-  background-color: #ebedf0;
+  background-color: #eee;
+}
+
+.btn-hover {
+  background-color: #f5f5f5;
 }
 </style>

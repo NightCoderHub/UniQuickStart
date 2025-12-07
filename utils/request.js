@@ -35,6 +35,7 @@ const showDebouncedToast = (title) => {
     uni.showToast({
       title,
       icon: "none",
+      duration: 3000,
     });
   }, 200);
 };
@@ -67,10 +68,7 @@ const interceptors = {
     success: (response) => {
       const { statusCode, data } = response;
       if (statusCode === 200) {
-        if (
-          Array.isArray(config.successCodes) &&
-          config.successCodes.includes(data.code)
-        ) {
+        if (Array.isArray(config.successCodes) && config.successCodes.includes(data.code)) {
           return Promise.resolve(data.data);
         } else if (data.code === 401) {
           uni.removeStorageSync("token");

@@ -1,0 +1,53 @@
+# Dependencies
+node_modules
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Build Output
+dist
+unpackage
+build
+
+# IDE
+.idea
+.vscode
+.hbuilderx
+*.suo
+*.ntvs
+*.njsproj
+*.sln
+*.sw?
+
+# System
+.DS_Store
+Thumbs.db
+
+# UniApp Specific
+uni_modules
+wxcomponents
+hybrid/html
+
+# Static Assets (optional, Prettier usually handles binary files well but ignoring can save time)
+static
+assets
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.ico
+*.svg
+*.ttf
+*.woff
+*.woff2
+
+# Minified Files
+*.min.js
+*.min.css
+
+# Other
+coverage
+.git
+
+manifest.json

@@ -19,6 +19,6 @@ export default {
   //业务成功的状态码
   successCodes: [200, 0],
   // 显示加载
-  showLoading: true,
+  showLoading: false,
   // 其他自定义配置...
 };

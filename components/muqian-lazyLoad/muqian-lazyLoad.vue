@@ -1,20 +1,21 @@
 <template>
   <view
-    class="lazy-image-container"
+    class="muqian-content"
     :style="{
       width,
       height,
     }"
+    @click="handleClick"
   >
     <image
       :src="loadSrc"
-      class="lazy-image lazy-image-placeholder"
+      class="muqian-image muqian-load"
       :mode="mode"
       :style="{
         opacity: isShow ? '0' : '1',
         borderRadius,
-        width,
-        height,
+        width: '100%',
+        height: '100%',
         transition: `opacity ${duration / 1000}s ${effect}`,
       }"
       @load="handleLoadInit"
@@ -22,14 +23,14 @@
 
     <image
       v-if="status == 1"
-      class="lazy-image"
+      class="muqian-image"
       :src="src"
       :mode="mode"
       :style="{
         opacity: isShow ? '1' : '0',
         borderRadius,
-        width,
-        height,
+        width: '100%',
+        height: '100%',
         transition: `opacity ${duration / 1000}s ${effect}`,
       }"
       @load="handleLoadSuccess"
@@ -38,14 +39,14 @@
     </image>
     <image
       v-if="status == 2"
-      class="lazy-image"
+      class="muqian-image"
       :src="errorSrc"
       :mode="mode"
       :style="{
         opacity: isShow ? '1' : '0',
         borderRadius,
-        width,
-        height,
+        width: '100%',
+        height: '100%',
         transition: `opacity ${duration / 1000}s ${effect}`,
       }"
     >
@@ -54,14 +55,7 @@
 </template>
 
 <script setup>
-import {
-  ref,
-  watch,
-  onMounted,
-  onUnmounted,
-  nextTick,
-  getCurrentInstance,
-} from "vue";
+import { ref, watch, onMounted, onUnmounted, nextTick, getCurrentInstance } from "vue";
 import loadingImage from "@/static/loading.png";
 import loadFailImage from "@/static/loadFail.png";
 // 获取当前组件实例
@@ -90,11 +84,11 @@ const props = defineProps({
   },
   minTimeOut: {
     type: [String, Number],
-    default: 100,
+    default: 300,
   },
   showDistance: {
     type: Object,
-    default: () => ({ bottom: 0 }),
+    default: () => ({ bottom: 20 }),
   },
   effect: {
     type: String,
@@ -115,7 +109,11 @@ const props = defineProps({
 });
 
 // 定义 emit
-const emit = defineEmits(["show", "showSuccess"]);
+const emit = defineEmits(["show", "showSuccess", "click"]);
+
+const handleClick = () => {
+  emit("click");
+};
 
 // 响应式状态
 const status = ref(0); // 0加载中 1加载成功 2加载失败
@@ -164,22 +162,25 @@ const handleLoadError = () => {
 
 // 初始化 IntersectionObserver
 const initObserver = () => {
-  intersectionObserverInstance = uni.createIntersectionObserver(proxy);
-  let loadFlag = false;
+  // 确保在组件挂载后才创建 IntersectionObserver
+  // 这里的 this.$el 在 setup 脚本中不直接可用，
+  // 对于 uni-app，uni.createIntersectionObserver(this) 应该没问题，
+  // 但在 setup 中，通常需要通过 ref 获取 DOM 元素或组件实例。
+  // 对于你的情况，由于是监听 `.muqain-load` 类名，只要这个元素在 DOM 中即可。
+  intersectionObserverInstance = uni.createIntersectionObserver(proxy); // 这里的 this 指的是当前组件实例
+  let loadFlag = false; // 避免变量名冲突，使用 loadFlag
 
-  intersectionObserverInstance
-    .relativeToViewport(props.showDistance)
-    .observe(".lazy-image-placeholder", (res) => {
-      if (!loadFlag && res.intersectionRatio == 0) {
-        loadFlag = true;
-        return;
-      }
-      emit("show");
+  intersectionObserverInstance.relativeToViewport(props.showDistance).observe(".muqian-load", (res) => {
+    if (!loadFlag && res.intersectionRatio == 0) {
       loadFlag = true;
-      status.value = 1;
-      loadTimer = new Date().getTime();
-      intersectionObserverInstance.disconnect();
-    });
+      return;
+    }
+    emit("show"); // 触发 show 事件
+    loadFlag = true;
+    status.value = 1; // 更新状态
+    loadTimer = new Date().getTime();
+    intersectionObserverInstance.disconnect(); // 第一次进入视图后立即断开监听
+  });
 };
 
 // 在组件挂载时调用 initObserver
@@ -188,28 +189,35 @@ onMounted(() => {
 });
 
 // 处理加载中图片的 @load 事件 (init 方法的替代)
-const handleLoadInit = () => {};
+const handleLoadInit = () => {
+  // 在这里，我们可以认为加载中图片成功加载后，组件已经准备好进行懒加载逻辑
+  // 实际的 IntersectionObserver 已经由 onMounted 中的 initObserver 设置
+  // 这里的 @load 事件可能不是 init 方法的全部意图，但它是一个触发点
+  // 原始代码中 `init` 的主要作用是创建 `intersectionObserver` 并设置监听。
+  // 在 Composition API 中，这部分逻辑应在 `onMounted` 中处理。
+};
 
 // 组件卸载时清理 IntersectionObserver
 onUnmounted(() => {
   if (intersectionObserverInstance) {
     intersectionObserverInstance.disconnect();
-    intersectionObserverInstance = null;
+    intersectionObserverInstance = null; // 确保清理引用
   }
 });
 </script>
 
 <style lang="scss" scoped>
-.lazy-image-container {
+/* 你的样式保持不变 */
+.muqian-content {
   position: relative;
   overflow: hidden;
 
-  .lazy-image {
+  .muqian-image {
     display: block;
     will-change: transform;
   }
 
-  .lazy-image-placeholder {
+  .muqian-load {
     position: absolute;
     top: 0;
     left: 0;

@@ -15,12 +15,13 @@
 /* 颜色变量 */
 
 /* 行为相关颜色 */
-$uni-color-primary: #007aff; // 主要操作按钮、选中状态等的主题色
-$uni-color-success: #4cd964; // 成功提示、成功状态的颜色
-$uni-color-warning: #f0ad4e; // 警告提示、警示状态的颜色
-$uni-color-error: #dd524d; // 错误提示、危险操作的颜色
+$uni-color-primary: #4c92fc; // 主要操作按钮、选中状态等的主题色
+$uni-color-success: #40c393; // 成功提示、成功状态的颜色
+$uni-color-warning: #fac701; // 警告提示、警示状态的颜色
+$uni-color-error: #dc3545; // 错误提示、危险操作的颜色
 
 /* 文字基本颜色 */
+$uni-text-color-black: #000000;
 $uni-text-color: #333; // 页面主体文字、正文内容的颜色
 $uni-text-color-inverse: #fff; // 深色背景上用于反色的文字颜色，如导航栏标题
 $uni-text-color-grey: #999; // 辅助性文字、次要信息、加载更多提示等灰色文本
@@ -29,7 +30,7 @@ $uni-text-color-disable: #c0c0c0; // 禁用状态的文字颜色
 
 /* 背景颜色 */
 $uni-bg-color: #ffffff; // 页面默认背景色、卡片背景色
-$uni-bg-color-grey: #f8f8f8; // 次级背景色、灰色背景区域，如列表分隔条
+$uni-bg-color-grey: #fafafa; // 次级背景色、灰色背景区域，如列表分隔条
 $uni-bg-color-hover: #f1f1f1; // 按钮、列表项等可点击元素的按下状态背景色
 $uni-bg-color-mask: rgba(0, 0, 0, 0.4); // 遮罩层、弹窗背景的半透明颜色
 
@@ -96,14 +97,17 @@ $uni-shadow-heavy: 0 8rpx 32rpx rgba(0, 0, 0, 0.15); // 较重阴影
 
 /* Z-Index 层级变量 */
 $uni-zindex-base: 1; // 基础层级
+$uni-zindex-sticky: 10;
+$uni-zindex-fixed: 10;
 $uni-zindex-modal: 1000; // 模态框、弹窗层级
-$uni-zindex-navbar: 990; // 导航栏层级
+$uni-zindex-navbar: 1000; // 导航栏层级
+$uni-zindex-tabbar: 1000; // TabBar 层级
 $uni-zindex-toast: 1050; // Toast 提示层级
+$uni-zindex-tooltip: 1090; // 提示信息层级
 $uni-zindex-top: 2000; // 最高层级，用于特殊情况
 
 /* 动画/过渡变量 */
 $uni-transition-duration-base: 0.3s; // 基础过渡动画时长
-$uni-transition-duration: 0.3s; // 过渡动画时长（简化版本）
 $uni-transition-timing-function: ease-in-out; // 过渡动画的缓动函数
 
 /* 扩展颜色变量 */
@@ -114,59 +118,3 @@ $uni-color-active: #007aff; // 活跃/选中状态的颜色，通常与 primary 
 /* 文本行高变量 */
 $uni-line-height-base: 1.5; // 基础行高
 $uni-line-height-heading: 1.3; // 标题行高
-
-/* 扩展颜色 */
-$color-gray-50: #f9fafb;
-$color-gray-100: #f3f4f6;
-$color-gray-200: #e5e7eb;
-$color-gray-300: #d1d5db;
-$color-gray-400: #9ca3af;
-$color-gray-500: #6b7280;
-$color-gray-600: #4b5563;
-$color-gray-700: #374151;
-$color-gray-800: #1f2937;
-$color-gray-900: #111827;
-
-$color-blue-50: #eff6ff;
-$color-blue-100: #dbeafe;
-$color-blue-200: #bfdbfe;
-$color-blue-300: #93c5fd;
-$color-blue-400: #60a5fa;
-$color-blue-500: #3b82f6;
-$color-blue-600: #2563eb;
-$color-blue-700: #1d4ed8;
-$color-blue-800: #1e40af;
-$color-blue-900: #1e3a8a;
-
-$color-green-50: #f0fdf4;
-$color-green-100: #dcfce7;
-$color-green-200: #bbf7d0;
-$color-green-300: #86efac;
-$color-green-400: #4ade80;
-$color-green-500: #22c55e;
-$color-green-600: #16a34a;
-$color-green-700: #15803d;
-$color-green-800: #166534;
-$color-green-900: #14532d;
-
-$color-red-50: #fef2f2;
-$color-red-100: #fee2e2;
-$color-red-200: #fecaca;
-$color-red-300: #fca5a5;
-$color-red-400: #f87171;
-$color-red-500: #ef4444;
-$color-red-600: #dc2626;
-$color-red-700: #b91c1c;
-$color-red-800: #991b1b;
-$color-red-900: #7f1d1d;
-
-$color-yellow-50: #fffbeb;
-$color-yellow-100: #fef3c7;
-$color-yellow-200: #fde68a;
-$color-yellow-300: #fcd34d;
-$color-yellow-400: #fbbf24;
-$color-yellow-500: #f59e0b;
-$color-yellow-600: #d97706;
-$color-yellow-700: #b45309;
-$color-yellow-800: #92400e;
-$color-yellow-900: #78350f;

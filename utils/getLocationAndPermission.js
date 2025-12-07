@@ -13,18 +13,13 @@ export async function getLocationAndPermission() {
 
     // #ifdef APP-PLUS
     const androidPermissionName = "android.permission.ACCESS_FINE_LOCATION";
-    const androidPermissionDesc =
-      "为了提供精准的定位服务和附近功能，应用需要您的地理位置权限。";
-    hasPermission = await requestAndroidPermission(
-      androidPermissionName,
-      androidPermissionDesc,
-    );
+    const androidPermissionDesc = "为了提供精准的定位服务和附近功能，应用需要您的地理位置权限。";
+    hasPermission = await requestAndroidPermission(androidPermissionName, androidPermissionDesc);
     // #endif
 
     // #ifdef MP-WEIXIN
     const wxScope = "scope.userLocation";
-    const wxAuthDesc =
-      "为了提供基于您位置的服务（如附近门店、导航），应用需要获取您的地理位置权限。";
+    const wxAuthDesc = "为了提供精准的定位服务和附近功能，应用需要您的地理位置权限。";
     hasPermission = await requestWxPermission(wxScope, wxAuthDesc);
     // #endif
 

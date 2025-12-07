@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "jsx": "preserve",
+    "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
+    "types": ["@dcloudio/types", "miniprogram-api-typings", "@uni-helper/uni-types", "wot-design-uni/global"]
+  },
+  "include": ["**/*", "**/*.vue"],
+  "exclude": ["node_modules", "unpackage", "dist"]
+}
