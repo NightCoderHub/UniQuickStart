@@ -46,18 +46,6 @@ const tabbarList = [
     selectedIconPath: "static/tabbar/home_selected.png",
   },
   {
-    pagePath: "pages/technician-list/technician-list",
-    text: "专家",
-    iconPath: "static/tabbar/technician.png",
-    selectedIconPath: "static/tabbar/technician_selected.png",
-  },
-  {
-    pagePath: "pages/community-feed/community-feed",
-    text: "附近",
-    iconPath: "static/tabbar/community-feed.png",
-    selectedIconPath: "static/tabbar/community-feed_selected.png",
-  },
-  {
     pagePath: "pages/me/index",
     text: "我的",
     iconPath: "static/tabbar/me.png",
