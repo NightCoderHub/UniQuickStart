@@ -12,17 +12,11 @@
     </view>
 
     <view class="info-list">
-      <view
-        class="info-item"
-        @click="navigateTo('/settingPages/legal/privacy-policy')"
-      >
+      <view class="info-item" @click="navigateTo('/settingPages/legal/privacy-policy')">
         <text class="item-label">隐私政策</text>
         <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
       </view>
-      <view
-        class="info-item"
-        @click="navigateTo('/settingPages/legal/user-agreement')"
-      >
+      <view class="info-item" @click="navigateTo('/settingPages/legal/user-agreement')">
         <text class="item-label">用户协议</text>
         <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
       </view>
@@ -37,9 +31,7 @@
     </view>
 
     <view class="footer-section">
-      <text class="copyright"
-        >Copyright © 2025 {{ APP_CONFIG.name }}. All Rights Reserved.</text
-      >
+      <text class="copyright">Copyright © 2025 {{ APP_CONFIG.name }}. All Rights Reserved.</text>
     </view>
   </view>
 </template>

@@ -1,28 +1,15 @@
 <template>
   <view>
-    <wd-popup
-      v-model="showPrivacyPopup"
-      position="center"
-      :safe-area-inset-bottom="true"
-      :close-on-click-modal="false"
-    >
+    <wd-popup v-model="showPrivacyPopup" position="center" :safe-area-inset-bottom="true" :close-on-click-modal="false">
       <view class="privacy-content">
         <view class="privacy-title">隐私保护提示</view>
         <view class="privacy-text">
           欢迎使用本小程序！为了更好地为您提供服务，我们需要获取您的部分信息。请您阅读并同意
-          <text class="privacy-link" @click="gotoPrivacyPage"
-            >《用户隐私协议》</text
-          >。
+          <text class="privacy-link" @click="gotoPrivacyPage">《用户隐私协议》</text>。
         </view>
 
         <view class="privacy-buttons">
-          <wd-button
-            type="info"
-            button-id="disagree-button"
-            size="small"
-            @click="handleDisagree"
-            >不同意</wd-button
-          >
+          <wd-button type="info" button-id="disagree-button" size="small" @click="handleDisagree">不同意</wd-button>
 
           <wd-button
             type="primary"

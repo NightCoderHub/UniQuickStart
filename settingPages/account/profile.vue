@@ -2,16 +2,9 @@
   <view class="profile-page">
     <scroll-view scroll-y class="profile-scroll-view">
       <view class="profile-group">
-        <view
-          class="profile-item avatar-item group-item-first"
-          @click="changeAvatar"
-        >
+        <view class="profile-item avatar-item group-item-first" @click="changeAvatar">
           <text class="item-text">头像</text>
-          <image
-            class="avatar"
-            :src="userInfo.avatar || '/static/132.jpg'"
-            mode="aspectFill"
-          ></image>
+          <image class="avatar" :src="userInfo.avatar || '/static/132.jpg'" mode="aspectFill"></image>
           <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
         </view>
         <view class="item-separator"></view>
@@ -31,17 +24,12 @@
 
         <view class="profile-item" @click="changeGender">
           <text class="item-text">性别</text>
-          <text class="item-value">{{
-            formatGender(userInfo.gender) || "未设置"
-          }}</text>
+          <text class="item-value">{{ formatGender(userInfo.gender) || "未设置" }}</text>
           <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
         </view>
         <view class="item-separator"></view>
 
-        <view
-          class="profile-item group-item-last"
-          @click="showBirthdayPicker = true"
-        >
+        <view class="profile-item group-item-last" @click="showBirthdayPicker = true">
           <text class="item-text">生日</text>
           <text class="item-value">{{ userInfo.birthday || "未设置" }}</text>
           <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
@@ -49,22 +37,14 @@
       </view>
 
       <view class="profile-group security-group">
-        <view
-          class="profile-item group-item-first"
-          @click="navigateTo('/settingPages/account/security?type=phone')"
-        >
+        <view class="profile-item group-item-first" @click="navigateTo('/settingPages/account/security?type=phone')">
           <text class="item-text">手机号</text>
-          <text class="item-value">{{
-            userInfo.phone ? formatPhoneNumber(userInfo.phone) : "未绑定"
-          }}</text>
+          <text class="item-value">{{ userInfo.phone ? formatPhoneNumber(userInfo.phone) : "未绑定" }}</text>
           <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
         </view>
         <view class="item-separator"></view>
 
-        <view
-          class="profile-item group-item-last"
-          @click="navigateTo('/settingPages/account/security?type=email')"
-        >
+        <view class="profile-item group-item-last" @click="navigateTo('/settingPages/account/security?type=email')">
           <text class="item-text">邮箱</text>
           <text class="item-value">{{ userInfo.email || "未绑定" }}</text>
           <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
@@ -72,11 +52,7 @@
       </view>
     </scroll-view>
 
-    <wd-action-sheet
-      v-model="showActionSheet"
-      :actions="actionSheet"
-      @select="handleActionSheetSelect"
-    />
+    <wd-action-sheet v-model="showActionSheet" :actions="actionSheet" @select="handleActionSheetSelect" />
     <wd-datetime-picker
       v-model="userInfo.birthday"
       v-model:show="showBirthdayPicker"

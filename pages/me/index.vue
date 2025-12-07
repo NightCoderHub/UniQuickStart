@@ -4,29 +4,19 @@
 
     <view class="user-section">
       <view class="user-info">
-        <image
-          class="avatar"
-          :src="userStore.userAvatar || '/static/132.png'"
-          mode="aspectFill"
-        ></image>
+        <image class="avatar" :src="userStore.userAvatar || '/static/132.png'" mode="aspectFill"></image>
         <view class="user-details">
           <template v-if="userStore.isLoggedIn">
-            <view class="user-name">{{
-              userStore.userName || "用户昵称"
-            }}</view>
+            <view class="user-name">{{ userStore.userName || "用户昵称" }}</view>
             <view class="rating-info">
               <text class="rating">
                 星级评分
-                <text style="font-weight: bold">{{
-                  userStore.userRating || "N/A"
-                }}</text>
+                <text style="font-weight: bold">{{ userStore.userRating || "N/A" }}</text>
               </text>
               <text class="divider">|</text>
               <text class="completion">
                 完单率
-                <text style="font-weight: bold">{{
-                  userStore.userCompletion || "N/A"
-                }}</text>
+                <text style="font-weight: bold">{{ userStore.userCompletion || "N/A" }}</text>
               </text>
             </view>
           </template>
@@ -119,11 +109,7 @@
             <text class="iconfont icon-yijianfankui menu-icon"></text>
             <text class="menu-text">意见反馈</text>
           </view>
-          <view
-            v-if="userStore.isLoggedIn"
-            class="menu-item"
-            @click="handleMenuClick('master')"
-          >
+          <view v-if="userStore.isLoggedIn" class="menu-item" @click="handleMenuClick('master')">
             <text class="iconfont icon-shifuduan menu-icon"></text>
             <text class="menu-text">师傅端</text>
           </view>

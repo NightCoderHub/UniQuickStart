@@ -8,19 +8,11 @@
       </view>
       <view class="setting-item">
         <text class="item-text">个性化推荐</text>
-        <switch
-          :checked="personalizedRecommendationEnabled"
-          color="#007aff"
-          @change="togglePersonalizedRecommendation"
-        />
+        <switch :checked="personalizedRecommendationEnabled" color="#007aff" @change="togglePersonalizedRecommendation" />
       </view>
       <view class="setting-item">
         <text class="item-text">允许访问位置信息</text>
-        <switch
-          :checked="locationAccessEnabled"
-          color="#007aff"
-          @change="toggleLocationAccess"
-        />
+        <switch :checked="locationAccessEnabled" color="#007aff" @change="toggleLocationAccess" />
       </view>
       <view class="setting-item" @click="navigateToAccountDeletion">
         <text class="item-text">注销账户</text>

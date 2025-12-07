@@ -2,11 +2,7 @@
   <view class="settings-page">
     <scroll-view scroll-y class="settings-scroll-view">
       <view class="setting-group">
-        <view
-          v-if="userStore.isLoggedIn"
-          class="setting-item"
-          @click="navigateTo('/settingPages/account/profile')"
-        >
+        <view v-if="userStore.isLoggedIn" class="setting-item" @click="navigateTo('/settingPages/account/profile')">
           <text class="item-text">个人资料</text>
           <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
         </view>
@@ -25,12 +21,7 @@
           <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
         </view> -->
         <!-- 新增系统权限设置入口 -->
-        <view
-          class="setting-item"
-          @click="
-            navigateTo('/settingPages/system-permissions/system-permissions')
-          "
-        >
+        <view class="setting-item" @click="navigateTo('/settingPages/system-permissions/system-permissions')">
           <text class="item-text">系统权限设置</text>
           <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
         </view>
@@ -52,31 +43,19 @@
       </view>
 
       <view class="setting-group">
-        <view
-          class="setting-item"
-          @click="navigateTo('/settingPages/legal/privacy-policy')"
-        >
+        <view class="setting-item" @click="navigateTo('/settingPages/legal/privacy-policy')">
           <text class="item-text">隐私政策</text>
           <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
         </view>
-        <view
-          class="setting-item"
-          @click="navigateTo('/settingPages/legal/user-agreement')"
-        >
+        <view class="setting-item" @click="navigateTo('/settingPages/legal/user-agreement')">
           <text class="item-text">用户协议</text>
           <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
         </view>
-        <view
-          class="setting-item"
-          @click="navigateTo('/settingPages/help-feedback/help-center')"
-        >
+        <view class="setting-item" @click="navigateTo('/settingPages/help-feedback/help-center')">
           <text class="item-text">帮助中心</text>
           <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
         </view>
-        <view
-          class="setting-item"
-          @click="navigateTo('/settingPages/about/about')"
-        >
+        <view class="setting-item" @click="navigateTo('/settingPages/about/about')">
           <text class="item-text">关于我们</text>
           <wd-icon name="arrow-right" size="33rpx" color="#ccc"></wd-icon>
         </view>
@@ -94,21 +73,12 @@
       </view>
     </scroll-view>
 
-    <wd-popup
-      v-model="showNoticePopup"
-      position="bottom"
-      custom-style="border-radius: 16rpx 16rpx 0 0"
-    >
+    <wd-popup v-model="showNoticePopup" position="bottom" custom-style="border-radius: 16rpx 16rpx 0 0">
       <view class="logout-notice-popup">
         <view class="popup-title">
           注销账号须知
           <view class="popup-close">
-            <wd-icon
-              name="close"
-              size="16"
-              color="#000000a6"
-              @click="showNoticePopup = false"
-            ></wd-icon>
+            <wd-icon name="close" size="16" color="#000000a6" @click="showNoticePopup = false"></wd-icon>
           </view>
         </view>
         <view scroll-y class="popup-content">
@@ -126,9 +96,7 @@
           </view>
           <view class="notice-item">
             <text class="notice-number">3.</text>
-            <text class="notice-text"
-              >注销成功后，您账户下的数据和个人信息将会在15个工作日内被删除。</text
-            >
+            <text class="notice-text">注销成功后，您账户下的数据和个人信息将会在15个工作日内被删除。</text>
           </view>
           <view class="notice-item">
             <text class="notice-number">4.</text>
@@ -138,16 +106,14 @@
           </view>
           <view class="notice-item">
             <text class="notice-number">5.</text>
-            <text class="notice-text"
-              >注销成功后，您仍应对您在注销成功前的行为承担相应的责任。</text
-            >
+            <text class="notice-text">注销成功后，您仍应对您在注销成功前的行为承担相应的责任。</text>
           </view>
           <view class="notice-item">
             <text class="notice-number">6.</text>
             <text class="notice-text"
-              >如果您对账户注销有任何疑问或建议，您可以通过拨打{{
-                COMPANY_INFO.phone
-              }}或发送邮件至{{ COMPANY_INFO.email }}联系我们。</text
+              >如果您对账户注销有任何疑问或建议，您可以通过拨打{{ COMPANY_INFO.phone }}或发送邮件至{{
+                COMPANY_INFO.email
+              }}联系我们。</text
             >
           </view>
           <view class="notice-item">
@@ -158,9 +124,7 @@
           </view>
         </view>
         <view class="popup-footer">
-          <wd-button block @click="showNoticePopup = false"
-            >已阅读并申请永久注销</wd-button
-          >
+          <wd-button block @click="showNoticePopup = false">已阅读并申请永久注销</wd-button>
         </view>
       </view>
     </wd-popup>
@@ -233,8 +197,7 @@ const checkUpdate = () => {
     const mockUpdateInfo = {
       hasNewVersion: true, // 模拟是否有新版本
       version: "1.0.1",
-      description:
-        "1. 修复了一些已知问题。\n2. 优化了用户体验。\n3. 新增了某某功能。",
+      description: "1. 修复了一些已知问题。\n2. 优化了用户体验。\n3. 新增了某某功能。",
       apkUrl: "https://example.com/your_app_new_version.apk", // 替换为实际的APK下载链接
       forceUpdate: true, // 是否强制更新
     };

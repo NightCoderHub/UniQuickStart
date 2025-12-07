@@ -53,12 +53,7 @@ const props = defineProps({
 });
 
 // 定义 emits
-const emit = defineEmits([
-  "update:fileList",
-  "uploadSuccess",
-  "uploadFail",
-  "remove",
-]);
+const emit = defineEmits(["update:fileList", "uploadSuccess", "uploadFail", "remove"]);
 
 // 内部维护的文件列表
 const internalFileList = ref([]);
@@ -105,9 +100,7 @@ const handleUploadRemove = ({ file }) => {
 
 // 文件大小超出限制回调
 const handleOverSize = ({ file }) => {
-  toast.error(
-    `文件 "${file.name}" 大小超出限制，请上传小于 ${props.maxSize / 1024 / 1024}MB 的文件`,
-  );
+  toast.error(`文件 "${file.name}" 大小超出限制，请上传小于 ${props.maxSize / 1024 / 1024}MB 的文件`);
 };
 
 // 移除图片前置处理（示例：询问是否删除）

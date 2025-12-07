@@ -2,32 +2,17 @@
   <view class="address-select-page">
     <view class="address-list-container">
       <template v-if="addresses.length > 0">
-        <view
-          v-for="address in addresses"
-          :key="address.id"
-          class="address-card"
-          @click="selectAddress(address)"
-        >
+        <view v-for="address in addresses" :key="address.id" class="address-card" @click="selectAddress(address)">
           <view class="address-header">
             <text class="consignee">{{ address.name }}</text>
             <text class="phone">{{ address.phone }}</text>
-            <wd-tag
-              v-if="address.isDefault"
-              type="success"
-              size="mini"
-              custom-class="default-tag"
-              >默认</wd-tag
-            >
+            <wd-tag v-if="address.isDefault" type="success" size="mini" custom-class="default-tag">默认</wd-tag>
           </view>
           <view class="address-detail">
             <text>{{ address.fullAddress }}</text>
           </view>
           <view class="address-actions">
-            <wd-button
-              size="small"
-              plain
-              custom-style="border-color: #52c41a; color: #52c41a;"
-              @click.stop="editAddress(address)"
+            <wd-button size="small" plain custom-style="border-color: #52c41a; color: #52c41a;" @click.stop="editAddress(address)"
               >编辑</wd-button
             >
             <wd-button
@@ -50,14 +35,7 @@
 
     <safe-area-footer :fixed="true">
       <view class="add-address-button-wrapper">
-        <wd-button
-          type="success"
-          block
-          size="large"
-          @click="navigateToAddAddress"
-        >
-          + 添加新地址
-        </wd-button>
+        <wd-button type="success" block size="large" @click="navigateToAddAddress"> + 添加新地址 </wd-button>
       </view>
     </safe-area-footer>
     <wd-message-box></wd-message-box>

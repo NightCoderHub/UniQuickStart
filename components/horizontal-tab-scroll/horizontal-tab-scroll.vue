@@ -1,12 +1,7 @@
 <template>
   <view class="horizontal-tab-scroll">
     <view class="tab-container">
-      <scroll-view
-        class="horizontal-scroll"
-        scroll-x="true"
-        :scroll-with-animation="true"
-        :scroll-left="scrollLeft"
-      >
+      <scroll-view class="horizontal-scroll" scroll-x="true" :scroll-with-animation="true" :scroll-left="scrollLeft">
         <view class="item-container">
           <view
             v-for="(item, index) in tabs"
@@ -26,11 +21,7 @@
       </view>
     </view>
 
-    <view
-      :class="{ show: isDropdownVisible }"
-      class="dropdown-overlay"
-      @click="toggleDropdown"
-    >
+    <view :class="{ show: isDropdownVisible }" class="dropdown-overlay" @click="toggleDropdown">
       <view class="dropdown-content" @click.stop="">
         <!-- <view class="dropdown-header">全部频道</view> -->
         <view
@@ -140,8 +131,7 @@ export default {
       // 计算需要滚动的距离
       // 目标位置 = 目标元素左侧距离 - (scroll-view 宽度 / 2) + (目标元素宽度 / 2)
       // 这样计算出的 scroll-left 值，就能让目标元素的中心对齐 scroll-view 的中心
-      const targetScrollLeft =
-        targetItem.left - this.scrollViewWidth / 2 + targetItem.width / 2;
+      const targetScrollLeft = targetItem.left - this.scrollViewWidth / 2 + targetItem.width / 2;
 
       // 更新 scrollLeft，触发滚动
       this.scrollLeft = targetScrollLeft;
@@ -200,10 +190,12 @@ export default {
 /* Tab 栏容器，用于定位下拉按钮 */
 .tab-container {
   position: relative;
+
   // box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
   display: flex;
   align-items: center;
   background-color: $background-color-content;
+
   // ** 将 position: relative; 放在这里，让 dropdown-overlay 可以在其内部定位 **
   // height: 120rpx;
   // padding-top: 24rpx;
@@ -213,6 +205,7 @@ export default {
 .horizontal-scroll {
   box-sizing: border-box;
   width: calc(100% - 80rpx);
+
   // height: 80rpx;
   white-space: nowrap;
 }
@@ -311,6 +304,7 @@ export default {
   justify-content: flex-start;
   width: 100%;
   padding: 30rpx;
+
   // background-color: $background-color-content;
   background-color: #fff;
   border-radius: 0 0 20rpx 20rpx;

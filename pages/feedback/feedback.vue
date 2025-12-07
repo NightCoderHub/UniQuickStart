@@ -38,9 +38,7 @@
     </view>
 
     <view class="submit-button-container">
-      <wd-button type="primary" size="large" block @click="submitFeedback">
-        提交反馈
-      </wd-button>
+      <wd-button type="primary" size="large" block @click="submitFeedback"> 提交反馈 </wd-button>
     </view>
   </view>
 </template>
@@ -161,6 +159,7 @@ const submitFeedback = () => {
 
     .feedback-textarea {
       width: 100%;
+
       // 覆盖 wd-textarea 的一些默认样式，使其更贴合设计
       ::v-deep .wd-textarea__textarea {
         min-height: 100px; // 设定最小高度

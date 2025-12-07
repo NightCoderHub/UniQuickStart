@@ -1,15 +1,7 @@
 <template>
-  <view
-    v-if="showPopup"
-    class="update-popup-overlay"
-    @touchmove.stop.prevent="() => {}"
-  >
+  <view v-if="showPopup" class="update-popup-overlay" @touchmove.stop.prevent="() => {}">
     <view class="update-popup-content">
-      <image
-        class="upgrade-icon"
-        src="/static/upgrade.png"
-        mode="widthFix"
-      ></image>
+      <image class="upgrade-icon" src="/static/upgrade.png" mode="widthFix"></image>
 
       <view class="update-popup-main">
         <text class="update-popup-title">发现新版本 v{{ version }}</text>
@@ -25,18 +17,12 @@
           backgroundColor="#ebeef5"
           class="download-progress"
         ></progress>
-        <text
-          v-if="downloadProgress > 0 && downloadProgress < 100"
-          class="download-progress-text"
+        <text v-if="downloadProgress > 0 && downloadProgress < 100" class="download-progress-text"
           >{{ downloadProgress.toFixed(0) }}%</text
         >
 
         <view class="update-popup-actions">
-          <button
-            v-if="!forceUpdate && downloadProgress === 0"
-            class="action-button cancel-button"
-            @click="closePopup"
-          >
+          <button v-if="!forceUpdate && downloadProgress === 0" class="action-button cancel-button" @click="closePopup">
             取消
           </button>
           <button
@@ -44,11 +30,7 @@
             :class="{ 'full-width': forceUpdate || downloadProgress > 0 }"
             @click="handleUpdate"
           >
-            {{
-              downloadProgress > 0 && downloadProgress < 100
-                ? "下载中..."
-                : "立即更新"
-            }}
+            {{ downloadProgress > 0 && downloadProgress < 100 ? "下载中..." : "立即更新" }}
           </button>
         </view>
         <view v-if="forceUpdate" class="force-update-tip">

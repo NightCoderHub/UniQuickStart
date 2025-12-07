@@ -1,12 +1,6 @@
 <template>
-  <view
-    class="custom-nav-bar"
-    :style="{ height: totalHeight + 'px', backgroundColor: bgColor }"
-  >
-    <view
-      class="status-bar-placeholder"
-      :style="{ height: statusBarHeight + 'px' }"
-    ></view>
+  <view class="custom-nav-bar" :style="{ height: totalHeight + 'px', backgroundColor: bgColor }">
+    <view class="status-bar-placeholder" :style="{ height: statusBarHeight + 'px' }"></view>
     <view class="nav-bar-content" :style="{ height: navBarHeight + 'px' }">
       <slot></slot>
     </view>
@@ -43,8 +37,7 @@ export default {
     const menuButtonInfo = uni.getMenuButtonBoundingClientRect();
     if (menuButtonInfo) {
       // 导航栏高度 = 胶囊按钮高度 + (顶部高度 - 状态栏高度 - 胶囊顶部高度) * 2
-      this.navBarHeight =
-        menuButtonInfo.height + (menuButtonInfo.top - this.statusBarHeight) * 2;
+      this.navBarHeight = menuButtonInfo.height + (menuButtonInfo.top - this.statusBarHeight) * 2;
     }
     // #endif
 

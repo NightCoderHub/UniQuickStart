@@ -11,12 +11,9 @@
     </template>
     <template #modal-description>
       我们非常重视您的个人信息和隐私保护，为了更好的保障您的个人权益，在您使用我们的产品前，请务必审慎阅读
-      <text class="highlight-link" @click="openPolicy('privacy')"
-        >《隐私政策》</text
-      >
+      <text class="highlight-link" @click="openPolicy('privacy')">《隐私政策》</text>
       和
-      <text class="highlight-link" @click="openPolicy('agreement')"
-        >《用户协议》</text
+      <text class="highlight-link" @click="openPolicy('agreement')">《用户协议》</text
       >内的所有条款，同意并接受全部条款后即可开始使用我们的产品和服务。
     </template>
   </action-confirmation-modal>
@@ -38,8 +35,7 @@
         >《用户隐私政策》</text
       >。若不同意隐私政策，我们将无法正常提供 APP
       购买、客服、售后等服务。如您不同意，我们将提供浏览模式，浏览模式仅支持浏览，除此之外的附加功能将受限，当您触发受限的功能时，我们会以弹窗的形式进行提醒。浏览模式下，我们仅需请求联网权限、
-      APP
-      版本渠道信息，不会收集、存储、共享您的任何个人信息。若您需要使用全部功能，请您点击同意并继续。
+      APP 版本渠道信息，不会收集、存储、共享您的任何个人信息。若您需要使用全部功能，请您点击同意并继续。
     </template>
   </action-confirmation-modal>
 </template>

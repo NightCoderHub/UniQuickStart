@@ -9,69 +9,36 @@
       <view class="input-container">
         <view class="input-item">
           <text class="iconfont icon-shouji"></text>
-          <input
-            v-model="registerForm.phone"
-            type="number"
-            placeholder="请输入手机号"
-          />
+          <input v-model="registerForm.phone" type="number" placeholder="请输入手机号" />
         </view>
         <!-- 添加验证码输入框 -->
         <view class="input-item code-input-item">
           <text class="iconfont icon-yanzhengma"></text>
-          <input
-            v-model="registerForm.verificationCode"
-            type="number"
-            placeholder="请输入6位数的验证码"
-            maxlength="6"
-          />
-          <button
-            class="get-code-button"
-            :disabled="isCountingDown"
-            @click="getVerificationCode"
-          >
+          <input v-model="registerForm.verificationCode" type="number" placeholder="请输入6位数的验证码" maxlength="6" />
+          <button class="get-code-button" :disabled="isCountingDown" @click="getVerificationCode">
             {{ countdown > 0 ? `${countdown}s后重发` : "获取验证码" }}
           </button>
         </view>
         <!-- 验证码输入框结束 -->
         <view class="input-item">
           <text class="iconfont icon-mima"></text>
-          <input
-            v-model="registerForm.password"
-            :password="!showPassword"
-            placeholder="请输入6-12位密码"
-          />
+          <input v-model="registerForm.password" :password="!showPassword" placeholder="请输入6-12位密码" />
           <text
-            :class="[
-              'iconfont',
-              !showPassword ? 'icon-bukeshimima' : 'icon-keshimima',
-            ]"
+            :class="['iconfont', !showPassword ? 'icon-bukeshimima' : 'icon-keshimima']"
             @click="showPassword = !showPassword"
           ></text>
         </view>
         <view class="input-item">
           <text class="iconfont icon-mima"></text>
-          <input
-            v-model="registerForm.confirmPassword"
-            :password="!showConfirmPassword"
-            placeholder="请再次输入密码"
-          />
+          <input v-model="registerForm.confirmPassword" :password="!showConfirmPassword" placeholder="请再次输入密码" />
           <text
-            :class="[
-              'iconfont',
-              !showConfirmPassword ? 'icon-bukeshimima' : 'icon-keshimima',
-            ]"
+            :class="['iconfont', !showConfirmPassword ? 'icon-bukeshimima' : 'icon-keshimima']"
             @click="showConfirmPassword = !showConfirmPassword"
           ></text>
         </view>
       </view>
 
-      <button
-        class="login-btn"
-        :loading="isRegistering"
-        @click="handleRegister"
-      >
-        注册
-      </button>
+      <button class="login-btn" :loading="isRegistering" @click="handleRegister">注册</button>
 
       <view class="verify-login" @click="goToLogin">已有账号？立即登录</view>
     </view>

@@ -2,78 +2,49 @@
   <view class="system-permissions-page">
     <scroll-view scroll-y class="permissions-scroll-view">
       <view class="permission-intro">
-        <text
-          >为了提供更好的用户体验，{{
-            COMPANY_INFO.name
-          }}会获取以下系统权限</text
-        >
+        <text>为了提供更好的用户体验，{{ COMPANY_INFO.name }}会获取以下系统权限</text>
       </view>
       <view class="setting-group">
         <view class="setting-item">
           <text class="item-text">位置信息</text>
           <view class="item-right">
             <text class="item-value">{{ permissions.location }}</text>
-            <text
-              class="iconfont icon-arrow-right"
-              @click="openSystemSettings('location')"
-            ></text>
+            <text class="iconfont icon-arrow-right" @click="openSystemSettings('location')"></text>
           </view>
         </view>
-        <text class="permission-description"
-          >用于获取您的当前位置，以便提供基于地理位置的服务，如社区动态等。</text
-        >
+        <text class="permission-description">用于获取您的当前位置，以便提供基于地理位置的服务，如社区动态等。</text>
         <view class="setting-item">
           <text class="item-text">相机</text>
           <view class="item-right">
             <text class="item-value">{{ permissions.camera }}</text>
-            <text
-              class="iconfont icon-arrow-right"
-              @click="openSystemSettings('camera')"
-            ></text>
+            <text class="iconfont icon-arrow-right" @click="openSystemSettings('camera')"></text>
           </view>
         </view>
-        <text class="permission-description"
-          >用于拍摄照片或视频，例如发布动态、更换头像等。</text
-        >
+        <text class="permission-description">用于拍摄照片或视频，例如发布动态、更换头像等。</text>
         <view class="setting-item">
           <text class="item-text">麦克风</text>
           <view class="item-right">
             <text class="item-value">{{ permissions.microphone }}</text>
-            <text
-              class="iconfont icon-arrow-right"
-              @click="openSystemSettings('microphone')"
-            ></text>
+            <text class="iconfont icon-arrow-right" @click="openSystemSettings('microphone')"></text>
           </view>
         </view>
-        <text class="permission-description"
-          >用于录制音频，例如发布语音动态、进行语音通话等。</text
-        >
+        <text class="permission-description">用于录制音频，例如发布语音动态、进行语音通话等。</text>
         <view class="setting-item">
           <text class="item-text">相册</text>
           <view class="item-right">
             <text class="item-value">{{ permissions.album }}</text>
-            <text
-              class="iconfont icon-arrow-right"
-              @click="openSystemSettings('album')"
-            ></text>
+            <text class="iconfont icon-arrow-right" @click="openSystemSettings('album')"></text>
           </view>
         </view>
-        <text class="permission-description"
-          >用于访问您的相册，以便选择图片或视频上传，例如发布动态、更换头像等。</text
-        >
+        <text class="permission-description">用于访问您的相册，以便选择图片或视频上传，例如发布动态、更换头像等。</text>
         <view class="setting-item">
           <text class="item-text">通知</text>
           <view class="item-right">
             <text class="item-value">{{ permissions.notification }}</text>
-            <text
-              class="iconfont icon-arrow-right"
-              @click="openSystemSettings('notification')"
-            ></text>
+            <text class="iconfont icon-arrow-right" @click="openSystemSettings('notification')"></text>
           </view>
         </view>
-        <text class="permission-description"
-          >用于接收应用消息通知，例如新评论、点赞等。</text
-        >
+        <text class="permission-description">用于接收应用消息通知，例如新评论、点赞等。</text>
         <!-- 更多权限项可以根据需要添加 -->
       </view>
 
@@ -178,16 +149,10 @@ const checkPermissionStatus = async () => {
         } else {
           permissions.value.microphone = "未设置";
         }
-        if (
-          res.authSetting["scope.writePhotosAlbum"] ||
-          res.authSetting["scope.album"]
-        ) {
+        if (res.authSetting["scope.writePhotosAlbum"] || res.authSetting["scope.album"]) {
           // 相册
           permissions.value.album = "已授权";
-        } else if (
-          res.authSetting["scope.writePhotosAlbum"] === false ||
-          res.authSetting["scope.album"] === false
-        ) {
+        } else if (res.authSetting["scope.writePhotosAlbum"] === false || res.authSetting["scope.album"] === false) {
           permissions.value.album = "已拒绝";
         } else {
           permissions.value.album = "未设置";

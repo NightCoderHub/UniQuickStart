@@ -1,30 +1,16 @@
 <template>
   <view class="help-center-container">
     <view class="search-section">
-      <input
-        v-model="searchQuery"
-        class="search-input"
-        placeholder="搜索常见问题"
-        @confirm="searchFAQ"
-      />
+      <input v-model="searchQuery" class="search-input" placeholder="搜索常见问题" @confirm="searchFAQ" />
       <wd-icon name="search" class="search-icon" @click="searchFAQ"></wd-icon>
     </view>
 
     <view class="faq-section">
       <view class="section-title">常见问题</view>
       <wd-collapse v-model="activeNames" accordion>
-        <wd-collapse-item
-          v-for="(category, index) in filteredFaqs"
-          :key="index"
-          :title="category.title"
-          :name="category.name"
-        >
+        <wd-collapse-item v-for="(category, index) in filteredFaqs" :key="index" :title="category.title" :name="category.name">
           <view class="faq-list">
-            <view
-              v-for="(item, itemIndex) in category.items"
-              :key="itemIndex"
-              class="faq-item"
-            >
+            <view v-for="(item, itemIndex) in category.items" :key="itemIndex" class="faq-item">
               <view class="question">{{ item.question }}</view>
               <view class="answer">{{ item.answer }}</view>
             </view>
@@ -146,9 +132,7 @@ const filteredFaqs = computed(() => {
   return faqs.value
     .map((category) => {
       const filteredItems = category.items.filter(
-        (item) =>
-          item.question.toLowerCase().includes(query) ||
-          item.answer.toLowerCase().includes(query),
+        (item) => item.question.toLowerCase().includes(query) || item.answer.toLowerCase().includes(query),
       );
       return { ...category, items: filteredItems };
     })

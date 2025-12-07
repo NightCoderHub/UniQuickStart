@@ -9,57 +9,30 @@
       <view class="input-container">
         <view class="input-item">
           <text class="iconfont icon-shouji"></text>
-          <input
-            v-model="forgotForm.phone"
-            type="number"
-            placeholder="请输入手机号"
-          />
+          <input v-model="forgotForm.phone" type="number" placeholder="请输入手机号" />
         </view>
         <!-- 验证码输入框 -->
         <view class="input-item code-input-item">
           <text class="iconfont icon-yanzhengma"></text>
-          <input
-            v-model="forgotForm.verificationCode"
-            type="number"
-            placeholder="请输入6位数的验证码"
-            maxlength="6"
-          />
-          <button
-            class="get-code-button"
-            :disabled="isCountingDown"
-            @click="getVerificationCode"
-          >
+          <input v-model="forgotForm.verificationCode" type="number" placeholder="请输入6位数的验证码" maxlength="6" />
+          <button class="get-code-button" :disabled="isCountingDown" @click="getVerificationCode">
             {{ countdown > 0 ? `${countdown}s后重发` : "获取验证码" }}
           </button>
         </view>
         <!-- 验证码输入框结束 -->
         <view class="input-item">
           <text class="iconfont icon-mima"></text>
-          <input
-            v-model="forgotForm.newPassword"
-            :password="!showNewPassword"
-            placeholder="请输入新密码 (6-12位)"
-          />
+          <input v-model="forgotForm.newPassword" :password="!showNewPassword" placeholder="请输入新密码 (6-12位)" />
           <text
-            :class="[
-              'iconfont',
-              !showNewPassword ? 'icon-bukeshimima' : 'icon-keshimima',
-            ]"
+            :class="['iconfont', !showNewPassword ? 'icon-bukeshimima' : 'icon-keshimima']"
             @click="showNewPassword = !showNewPassword"
           ></text>
         </view>
         <view class="input-item">
           <text class="iconfont icon-mima"></text>
-          <input
-            v-model="forgotForm.confirmNewPassword"
-            :password="!showConfirmNewPassword"
-            placeholder="请再次输入新密码"
-          />
+          <input v-model="forgotForm.confirmNewPassword" :password="!showConfirmNewPassword" placeholder="请再次输入新密码" />
           <text
-            :class="[
-              'iconfont',
-              !showConfirmNewPassword ? 'icon-bukeshimima' : 'icon-keshimima',
-            ]"
+            :class="['iconfont', !showConfirmNewPassword ? 'icon-bukeshimima' : 'icon-keshimima']"
             @click="showConfirmNewPassword = !showConfirmNewPassword"
           ></text>
         </view>

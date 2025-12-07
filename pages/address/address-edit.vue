@@ -2,13 +2,7 @@
   <view class="address-edit-page">
     <view class="form-container">
       <wd-cell-group>
-        <wd-input
-          v-model="formData.name"
-          required
-          label-width="220rpx"
-          label="收货人"
-          placeholder="请填写收货人姓名"
-        />
+        <wd-input v-model="formData.name" required label-width="220rpx" label="收货人" placeholder="请填写收货人姓名" />
         <wd-input
           v-model="formData.phone"
           label="手机号"
@@ -57,19 +51,13 @@
         />
 
         <wd-cell title="设为默认地址" center>
-          <wd-switch
-            v-model="formData.isDefault"
-            size="38rpx"
-            active-color="#52c41a"
-          />
+          <wd-switch v-model="formData.isDefault" size="38rpx" active-color="#52c41a" />
         </wd-cell>
       </wd-cell-group>
     </view>
     <safe-area-footer>
       <view class="bottom-buttons">
-        <wd-button type="success" block size="large" @click="saveAddress"
-          >保存地址</wd-button
-        >
+        <wd-button type="success" block size="large" @click="saveAddress">保存地址</wd-button>
         <wd-button
           v-if="type === 'edit'"
           type="error"

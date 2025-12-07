@@ -11,13 +11,9 @@
     <template #modal-description>
       为了保证您的个人信息安全，使用登录功能需要先阅读并同意
 
-      <text class="highlight-link" @click="openPolicy('privacy')"
-        >《隐私政策》</text
-      >
+      <text class="highlight-link" @click="openPolicy('privacy')">《隐私政策》</text>
       和
-      <text class="highlight-link" @click="openPolicy('agreement')"
-        >《用户协议》</text
-      >
+      <text class="highlight-link" @click="openPolicy('agreement')">《用户协议》</text>
     </template>
   </action-confirmation-modal>
   <view class="login-page">
@@ -30,24 +26,13 @@
       <view class="input-container">
         <view class="input-item">
           <text class="iconfont icon-shouji"></text>
-          <input
-            v-model="loginForm.phone"
-            type="number"
-            placeholder="请输入手机号"
-          />
+          <input v-model="loginForm.phone" type="number" placeholder="请输入手机号" />
         </view>
         <view class="input-item">
           <text class="iconfont icon-mima"></text>
-          <input
-            v-model="loginForm.password"
-            :password="!showPassword"
-            placeholder="请输入6-12位密码"
-          />
+          <input v-model="loginForm.password" :password="!showPassword" placeholder="请输入6-12位密码" />
           <text
-            :class="[
-              'iconfont',
-              !showPassword ? 'icon-bukeshimima' : 'icon-keshimima',
-            ]"
+            :class="['iconfont', !showPassword ? 'icon-bukeshimima' : 'icon-keshimima']"
             @click="showPassword = !showPassword"
           ></text>
         </view>
@@ -57,37 +42,21 @@
           <wd-checkbox v-model="isRemember" size="large"></wd-checkbox>
           <text>记住密码</text>
         </view> -->
-        <text
-          class="forget"
-          @click="
-            uni.navigateTo({ url: '/pages/forgot-password/forgot-password' })
-          "
-          >忘记密码?</text
-        >
+        <text class="forget" @click="uni.navigateTo({ url: '/pages/forgot-password/forgot-password' })">忘记密码?</text>
       </view>
 
       <view class="agreement">
         <wd-checkbox v-model="isAgree" size="large"></wd-checkbox>
         <text class="agree-text">
           同意
-          <text class="highlight-link" @click="openPolicy('privacy')"
-            >《隐私政策》</text
-          >
+          <text class="highlight-link" @click="openPolicy('privacy')">《隐私政策》</text>
           和
-          <text class="highlight-link" @click="openPolicy('agreement')"
-            >《服务协议》</text
-          >
+          <text class="highlight-link" @click="openPolicy('agreement')">《服务协议》</text>
         </text>
       </view>
 
-      <button class="login-btn" :loading="isLoggingIn" @click="handleLogin">
-        登录
-      </button>
-      <view
-        class="verify-login"
-        @click="uni.navigateTo({ url: '/pages/register/register' })"
-        >还没有账号？去注册</view
-      >
+      <button class="login-btn" :loading="isLoggingIn" @click="handleLogin">登录</button>
+      <view class="verify-login" @click="uni.navigateTo({ url: '/pages/register/register' })">还没有账号？去注册</view>
     </view>
 
     <!-- <view class="other-login">
@@ -172,10 +141,7 @@ const handleLogin = async () => {
     // 1. 登录接口，获得 token 和 refreshToken（mock 示例，实际请替换为真实 API）
     const loginRes = await new Promise((resolve, reject) => {
       setTimeout(() => {
-        if (
-          loginForm.phone === "13800000000" &&
-          loginForm.password === "123456"
-        ) {
+        if (loginForm.phone === "13800000000" && loginForm.password === "123456") {
           resolve({
             access_token: "mock_access_token_12345",
             refresh_token: "mock_refresh_token_abcde",
