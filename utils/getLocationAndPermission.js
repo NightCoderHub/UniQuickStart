@@ -18,8 +18,8 @@ export async function getLocationAndPermission() {
     // #endif
 
     // #ifdef MP-WEIXIN
-    const wxScope = "scope.userLocation";
-    const wxAuthDesc = "为了提供精准的定位服务和附近功能，应用需要您的地理位置权限。";
+    const wxScope = "scope.userFuzzyLocation";
+    const wxAuthDesc = "为了提供基于您位置的服务（如附近门店、导航），应用需要获取您的地理位置权限。";
     hasPermission = await requestWxPermission(wxScope, wxAuthDesc);
     // #endif
 
@@ -30,47 +30,61 @@ export async function getLocationAndPermission() {
 
     if (hasPermission) {
       return new Promise((resolve, reject) => {
-        uni.getFuzzyLocation({
-          type: "gcj02", // wgs84 返回 GPS 坐标，gcj02 返回国测局坐标
-          success: function (res) {
-            console.log("获取地理位置成功：", res.latitude, res.longitude);
-            resolve({ latitude: res.latitude, longitude: res.longitude });
-          },
-          fail: function (err) {
-            console.error("获取地理位置失败：", err);
-            let errorMessage = "获取地理位置失败";
-            if (err.errMsg) {
-              const errMsgLower = err.errMsg.toLowerCase(); // 统一转小写方便判断
-              if (
-                errMsgLower.includes("fail auth deny") ||
-                errMsgLower.includes("fail user deny") ||
-                errMsgLower.includes("fail api scope deny") ||
-                errMsgLower.includes("error_auth_denied")
-              ) {
-                errorMessage = "用户拒绝了定位请求";
-              } else if (
-                errMsgLower.includes("fail:system permission denied") ||
-                errMsgLower.includes("fail gps closed") ||
-                // H5端常见未开启GPS或定位功能信息
-                errMsgLower.includes("geolocation:position unavailable") ||
-                errMsgLower.includes("gps is off")
-              ) {
-                errorMessage = "手机定位服务未开启或已禁用";
-              } else if (errMsgLower.includes("fail no network")) {
-                errorMessage = "网络不佳，无法获取位置";
-              } else if (errMsgLower.includes("fail timeout")) {
-                errorMessage = "获取位置超时，请稍后重试";
-              } else if (
-                // H5端非HTTPS常见错误
-                errMsgLower.includes("only secure origins are allowed") ||
-                errMsgLower.includes("not on a secure origin")
-              ) {
-                errorMessage = "当前页面非HTTPS协议，无法获取地理位置";
-              }
+        const handleSuccess = (res) => {
+          console.log("获取地理位置成功：", res.latitude, res.longitude);
+          resolve({ latitude: res.latitude, longitude: res.longitude });
+        };
+
+        const handleFail = (err) => {
+          console.error("获取地理位置失败：", err);
+          let errorMessage = "获取地理位置失败";
+          if (err.errMsg) {
+            const errMsgLower = err.errMsg.toLowerCase(); // 统一转小写方便判断
+            if (
+              errMsgLower.includes("fail auth deny") ||
+              errMsgLower.includes("fail user deny") ||
+              errMsgLower.includes("fail api scope deny") ||
+              errMsgLower.includes("error_auth_denied")
+            ) {
+              errorMessage = "用户拒绝了定位请求";
+            } else if (
+              errMsgLower.includes("fail:system permission denied") ||
+              errMsgLower.includes("fail gps closed") ||
+              // H5端常见未开启GPS或定位功能信息
+              errMsgLower.includes("geolocation:position unavailable") ||
+              errMsgLower.includes("gps is off")
+            ) {
+              errorMessage = "手机定位服务未开启或已禁用";
+            } else if (errMsgLower.includes("fail no network")) {
+              errorMessage = "网络不佳，无法获取位置";
+            } else if (errMsgLower.includes("fail timeout")) {
+              errorMessage = "获取位置超时，请稍后重试";
+            } else if (
+              // H5端非HTTPS常见错误
+              errMsgLower.includes("only secure origins are allowed") ||
+              errMsgLower.includes("not on a secure origin")
+            ) {
+              errorMessage = "当前页面非HTTPS协议，无法获取地理位置";
             }
-            reject(errorMessage); // 拒绝 Promise 并传递错误信息
-          },
+          }
+          reject(errorMessage); // 拒绝 Promise 并传递错误信息
+        };
+
+        // #ifdef MP-WEIXIN
+        uni.getFuzzyLocation({
+          type: "gcj02",
+          success: handleSuccess,
+          fail: handleFail,
         });
+        // #endif
+
+        // #ifndef MP-WEIXIN
+        uni.getLocation({
+          type: "gcj02",
+          success: handleSuccess,
+          fail: handleFail,
+        });
+        // #endif
       });
     } else {
       console.log("用户未授权地理位置权限。");

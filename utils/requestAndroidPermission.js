@@ -7,8 +7,6 @@ import { defaultPermissionExplainMap } from "./defaultPermissionExplainMap";
  */
 export class NativePopup {
   constructor(options = {}) {
-    this.sysInfo = uni.getSystemInfoSync();
-
     const { bgColor = "#fff", titleColor = "#000", contentColor = "#272727" } = options;
 
     this.bgColor = bgColor;
@@ -18,7 +16,7 @@ export class NativePopup {
   }
 
   createPopup = () => {
-    const { statusBarHeight, screenWidth } = this.sysInfo;
+    const { statusBarHeight, screenWidth } = uni.getWindowInfo();
 
     // 创建新弹窗前，先关闭任何现有弹窗
     this.close();
