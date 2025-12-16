@@ -81,7 +81,8 @@ uni-tabbar {
 .z-paging-content-fixed,
 .zp-loading-fixed {
   position: fixed;
-  inset: 0 var(--window-right) 0 var(--window-left);
+  right: var(--window-right) !important;
+  left: var(--window-left) !important;
   width: auto;
   height: auto;
 }
