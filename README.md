@@ -87,16 +87,12 @@ UniQuickStart/
 │   └── images/           # 图片资源
 ├── stores/               # 状态管理
 │   ├── modules/          # 状态模块
+│   │   └── device.js     # 设备状态和用户位置
 │   │   └── user.js       # 用户状态
 │   └── index.js          # 状态入口
-├── styles/               # 样式文件
-│   ├── iconfont.css      # 图标字体
+├── style/                # 样式文件
+│   ├── iconfont          # 图标字体
 │   └── wot-ui-variable.scss # UI 变量
-│   └── mixins.scss       # 常用 SCSS mixins
-│   └── utilities.scss    # 原子化工具类
-│   └── components.scss   # 通用组件样式
-│   └── layout.scss       # 布局相关样式
-│   └── animations.scss   # 动画效果
 ├── utils/                # 工具函数
 │   ├── request.js        # 网络请求封装
 │   └── util.js           # 通用工具
