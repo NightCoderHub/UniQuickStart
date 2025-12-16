@@ -107,7 +107,9 @@ const bodyStyle = computed(() => {
   flex-direction: column;
   min-height: 200px;
   overflow: hidden;
-  background-color: #fff; /* 确保背景色 */
+  background-color: #fff;
+
+  /* 确保背景色 */
 }
 
 /* --- 头部样式 --- */
@@ -164,7 +166,9 @@ const bodyStyle = computed(() => {
 /* --- 底部样式 --- */
 .popup-footer {
   flex-shrink: 0;
-  padding: 10px 15px; /* 调整底部padding，配合 safeAreaInsetBottom */
+  padding: 10px 15px;
+
+  /* 调整底部padding，配合 safeAreaInsetBottom */
   border-top: 1px solid #eee;
 
   /* 确保底部不被压缩 */
