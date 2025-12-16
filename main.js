@@ -15,9 +15,11 @@ uni.$devToast = () => {
 };
 uni.$zp = {
   config: {
-    "empty-view-img-style": { width: "400rpx", height: "200rpx" },
-    "empty-view-img": "/static/empty/img_data_3x.png",
-    "empty-view-error-img": "/static/empty/img_network_3x.png",
+    "empty-view-style": { "margin-top": "-300rpx" },
+    "empty-view-img-style": { width: "400rpx", height: "400rpx" },
+    "empty-view-img": "/static/empty/content.png",
+    "empty-view-error-img": "/static/empty/network.png",
+    "empty-view-text": "暂无内容",
     "show-refresher-when-reload": true,
     "auto-show-back-to-top": true,
     "safe-area-inset-bottom": true,
