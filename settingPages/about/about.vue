@@ -5,9 +5,9 @@
       <view class="logo-box">
         <image class="app-logo" src="/static/logo.png" mode="aspectFit"></image>
       </view>
-      <text class="app-name">{{ COMPANY_INFO.name }}</text>
+      <text class="app-name">{{ APP_CONFIG.name }}</text>
       <view class="version-tag">
-        <text>Version {{ APP_CONFIG.version }}</text>
+        <text>Version {{ version }}</text>
       </view>
     </view>
 
@@ -68,14 +68,19 @@
 
     <!-- 底部版权 -->
     <view class="footer-section">
-      <text class="copyright">Copyright © 2025 {{ COMPANY_INFO.name }}. All Rights Reserved.</text>
+      <text class="copyright">Copyright © {{ currentYear }} {{ COMPANY_INFO.copyright }}. All Rights Reserved.</text>
     </view>
   </view>
 </template>
 
 <script setup>
-import { COMPANY_INFO, APP_CONFIG } from "@/constants";
+import { COMPANY_INFO, APP_CONFIG } from "@/utils/constants";
+import { useDeviceStore } from "@/stores";
 
+const deviceStore = useDeviceStore();
+const version = deviceStore.appBaseInfo.appVersion;
+
+const currentYear = new Date().getFullYear();
 const navigateTo = (url) => {
   uni.navigateTo({
     url: url,

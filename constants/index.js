@@ -8,12 +8,14 @@ export const COMPANY_INFO = {
   slogan: "快速构建跨平台应用",
   description: "UniQuickStart 致力于提供高效的 uniapp 开发模板和解决方案，帮助开发者快速启动项目。",
   website: "https://www.uniquickstart.com",
+  copyright: "UniQuickStart 科技",
+  support: "UniQuickStart",
 };
 
 export const APP_CONFIG = {
   // 应用配置
   name: "UniQuickStart",
-  version: "1.0.0",
+  // version: "1.0.0", // 由uni.getAppBaseInfo()接口获取
   apiBaseUrl: "https://api.uniquickstart.com/v1",
   defaultPageSize: 10,
 };
