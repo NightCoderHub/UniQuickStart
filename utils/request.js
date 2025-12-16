@@ -147,6 +147,9 @@ const interceptors = {
   },
 };
 
+// 存储请求任务的 Map，用于取消重复请求
+const pendingRequests = new Map();
+
 function request(options) {
   const finalOptions = {
     ...config,
@@ -160,13 +163,48 @@ function request(options) {
   };
   const interceptedOptions = interceptors.request(finalOptions);
 
+  // 处理竞态条件/请求取消
+  // 1. abortKey: 手动指定唯一标识，用于取消特定请求
+  // 2. abortOld: 如果为 true，则根据 method + url 自动生成标识，取消之前的同类请求
+  let abortKey = interceptedOptions.abortKey;
+  if (!abortKey && interceptedOptions.abortOld) {
+    // 使用原始 options.url (相对路径) 生成 key，避免拦截器添加时间戳/随机数导致 key 变化从而使防抖失效
+    // 注意：这意味着并发请求同一接口(参数不同)会被互斥。如需并发，请勿开启 abortOld 或手动指定不同 abortKey
+    abortKey = `${options.method || "GET"}:${options.url}`;
+  }
+
+  // 如果存在之前的同类请求，则取消
+  if (abortKey && pendingRequests.has(abortKey)) {
+    const task = pendingRequests.get(abortKey);
+    if (task && typeof task.abort === "function") {
+      task.abort();
+    }
+    pendingRequests.delete(abortKey);
+  }
+
   return new Promise((resolve, reject) => {
-    uni.request({
+    const requestTask = uni.request({
       ...interceptedOptions,
       success: (res) => {
+        if (abortKey) pendingRequests.delete(abortKey);
         interceptors.response.success(res).then(resolve).catch(reject);
       },
       fail: (err) => {
+        if (abortKey) pendingRequests.delete(abortKey);
+
+        // 识别 aborted 请求 (errMsg 通常包含 abort 或 cancel)
+        const isAborted = err.errMsg && (err.errMsg.indexOf("abort") !== -1 || err.errMsg.indexOf("cancel") !== -1);
+
+        if (isAborted) {
+          // 如果是被取消的请求，静默失败，不走通用的错误拦截器
+          return reject({
+            code: -1,
+            message: "Request aborted",
+            isAbort: true,
+            originalError: err,
+          });
+        }
+
         interceptors.response
           .fail({
             ...err,
@@ -176,6 +214,11 @@ function request(options) {
           .catch(reject);
       },
     });
+
+    // 如果有 abortKey，保存 requestTask
+    if (abortKey && requestTask) {
+      pendingRequests.set(abortKey, requestTask);
+    }
   }).finally(() => {
     hideLoadingIfNeeded(interceptedOptions);
   });
