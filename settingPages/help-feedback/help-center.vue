@@ -80,7 +80,7 @@
 
 <script setup>
 import { ref, computed } from "vue";
-import { COMPANY_INFO } from "@/constants";
+import { COMPANY_INFO } from "@/utils/constants";
 
 const searchQuery = ref("");
 const activeNames = ref([]); // 当前展开的面板名称
