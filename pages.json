@@ -140,6 +140,12 @@
           "style": {
             "navigationBarTitleText": "系统权限设置"
           }
+        },
+        {
+          "path": "help-feedback/customer-service",
+          "style": {
+            "navigationBarTitleText": "客服中心"
+          }
         }
       ]
     }
