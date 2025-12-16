@@ -1,199 +1,250 @@
 <template>
-  <view class="address-select-page">
-    <view class="address-list-container">
-      <template v-if="addresses.length > 0">
-        <view v-for="address in addresses" :key="address.id" class="address-card" @click="selectAddress(address)">
-          <view class="address-header">
-            <text class="consignee">{{ address.name }}</text>
-            <text class="phone">{{ address.phone }}</text>
-            <wd-tag v-if="address.isDefault" type="success" size="mini" custom-class="default-tag">默认</wd-tag>
+  <view class="page">
+    <z-paging
+      ref="paging"
+      v-model="addressList"
+      empty-view-img="/static/empty/img_address_3x.png"
+      empty-view-text="暂无地址"
+      @query="queryList"
+    >
+      <!-- 地址列表 -->
+      <view class="address-list">
+        <view v-for="item in addressList" :key="item.id" class="address-card">
+          <view class="card-content" @click="selectAddress(item)">
+            <view class="address-info">
+              <!-- <text class="district">{{ item.district }}</text> -->
+              <text class="full-address">{{ item.address }}{{ item.doorplate }}</text>
+              <text class="contact">{{ item.contact }}（{{ item.mobile }}）</text>
+            </view>
+            <view class="edit-btn" @click.stop="editAddress(item)">
+              <!-- <text class="edit-icon">✎</text> -->
+              <wd-icon name="edit-1" size="22px"></wd-icon>
+            </view>
           </view>
-          <view class="address-detail">
-            <text>{{ address.fullAddress }}</text>
-          </view>
-          <view class="address-actions">
-            <wd-button size="small" plain custom-style="border-color: #52c41a; color: #52c41a;" @click.stop="editAddress(address)"
-              >编辑</wd-button
-            >
-            <wd-button
-              size="small"
-              plain
-              custom-style="border-color: #f5222d; color: #f5222d; margin-left: 16rpx;"
-              @click.stop="deleteAddress(address.id)"
-              >删除</wd-button
-            >
-          </view>
-        </view>
-      </template>
-      <template v-else>
-        <view class="no-address-placeholder">
-          <wd-icon name="location-o" size="64px" color="#ccc"></wd-icon>
-          <text class="placeholder-text">您还没有添加收货地址</text>
-        </view>
-      </template>
-    </view>
 
-    <safe-area-footer :fixed="true">
-      <view class="add-address-button-wrapper">
-        <wd-button type="success" block size="large" @click="navigateToAddAddress"> + 添加新地址 </wd-button>
+          <view class="card-actions">
+            <wd-checkbox :model-value="item.isDefault === 1" checked-color="#3b82f6" @change="(event) => setDefault(event, item)">
+              <text class="default-text">{{ item.isDefault === 1 ? "已默认" : "设为默认" }}</text>
+            </wd-checkbox>
+            <view class="delete-btn" @click.stop="handleDeleteAddress(item)">
+              <text>删除</text>
+            </view>
+          </view>
+        </view>
       </view>
-    </safe-area-footer>
-    <wd-message-box></wd-message-box>
+
+      <!-- 底部新增按钮 -->
+      <template #bottom>
+        <bottom-fixed-button :fixed="false" @click="addAddress">
+          <view class="add-btn">
+            <wd-icon name="add-circle1" size="36rpx" color="#fff"></wd-icon>
+            <text class="add-text">新增地址</text>
+          </view>
+        </bottom-fixed-button>
+      </template>
+    </z-paging>
   </view>
 </template>
 
 <script setup>
-import { ref, getCurrentInstance } from "vue";
-import { useMessage } from "wot-design-uni";
-const instance = getCurrentInstance().proxy;
+import { ref } from "vue";
+import { onShow } from "@dcloudio/uni-app";
+import { getAddressList, removeAddress, saveAddress } from "@/api";
 
-const message = useMessage();
+const paging = ref(null);
+const addressList = ref([]);
 
-// 模拟地址数据，实际应用中这些数据会从后端获取
-const addresses = ref([
-  {
-    id: "1",
-    name: "张三",
-    phone: "13812345678",
-    fullAddress: "贵州省铜仁市碧江区早到日货市场1号楼101室",
-    isDefault: true,
-  },
-  {
-    id: "2",
-    name: "李四",
-    phone: "13987654321",
-    fullAddress: "贵州省铜仁市万山区高新技术开发区创新大厦A座",
-    isDefault: false,
-  },
-]);
-
-// 选择地址并返回
-const selectAddress = (address) => {
-  console.log("选中地址:", address);
-  const eventChannel = instance.getOpenerEventChannel();
-  eventChannel.emit("onAddressSelected", {
-    data: address.fullAddress,
-  });
-  uni.navigateBack();
+// z-paging 的查询回调
+const queryList = async () => {
+  try {
+    const res = await getAddressList();
+    paging.value.complete(res || []);
+  } catch (error) {
+    console.error("获取地址列表失败:", error);
+    paging.value.complete(false); // 传入 false 代表请求失败
+  }
 };
 
-// 跳转到添加新地址页面
-const navigateToAddAddress = () => {
+onShow(() => {
+  // 页面显示时刷新列表
+  // 使用 reload() 会触发 @query
+  if (paging.value) {
+    paging.value.reload();
+  }
+});
+
+const editAddress = (item) => {
+  uni.navigateTo({
+    url: `/pages/address/address-edit?type=edit&id=${item.id}`,
+  });
+};
+
+const setDefault = async (event, item) => {
+  const { value } = event;
+
+  uni.showLoading({ title: "设置中..." });
+  try {
+    const params = {
+      ...item,
+      isDefault: value ? 1 : 0,
+    };
+    await saveAddress(params);
+    uni.showToast({ title: "设置成功", icon: "success" });
+    paging.value.reload(); // 刷新列表
+  } catch (error) {
+    console.error("设置默认地址失败:", error);
+    uni.showToast({ title: "设置失败", icon: "none" });
+  } finally {
+    uni.hideLoading();
+  }
+};
+
+const handleDeleteAddress = (item) => {
+  uni.showModal({
+    title: "提示",
+    content: "确定要删除该地址吗？",
+    success: async (res) => {
+      if (res.confirm) {
+        try {
+          await removeAddress({ addressId: item.id });
+          uni.showToast({ title: "删除成功", icon: "success" });
+          paging.value.reload(); // 刷新列表
+        } catch (error) {
+          console.error("删除地址失败:", error);
+          uni.showToast({ title: "删除失败", icon: "none" });
+        }
+      }
+    },
+  });
+};
+
+const addAddress = () => {
   uni.navigateTo({
     url: "/pages/address/address-edit?type=add",
   });
 };
 
-// 编辑地址
-const editAddress = (address) => {
-  console.log("编辑地址:", address);
-  uni.navigateTo({
-    url: `/pages/address/address-edit?type=edit&id=${address.id}`, // 传递地址ID，或者整个地址对象（如果大小允许）
-  });
-};
-
-// 删除地址
-const deleteAddress = (id) => {
-  message
-    .confirm({
-      title: "确认删除",
-      message: "确定要删除该地址吗？",
-    })
-    .then(() => {
-      console.log("确认删除地址:", id);
-      // 实际删除逻辑：调用API
-      addresses.value = addresses.value.filter((addr) => addr.id !== id);
-      uni.showToast({
-        title: "删除成功",
-        icon: "success",
-      });
-    })
-    .catch(() => {
-      console.log("取消删除");
-    });
+// 如果是选择地址模式，可以点击选择
+const selectAddress = (item) => {
+  // 获取当前页面栈，判断是否是需要返回选择
+  const pages = getCurrentPages();
+  if (pages.length > 1) {
+    // 使用事件总线通知上一页
+    uni.$emit("selectAddress", item);
+    uni.navigateBack();
+  }
 };
 </script>
 
 <style lang="scss" scoped>
-.address-select-page {
-  display: flex;
-  flex-direction: column;
+.back-icon {
+  font-size: 48rpx;
+  font-weight: 300;
+  color: #333;
 }
 
-.address-list-container {
+// 地址列表
+.address-list {
   flex: 1;
   padding: 24rpx;
-  overflow-y: auto;
 }
 
 .address-card {
-  padding: 32rpx;
   margin-bottom: 24rpx;
+  overflow: hidden;
   background-color: #fff;
   border-radius: 16rpx;
-  box-shadow: 0 2rpx 8rpx rgb(0 0 0 / 5%);
+}
 
-  &:last-child {
-    margin-bottom: 0;
+.card-content {
+  display: flex;
+  padding: 32rpx;
+  padding-bottom: 24rpx;
+}
+
+.address-info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 12rpx;
+
+  .district {
+    font-size: 26rpx;
+    color: #999;
   }
 
-  .address-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 16rpx;
+  .full-address {
     font-size: 32rpx;
-    font-weight: bold;
-    color: #333;
-
-    .consignee {
-      margin-right: 16rpx;
-    }
-
-    .phone {
-      font-size: 28rpx;
-      color: #666;
-    }
-
-    .default-tag {
-      margin-left: 16rpx;
-
-      /* 更柔和的蓝色 */
-      color: #1890ff;
-      background-color: #e6f7ff;
-      border: 1px solid #91d5ff;
-    }
-  }
-
-  .address-detail {
-    margin-bottom: 24rpx;
-    font-size: 28rpx;
+    font-weight: 500;
     line-height: 1.5;
-    color: #666;
+    color: #333;
   }
 
-  .address-actions {
-    display: flex;
-    justify-content: flex-end;
+  .contact {
+    margin-top: 8rpx;
+    font-size: 26rpx;
+    color: #999;
   }
 }
 
-.no-address-placeholder {
+.edit-btn {
   display: flex;
-  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  width: 60rpx;
+  height: 60rpx;
+
+  .edit-icon {
+    font-size: 40rpx;
+    color: #999;
+  }
+}
+
+// 卡片操作区
+.card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 32rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.default-text {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.delete-btn {
+  display: flex;
   align-items: center;
   justify-content: center;
-  padding: 100rpx 0;
-  font-size: 32rpx;
-  color: #999;
+  padding: 12rpx 30rpx;
+  border: 1rpx solid #ddd;
+  border-radius: 32rpx;
 
-  .placeholder-text {
-    margin-top: 32rpx;
+  text {
+    font-size: 24rpx;
+    color: #666;
   }
 }
 
-.add-address-button-wrapper {
-  padding: 24rpx;
+// 底部按钮
+.bottom-area {
+  padding: 24rpx 32rpx;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
   background-color: #fff;
-  border-top: 1px solid #f0f0f0;
+}
+
+.add-btn {
+  display: flex;
+  gap: 12rpx;
+  align-items: center;
+  justify-content: center;
+
+  .add-text {
+    font-size: 32rpx;
+    font-weight: 500;
+    color: #fff;
+  }
 }
 </style>
