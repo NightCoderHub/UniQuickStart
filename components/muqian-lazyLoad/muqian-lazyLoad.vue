@@ -129,7 +129,12 @@ watch(
     status.value = 0;
     isShow.value = false;
     nextTick(() => {
-      status.value = 1;
+      if (!props.src) {
+        status.value = 2;
+        isShow.value = true;
+      } else {
+        status.value = 1;
+      }
     });
   },
 );
@@ -177,8 +182,13 @@ const initObserver = () => {
     }
     emit("show"); // 触发 show 事件
     loadFlag = true;
-    status.value = 1; // 更新状态
-    loadTimer = new Date().getTime();
+    if (!props.src) {
+      status.value = 2;
+      isShow.value = true;
+    } else {
+      status.value = 1; // 更新状态
+      loadTimer = new Date().getTime();
+    }
     intersectionObserverInstance.disconnect(); // 第一次进入视图后立即断开监听
   });
 };
