@@ -5,7 +5,7 @@
  */
 function getPermissionName(scope) {
   switch (scope) {
-    case "scope.userLocation":
+    case "scope.userFuzzyLocation":
       return "地理位置";
     case "scope.camera":
       return "相机";
