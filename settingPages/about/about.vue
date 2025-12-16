@@ -74,7 +74,7 @@
 </template>
 
 <script setup>
-import { COMPANY_INFO, APP_CONFIG } from "@/utils/constants";
+import { COMPANY_INFO, APP_CONFIG } from "@/constants";
 import { useDeviceStore } from "@/stores";
 
 const deviceStore = useDeviceStore();

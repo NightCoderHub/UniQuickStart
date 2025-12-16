@@ -56,7 +56,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { COMPANY_INFO } from "@/utils/constants";
+import { COMPANY_INFO } from "@/constants";
 
 const faqList = ref([
   {
