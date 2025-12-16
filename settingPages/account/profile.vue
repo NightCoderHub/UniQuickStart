@@ -43,7 +43,7 @@
         <view class="profile-item">
           <text class="item-label">手机号</text>
           <view class="item-content">
-            <text class="item-value">{{ userInfo.phone ? formatPhoneNumber(userInfo.phone) : "未绑定" }}</text>
+            <text class="item-value">{{ userInfo.phone ? userInfo.phone : "未绑定" }}</text>
           </view>
         </view>
 
@@ -122,10 +122,10 @@ const formatGender = (gender) => {
 };
 
 // 格式化手机号显示（隐藏中间四位）
-const formatPhoneNumber = (phone) => {
-  if (!phone || phone.length !== 11) return phone;
-  return phone.replace(/(\d{3})\d{4}(\d{4})/, "$1****$2");
-};
+// const formatPhoneNumber = (phone) => {
+//   if (!phone || phone.length !== 11) return phone;
+//   return phone.replace(/(\d{3})\d{4}(\d{4})/, "$1****$2");
+// };
 
 // 修改头像
 const changeAvatar = async () => {
@@ -370,11 +370,11 @@ const saveProfile = () => {
 
 /* 底部按钮区域 */
 .submit-section {
-  padding: 30rpx 40rpx;
-  padding-bottom: calc(30rpx + env(safe-area-inset-bottom));
-  background-color: #f5f5f5;
+  padding-top: 30rpx;
 }
+</style>
 
+<style scoped>
 /* 覆盖 wot-design 组件样式以匹配 profile-item */
 :deep(.wd-picker__cell) {
   padding: 30rpx !important;
@@ -413,8 +413,8 @@ const saveProfile = () => {
   }
 }
 
-/* 如果 picker 是组内最后一个元素，隐藏分隔线 */
-.profile-group > :last-child :deep(.wd-picker__cell)::after {
-  display: none !important;
+:deep(.wd-cell__value) {
+  margin-right: 12rpx;
+  color: #999 !important;
 }
 </style>
