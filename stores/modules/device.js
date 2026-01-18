@@ -1,6 +1,6 @@
 // stores/modules/device.js
 import { defineStore } from "pinia";
-import { getLocationAndPermission, reverseGeocode } from "@/utils/getLocationAndPermission.js";
+import { getLocationAndPermission, reverseGeocode } from "@/utils/locationService.js";
 
 export const useDeviceStore = defineStore("device", {
   state: () => ({
