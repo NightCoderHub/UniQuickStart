@@ -1,5 +1,5 @@
 // utils/request.js
-import { REQUEST_CONFIG as config } from "./constants.js";
+import { REQUEST_CONFIG as config, RESPONSE_CODE } from "./constants.js";
 
 let loadingCount = 0; // 全局 Loading 计数器
 let toastTimer = null; // 用于防抖的计时器
@@ -70,7 +70,7 @@ const interceptors = {
       if (statusCode === 200) {
         if (Array.isArray(config.successCodes) && config.successCodes.includes(data.code)) {
           return Promise.resolve(data.data);
-        } else if (data.code === 401) {
+        } else if (data.code === RESPONSE_CODE.UNAUTHORIZED) {
           uni.removeStorageSync("token");
           showDebouncedToast("登录已过期,请重新登录");
           if (!isRedirecting) {
@@ -85,7 +85,7 @@ const interceptors = {
             }, 1500);
           }
           return Promise.reject({
-            code: 401,
+            code: RESPONSE_CODE.UNAUTHORIZED,
             message: "登录已过期,请重新登录",
             originalError: data,
           });

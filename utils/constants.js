@@ -1,6 +1,5 @@
 // 应用常量配置
 export const COMPANY_INFO = {
-  // 公司信息
   phone: "",
   email: "",
   address: "",
@@ -21,6 +20,7 @@ export const APP_CONFIG = {
 // 响应状态码
 export const RESPONSE_CODE = {
   SUCCESS: 200, // 成功
+  SUCCESS_ALT: 0, // 兼容部分接口返回 0 的情况
   UNAUTHORIZED: 401, // 未授权（跳转登录）
   FORBIDDEN: 403, // 无权限
   NOT_FOUND: 404, // 资源不存在
@@ -32,12 +32,6 @@ export const WECHAT_PAY_CONFIG = {
   mchId: "",
   appId: "",
 };
-
-// 腾讯地图key
-export const TENCENT_MAP_KEY = "AD7BZ-55HLM-72N6E-6ZXGL-MKOLS-D3BJN";
-
-// 上传文件接口地址
-export const uploadActionUrl = "";
 
 // 环境基础URL配置
 export const ENV_BASE_URL = {
@@ -53,6 +47,12 @@ export const REQUEST_CONFIG = {
     Accept: "application/json",
   },
   timeout: 15000,
-  successCodes: [200, 0],
+  successCodes: [RESPONSE_CODE.SUCCESS, RESPONSE_CODE.SUCCESS_ALT],
   showLoading: false,
 };
+
+// 上传文件接口地址
+export const uploadActionUrl = `${REQUEST_CONFIG.baseURL}/file/upload`;
+
+// 腾讯地图key
+export const TENCENT_MAP_KEY = "AD7BZ-55HLM-72N6E-6ZXGL-MKOLS-D3BJN";
