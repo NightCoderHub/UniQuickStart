@@ -1,0 +1,58 @@
+// 应用常量配置
+export const COMPANY_INFO = {
+  // 公司信息
+  phone: "",
+  email: "",
+  address: "",
+  slogan: "",
+  description: "",
+  website: "",
+  copyright: "",
+  support: "",
+};
+
+// 应用配置
+export const APP_CONFIG = {
+  name: "",
+  // version: "1.0.0", // 由uni.getAppBaseInfo()接口获取
+  defaultPageSize: 10,
+};
+
+// 响应状态码
+export const RESPONSE_CODE = {
+  SUCCESS: 200, // 成功
+  UNAUTHORIZED: 401, // 未授权（跳转登录）
+  FORBIDDEN: 403, // 无权限
+  NOT_FOUND: 404, // 资源不存在
+  SERVER_ERROR: 500, // 系统崩溃
+};
+
+// 微信支付配置
+export const WECHAT_PAY_CONFIG = {
+  mchId: "",
+  appId: "",
+};
+
+// 腾讯地图key
+export const TENCENT_MAP_KEY = "AD7BZ-55HLM-72N6E-6ZXGL-MKOLS-D3BJN";
+
+// 上传文件接口地址
+export const uploadActionUrl = "";
+
+// 环境基础URL配置
+export const ENV_BASE_URL = {
+  development: "/services",
+  production: "https://api.ztc.gzhtsk.com/cts/wechat",
+};
+
+// 请求配置
+export const REQUEST_CONFIG = {
+  baseURL: ENV_BASE_URL[process.env.NODE_ENV || "development"],
+  header: {
+    "Content-Type": "application/json; charset=UTF-8",
+    Accept: "application/json",
+  },
+  timeout: 15000,
+  successCodes: [200, 0],
+  showLoading: false,
+};

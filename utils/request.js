@@ -1,5 +1,5 @@
 // utils/request.js
-import config from "../config/request.js";
+import { REQUEST_CONFIG as config } from "./constants.js";
 
 let loadingCount = 0; // 全局 Loading 计数器
 let toastTimer = null; // 用于防抖的计时器
