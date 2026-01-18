@@ -13,7 +13,7 @@ export const COMPANY_INFO = {
 // 应用配置
 export const APP_CONFIG = {
   name: "",
-  // version: "1.0.0", // 由uni.getAppBaseInfo()接口获取
+  version: uni.getAppBaseInfo().appVersion || "1.0.0",
   defaultPageSize: 10,
 };
 
