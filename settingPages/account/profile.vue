@@ -83,7 +83,7 @@ import { ref, reactive, onMounted } from "vue";
 import { useUserStore } from "@/stores";
 import { useMessage, useUpload } from "wot-design-uni";
 import { getUserInfo, updateUserInfo } from "@/api";
-import { uploadActionUrl } from "@/config";
+import { uploadActionUrl } from "@/utils/constants";
 
 const message = useMessage();
 const userStore = useUserStore();
