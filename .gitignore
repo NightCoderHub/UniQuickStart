@@ -43,3 +43,6 @@ Desktop.ini # Windows
 # Caches
 .cache/
 .eslintcache
+
+.trae/
+docs/
