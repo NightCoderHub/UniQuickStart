@@ -2,6 +2,7 @@ import App from "./App";
 import { createSSRApp } from "vue";
 import { createPinia } from "pinia";
 import { navigateTo } from "@/utils/util";
+import { dictHelper } from "@/utils/dictUtil.js";
 // #ifdef H5
 // import VConsole from "vconsole";
 // new VConsole();
@@ -26,6 +27,7 @@ uni.$zp = {
   },
 };
 uni.$navigateTo = navigateTo;
+uni.$dict = dictHelper;
 export function createApp() {
   const app = createSSRApp(App);
   const pinia = createPinia();
