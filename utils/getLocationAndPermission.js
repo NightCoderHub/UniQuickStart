@@ -1,5 +1,6 @@
 import { requestAndroidPermission } from "./requestAndroidPermission.js";
 import { requestWxPermission } from "./requestWxPermission.js";
+import { TENCENT_MAP_KEY } from "./constants.js";
 /**
  * 整合后的获取地理位置权限并获取经纬度函数，使用条件编译区分平台。
  * 内部处理权限请求，并以 Promise 方式返回经纬度信息。
@@ -105,7 +106,7 @@ export async function getLocationAndPermission() {
  * 成功时resolve定位结果数据，失败时reject错误信息。
  */
 export function reverseGeocode(latitude, longitude) {
-  const key = "AD7BZ-55HLM-72N6E-6ZXGL-MKOLS-D3BJN"; // 你的腾讯地图Key
+  const key = TENCENT_MAP_KEY;
   let baseUrl = "https://apis.map.qq.com/ws/geocoder/v1/";
   // #ifdef H5
   baseUrl = "/tencent_map_api/ws/geocoder/v1/";
