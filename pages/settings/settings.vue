@@ -144,7 +144,7 @@
 <script setup>
 import { ref } from "vue";
 import { useUserStore } from "@/stores";
-import { COMPANY_INFO, APP_CONFIG } from "@/constants";
+import { COMPANY_INFO, APP_CONFIG } from "@/utils/constants";
 
 const userStore = useUserStore();
 

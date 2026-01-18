@@ -58,7 +58,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { onShow } from "@dcloudio/uni-app";
-import { COMPANY_INFO } from "@/constants";
+import { COMPANY_INFO } from "@/utils/constants";
 
 const permissions = ref({
   location: "未设置",

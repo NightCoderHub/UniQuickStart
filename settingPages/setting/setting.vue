@@ -146,7 +146,7 @@
 import { ref } from "vue";
 import { useUserStore } from "@/stores";
 import { useMessage } from "wot-design-uni";
-import { COMPANY_INFO, APP_CONFIG } from "@/constants";
+import { COMPANY_INFO, APP_CONFIG } from "@/utils/constants";
 
 const message = useMessage();
 const userStore = useUserStore();
