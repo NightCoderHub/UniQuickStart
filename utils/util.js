@@ -61,48 +61,6 @@ export function formatISOTime(dateObj = new Date()) {
 }
 
 /**
- * 导航方法，封装uni.navigateTo, uni.redirectTo, uni.reLaunch, uni.switchTab
- * @param {object} options 导航选项
- * @param {string} options.url 目标页面路径
- * @param {object} [options.params] 传递给目标页面的参数对象，会自动转换为查询字符串
- * @param {'navigateTo'|'redirectTo'|'reLaunch'|'switchTab'} [options.type='navigateTo'] 导航类型
- */
-export function navigateTo(options) {
-  const { url, params, type = "navigateTo" } = options;
-
-  let targetUrl = url;
-  if (params) {
-    const queryString = Object.keys(params)
-      .map((key) => {
-        let value;
-        if (typeof params[key] === "object" || Array.isArray(params[key])) {
-          value = encodeURIComponent(JSON.stringify(params[key]));
-        } else {
-          value = encodeURIComponent(params[key]);
-        }
-        return `${encodeURIComponent(key)}=${value}`;
-      })
-      .join("&");
-    targetUrl = `${url}?${queryString}`;
-  }
-  switch (type) {
-    case "redirectTo":
-      uni.redirectTo({ url: targetUrl });
-      break;
-    case "reLaunch":
-      uni.reLaunch({ url: targetUrl });
-      break;
-    case "switchTab":
-      uni.switchTab({ url: targetUrl });
-      break;
-    case "navigateTo":
-    default:
-      uni.navigateTo({ url: targetUrl });
-      break;
-  }
-}
-
-/**
  * @description 四则算术运算
  * */
 export const calculate = {

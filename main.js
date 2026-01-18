@@ -1,7 +1,7 @@
 import App from "./App";
 import { createSSRApp } from "vue";
 import { createPinia } from "pinia";
-import { navigateTo } from "@/utils/util";
+import router from "@/utils/router";
 import { dictHelper } from "@/utils/dictUtil.js";
 // #ifdef H5
 // import VConsole from "vconsole";
@@ -26,7 +26,7 @@ uni.$zp = {
     "safe-area-inset-bottom": true,
   },
 };
-uni.$navigateTo = navigateTo;
+uni.$router = router;
 uni.$dict = dictHelper;
 export function createApp() {
   const app = createSSRApp(App);
