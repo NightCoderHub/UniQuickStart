@@ -63,8 +63,6 @@ UniQuickStart/
 │   ├── anime-card/        # 动漫卡片组件
 │   ├── custom-tabbar/     # 自定义底部导航
 │   └── action-confirmation-modal/ # 确认弹窗组件
-├── constants/             # 常量定义
-│   └── index.js          # 应用常量
 ├── pages/                 # 页面文件
 │   ├── index/            # 首页
 │   ├── login/            # 登录页
@@ -96,6 +94,7 @@ UniQuickStart/
 ├── utils/                # 工具函数
 │   ├── request.js        # 网络请求封装
 │   └── util.js           # 通用工具
+│   └── constants.js      # 应用常量
 ├── App.vue               # 应用入口
 ├── main.js               # 主入口文件
 ├── manifest.json         # 应用配置
