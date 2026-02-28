@@ -1,88 +1,79 @@
 <template>
-  <action-confirmation-modal
-    v-model:show="showProtocolPopup"
-    cancel-text="暂不同意"
-    confirm-text="同意并继续"
-    @confirm="handlePrivacyAgree"
-  >
-    <template #modal-title>
-      <text>阅读并同意以下协议</text>
-    </template>
-    <template #modal-description>
-      为了保证您的个人信息安全，使用登录功能需要先阅读并同意
-
-      <text class="highlight-link" @click="openPolicy('privacy')">《隐私政策》</text>
-      和
-      <text class="highlight-link" @click="openPolicy('agreement')">《用户协议》</text>
-    </template>
-  </action-confirmation-modal>
   <view class="login-page">
     <view class="header">
-      <view class="title">账号密码登录</view>
-      <view class="subtitle">请使用已注册的账号密码</view>
+      <image class="logo" src="/static/logo.jpg" mode="aspectFill"></image>
+      <view class="title">欢迎登录</view>
+      <!--     <view class="subtitle"></view>
+      <view class="tips"></view> -->
     </view>
 
-    <view class="form">
-      <view class="input-container">
-        <view class="input-item">
-          <text class="iconfont icon-shouji"></text>
-          <input v-model="loginForm.phone" type="number" placeholder="请输入手机号" />
+    <view class="content">
+      <!-- #ifdef MP-WEIXIN -->
+      <button
+        v-if="isAgree"
+        class="wx-login-btn"
+        open-type="getPhoneNumber"
+        :loading="isLoggingIn"
+        :disabled="isLoggingIn"
+        @getphonenumber="onGetPhoneNumber"
+      >
+        快捷授权登录
+      </button>
+      <button v-else class="wx-login-btn" @click="checkAgreement">快捷授权登录</button>
+      <!-- #endif -->
+      <button class="phone-login-btn" :disabled="isLoggingIn" @click="goToPhoneLogin">手机号登录</button>
+      <view class="agreement agreement-bottom">
+        <wd-checkbox v-model="isAgree" size="large" checked-color="#4c92fc" @change="onAgreementChange">
+          <view class="agree-text">
+            我已阅读并同意
+            <text class="highlight-link" @click.stop="openPolicy('agreement')">《用户协议》</text>
+            和
+            <text class="highlight-link" @click.stop="openPolicy('privacy')">《隐私政策》</text>
+          </view>
+        </wd-checkbox>
+      </view>
+      <wd-action-sheet v-model="showPhoneSheet" title="手机号登录" :safe-area-inset-bottom="true">
+        <view class="input-container">
+          <view class="input-item">
+            <text class="iconfont icon-shouji"></text>
+            <input v-model="loginForm.phone" type="number" maxlength="11" placeholder="请输入手机号" confirm-type="done" />
+          </view>
+          <view class="input-item">
+            <text class="iconfont icon-mima"></text>
+            <input v-model="loginForm.password" :password="!sheetShowPassword" placeholder="请输入密码" confirm-type="done" />
+            <text
+              :class="['iconfont', sheetShowPassword ? 'icon-keshimima' : 'icon-bukeshimima', 'toggle']"
+              @click="sheetShowPassword = !sheetShowPassword"
+            ></text>
+          </view>
         </view>
-        <view class="input-item">
-          <text class="iconfont icon-mima"></text>
-          <input v-model="loginForm.password" :password="!showPassword" placeholder="请输入6-12位密码" />
-          <text
-            :class="['iconfont', !showPassword ? 'icon-bukeshimima' : 'icon-keshimima']"
-            @click="showPassword = !showPassword"
-          ></text>
+        <button class="wx-login-btn login-btn" :loading="isLoggingIn" :disabled="isLoggingIn" @click="handleLogin">登录</button>
+        <view class="agreement sheet-agreement">
+          <wd-checkbox v-model="isAgree" size="large" checked-color="#4c92fc" @change="onAgreementChange">
+            <view class="agree-text">
+              我已阅读并同意
+              <text class="highlight-link" @click.stop="openPolicy('agreement')">《用户协议》</text>
+              和
+              <text class="highlight-link" @click.stop="openPolicy('privacy')">《隐私政策》</text>
+            </view>
+          </wd-checkbox>
         </view>
-      </view>
-      <view class="options">
-        <!-- <view class="remember">
-          <wd-checkbox v-model="isRemember" size="large"></wd-checkbox>
-          <text>记住密码</text>
-        </view> -->
-        <text class="forget" @click="uni.navigateTo({ url: '/pages/forgot-password/forgot-password' })">忘记密码?</text>
-      </view>
-
-      <view class="agreement">
-        <wd-checkbox v-model="isAgree" size="large"></wd-checkbox>
-        <text class="agree-text">
-          同意
-          <text class="highlight-link" @click="openPolicy('privacy')">《服务协议》</text>
-          和
-          <text class="highlight-link" @click="openPolicy('agreement')">《隐私政策》</text>
-        </text>
-      </view>
-
-      <button class="login-btn" :loading="isLoggingIn" @click="handleLogin">登录</button>
-      <view class="verify-login" @click="uni.navigateTo({ url: '/pages/register/register' })">还没有账号？去注册</view>
+        <view class="sheet-register-link" @click="goToRegister">没有账号？立即注册</view>
+      </wd-action-sheet>
     </view>
-
-    <!-- <view class="other-login">
-      <view class="divider">
-        <text>其他登录方式</text>
-      </view>
-      <view class="social-login">
-        <view class="social-item">
-          <uni-icons type="weixin" size="40" color="#07c160" />
-        </view>
-        <view class="social-item">
-          <uni-icons type="qq" size="40" color="#165DFF" />
-        </view>
-        <view class="social-item">
-          <uni-icons type="apple" size="40" />
-        </view>
-      </view>
-    </view> -->
   </view>
 </template>
 
 <script setup>
-import { reactive, ref } from "vue";
+import { ref, reactive } from "vue";
+import { onLoad } from "@dcloudio/uni-app";
 import { useUserStore } from "@/stores";
-import { login, getUserInfo } from "@/api";
+import { usePrivacyStore } from "@/stores/modules/privacy.js";
+import { login, getUserInfo } from "@/api/user.js";
+defineOptions({ name: "LoginPage" });
+
 const userStore = useUserStore();
+const privacyStore = usePrivacyStore();
 
 const loginForm = reactive({
   phone: "",
@@ -90,10 +81,83 @@ const loginForm = reactive({
 });
 const isLoggingIn = ref(false);
 
-const isAgree = ref(false);
-const showPassword = ref(false);
+const isAgree = ref(uni.getStorageSync("privacy_policy_agreed") || false);
 
-const showProtocolPopup = ref(false);
+const fromUrl = ref("");
+const showPhoneSheet = ref(false);
+const sheetShowPassword = ref(false);
+
+const parseTokenPayload = (payload) => {
+  if (!payload) return { token: "", refreshToken: "" };
+  if (typeof payload === "string") return { token: payload, refreshToken: "" };
+  const token = payload.token || "";
+  const refreshToken = payload.refresh_token || payload.refreshToken || "";
+  return { token, refreshToken };
+};
+
+const navigateAfterLogin = (target) => {
+  const url = typeof target === "string" ? target : "/pages/index/index";
+  if (!url) {
+    uni.switchTab({ url: "/pages/index/index" });
+    return;
+  }
+  if (url.startsWith("/pages/index/index")) {
+    uni.switchTab({ url });
+  } else {
+    uni.redirectTo({ url });
+  }
+};
+
+onLoad(async (options) => {
+  // 记录来源地址
+  if (options?.from) {
+    try {
+      fromUrl.value = decodeURIComponent(options.from);
+    } catch {
+      fromUrl.value = options.from;
+    }
+  }
+  // 检查是否已登录
+  if (userStore.isLoggedIn) {
+    navigateAfterLogin(fromUrl.value || "/pages/index/index");
+    return;
+  }
+  // 注意：小程序启动时已尝试 silentLogin (见 App.vue)。
+  // 这里不再重复调用，除非需要处理特殊逻辑（如 session 恢复）。
+  // 如果进入了登录页，通常意味着静默登录失败或未注册。
+  // #endif
+});
+
+// 校验协议
+const checkAgreement = () => {
+  if (!isAgree.value) {
+    uni.showToast({ title: "请先阅读并同意《用户协议》和《隐私政策》", icon: "none" });
+    return false;
+  }
+  return true;
+};
+
+const onGetPhoneNumber = async (e) => {
+  // 1. 校验微信返回状态
+  const errMsg = e.detail.errMsg || "";
+  if (errMsg.indexOf("ok") === -1) {
+    return uni.showToast({ title: "已取消授权", icon: "none" });
+  }
+
+  // 2. 执行登录逻辑
+  isLoggingIn.value = true;
+  try {
+    const result = await userStore.handlePhoneLogin(e.detail.code);
+    if (result?.success) {
+      uni.showToast({ title: "登录成功" });
+      navigateAfterLogin(fromUrl.value || "/pages/index/index");
+    }
+  } catch {
+    uni.showToast({ title: "登录失败，请重试", icon: "none" });
+  } finally {
+    isLoggingIn.value = false;
+  }
+};
 
 const openPolicy = (type) => {
   const urls = {
@@ -112,10 +176,10 @@ const openPolicy = (type) => {
   });
 };
 
-const handlePrivacyAgree = () => {
-  uni.setStorageSync("privacy_policy_agreed", true);
-  uni.setStorageSync("browsing_mode", false);
-  isAgree.value = true;
+const onAgreementChange = () => {
+  const checked = !!isAgree.value;
+  privacyStore.setAgreed(checked);
+  privacyStore.setBrowsingMode(!checked);
 };
 
 const handleLogin = async () => {
@@ -123,7 +187,6 @@ const handleLogin = async () => {
     uni.showToast({ title: "请输入手机号", icon: "none" });
     return;
   }
-  // 手机号正则校验（中国大陆手机号）
   const phoneReg = /^1[3-9]\d{9}$/;
   if (!phoneReg.test(loginForm.phone)) {
     uni.showToast({ title: "请输入正确的手机号", icon: "none" });
@@ -134,68 +197,188 @@ const handleLogin = async () => {
     return;
   }
   if (!isAgree.value) {
-    showProtocolPopup.value = true;
+    uni.showToast({ title: "请先阅读并同意《用户协议》和《隐私政策》", icon: "none" });
     return;
   }
   isLoggingIn.value = true;
   try {
-    // 1. 登录接口，获得 token
+    privacyStore.ensureAgreedForLogin();
     const loginRes = await login({
       account: loginForm.phone,
       password: loginForm.password,
     });
-    const access_token = loginRes;
-    // 保存 token 到 userStore（单独设置）
+    const { token: access_token, refreshToken } = parseTokenPayload(loginRes);
     userStore.setToken(access_token);
-    // userStore.setRefreshToken(loginRes.refresh_token);
-
-    // 2. 请求用户信息接口
+    if (refreshToken) userStore.setRefreshToken(refreshToken);
     const userInfoRes = await getUserInfo();
-    // 合并用户信息到 userStore
-    userStore.setUserInfo({
-      ...userInfoRes,
-    });
+    userStore.setUserInfo({ ...userInfoRes });
     uni.showToast({ title: "登录成功", icon: "none" });
-    // 3. 跳转首页
-    uni.switchTab({ url: "/pages/index/index" });
+    navigateAfterLogin(fromUrl.value || "/pages/index/index");
   } catch (err) {
-    uni.showToast({ title: err.message || "登录失败", icon: "none" });
+    uni.showToast({ title: err?.message || "登录失败", icon: "none" });
   } finally {
     isLoggingIn.value = false;
   }
 };
+
+const goToRegister = () => {
+  uni.navigateTo({ url: "/pages/register/register" });
+};
+
+const goToPhoneLogin = () => {
+  showPhoneSheet.value = true;
+};
 </script>
 
 <style lang="scss" scoped>
+:deep(.wd-action-sheet) {
+  background-color: #f7f8fa !important;
+}
+
 .login-page {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 0 40rpx;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 140rpx;
+  margin-bottom: 80rpx;
+}
+
+.logo {
+  width: 160rpx;
+  height: 160rpx;
+  margin-bottom: 32rpx;
+  border-radius: 50%;
+  box-shadow: 0 4rpx 16rpx rgb(0 0 0 / 8%);
 }
 
 .title {
-  margin-top: 64rpx;
-  margin-bottom: 20rpx;
-  font-family: PingFangSC-Medium;
-  font-size: 64rpx;
-  color: #000;
-  text-align: center;
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: 2rpx;
 }
 
 .subtitle {
+  margin-top: 12rpx;
   font-size: 26rpx;
-  color: #969799;
-  text-align: center;
+  color: #666;
 }
 
-.form {
-  padding: 0 32rpx;
-  margin-top: 60rpx;
+.tips {
+  margin-top: 24rpx;
+  font-size: 24rpx;
+  color: #969799;
+}
+
+.content {
+  width: 100%;
+}
+
+.agreement {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 32rpx;
+}
+
+.agreement-bottom {
+  margin-top: 48rpx;
+}
+
+.agree-text {
+  margin-left: 12rpx;
+  font-size: 26rpx;
+  line-height: 1.5;
+  color: #999;
+}
+
+.highlight-link {
+  display: inline;
+  color: $uni-color-primary;
+}
+
+.wx-login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 92rpx;
+  margin-top: 8rpx;
+  margin-bottom: 28rpx;
+  color: #fff;
+  background-color: $uni-color-primary;
+  border: none;
+  border-radius: 48rpx;
+
+  // box-shadow: 0 8rpx 20rpx rgb(7 193 96 / 25%);
+  transition: all 0.3s;
+
+  &::after {
+    border: none;
+  }
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+
+  text {
+    margin-left: 12rpx;
+    font-size: 32rpx;
+    font-weight: 500;
+    color: #fff;
+  }
+}
+
+.phone-login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 92rpx;
+  margin-bottom: 12rpx;
+  background-color: #eef2ff;
+  border: none;
+  border-radius: 48rpx;
+  transition: all 0.3s;
+
+  text {
+    font-size: 32rpx;
+    font-weight: 500;
+    color: #3b5bfd;
+  }
+
+  &::after {
+    border: none;
+  }
+
+  &:active {
+    opacity: 0.95;
+    transform: scale(0.99);
+  }
+}
+
+:deep(.wd-checkbox__shape) {
+  margin-top: 2rpx;
+}
+
+.account-form {
+  padding: 0 20rpx;
+  margin-top: 32rpx;
 }
 
 .input-container {
   display: flex;
   flex-direction: column;
-  gap: 48rpx;
+  gap: 24rpx;
+  background-color: #f7f8fa !important;
 }
 
 .input-item {
@@ -204,18 +387,12 @@ const handleLogin = async () => {
   align-items: center;
   height: 100rpx;
   padding: 0 32rpx;
+  margin: 0 24rpx;
   font-size: 26rpx;
   line-height: 100rpx;
   background-color: #fff;
   border-bottom: 1px solid #eee;
   border-radius: 200rpx;
-
-  /* color: #C8C9CC; */
-}
-
-.input-item .iconfont {
-  font-size: 48rpx;
-  color: #333;
 }
 
 .input-item input {
@@ -223,118 +400,36 @@ const handleLogin = async () => {
   font-size: 32rpx;
 }
 
-.options {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  margin-top: 24rpx;
-  margin-bottom: 48rpx;
-}
-
-/* .remember {
-  display: flex;
-  align-items: center;
-}
-
-.remember text {
-  margin-left: 10rpx;
-  font-size: 28rpx;
+.input-item .iconfont {
+  font-size: 48rpx;
   color: #333;
-} */
-
-.forget {
-  font-size: 28rpx;
-  color: #165dff;
 }
 
-.agreement {
-  display: flex;
-  align-items: flex-start;
-  margin-top: 112rpx;
-  margin-bottom: 20rpx;
-}
-
-.agree-text {
-  margin-left: 10rpx;
-  font-size: 28rpx;
-  line-height: 1.4;
-  color: #666;
-}
-
-.highlight-link {
-  color: #165dff;
-}
-
-.login-btn {
-  width: 100%;
-  height: 88rpx;
-  margin-bottom: 48rpx;
-  font-size: 16px;
-  line-height: 88rpx;
-  color: #fff;
-  letter-spacing: 12rpx;
-  background-color: $uni-color-primary;
-  border-radius: 44rpx;
-}
-
-.verify-login {
-  font-size: 28rpx;
-  font-weight: normal;
-  color: $uni-color-primary;
-  text-align: center;
-}
-
-/*
-.other-login {
-  margin-top: auto;
-  padding-bottom: 60rpx;
-}
-
-.divider {
-  position: relative;
-  text-align: center;
-  margin-bottom: 60rpx;
-}
-
-.divider text {
-  background-color: #fff;
-  padding: 0 20rpx;
+.input-item .toggle {
+  font-size: 44rpx;
   color: #999;
-  font-size: 14px;
-  position: relative;
-  z-index: 1;
 }
-
-.divider::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 100%;
-  height: 1px;
-  background-color: #eee;
-  z-index: 0;
-}
-
-.social-login {
-  display: flex;
-  justify-content: center;
-  gap: 80rpx;
-}
-
-.social-item {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-} */
 
 .uni-input-placeholder {
   font-size: 26rpx;
   color: #c8c9cc;
 }
 
-:deep(.wd-checkbox__shape) {
-  background-color: #fff;
-  border-width: 1px;
+.sheet-agreement {
+  padding-left: 24rpx;
+  margin-top: 16rpx;
+}
+
+.login-btn {
+  width: calc(100% - 48rpx);
+  margin-top: 24rpx;
+  letter-spacing: 12rpx;
+}
+
+.sheet-register-link {
+  margin: 20rpx 0;
+  font-size: 28rpx;
+  color: $uni-color-primary;
+  text-align: center;
 }
 </style>

@@ -42,15 +42,18 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { usePrivacyStore } from "@/stores/modules/privacy.js";
 
 // 定义响应式数据
 const showPrivacyModal = ref(false);
 const showSecondModal = ref(false);
+const privacyStore = usePrivacyStore();
 
 // 页面加载时检查隐私协议状态
 onMounted(() => {
-  const agreed = uni.getStorageSync("privacy_policy_agreed");
-  const browsing = uni.getStorageSync("browsing_mode");
+  privacyStore.refreshFromStorage();
+  const agreed = privacyStore.isAgreed;
+  const browsing = privacyStore.isBrowsing;
   if (!agreed && !browsing) {
     showPrivacyModal.value = true;
   }
@@ -61,8 +64,8 @@ const handlePrivacyDisagree = () => {
 };
 
 const handlePrivacyAgree = () => {
-  uni.setStorageSync("privacy_policy_agreed", true);
-  uni.setStorageSync("browsing_mode", false);
+  privacyStore.setAgreed(true);
+  privacyStore.setBrowsingMode(false);
   uni.reLaunch({
     url: "/pages/index/index",
   });
@@ -70,7 +73,7 @@ const handlePrivacyAgree = () => {
 
 const handleSecondDisagree = () => {
   // 进入浏览模式逻辑
-  uni.setStorageSync("browsing_mode", true);
+  privacyStore.setBrowsingMode(true);
   uni.reLaunch({
     url: "/pages/index/index",
   });

@@ -7,6 +7,14 @@ let isRedirecting = false; // 全局锁，防止重复跳转
 let loadingTimer = null; // 用于控制 loading 延迟显示的定时器
 let isLoadingShowing = false; // 标记 loading 是否已显示
 
+const isAbsoluteUrl = (url) => /^https?:\/\//i.test(url);
+const joinUrl = (base, path) => {
+  const b = String(base || "").replace(/\/+$/, "");
+  const p = String(path || "").replace(/^\/+/, "");
+  return `${b}/${p}`;
+};
+const resolveUrl = (base, url) => (isAbsoluteUrl(url) ? url : joinUrl(base, url));
+
 // 封装一个独立的函数，用于控制 Loading 的显示和隐藏
 const hideLoadingIfNeeded = (options) => {
   if (options.showLoading === true) {
@@ -40,6 +48,10 @@ const showDebouncedToast = (title) => {
   }, 200);
 };
 
+import { useUserStore } from "@/stores";
+import { usePrivacyStore } from "@/stores/modules/privacy.js";
+import { useAuth } from "@/composables/useAuth.js";
+
 const interceptors = {
   // 请求拦截器
   request: (options) => {
@@ -65,24 +77,106 @@ const interceptors = {
   }, // 响应拦截器
   response: {
     // 响应成功
-    success: (response) => {
+    success: async (response, options) => {
       const { statusCode, data } = response;
       if (statusCode === 200) {
         if (Array.isArray(config.successCodes) && config.successCodes.includes(data.code)) {
           return Promise.resolve(data.data);
-        } else if (data.code === RESPONSE_CODE.UNAUTHORIZED) {
-          uni.removeStorageSync("token");
-          showDebouncedToast("登录已过期,请重新登录");
-          if (!isRedirecting) {
-            isRedirecting = true;
-            setTimeout(() => {
-              uni.reLaunch({
-                url: "/pages/login/index",
-                complete: () => {
-                  isRedirecting = false;
-                },
-              });
-            }, 1500);
+        }
+
+        // 打印请求配置，方便后端联调
+        console.log("⬇️⬇️⬇️ 请求异常详情 ⬇️⬇️⬇️");
+        try {
+          console.log(
+            JSON.stringify(
+              {
+                url: options?.url,
+                method: options?.method,
+                header: options?.header,
+                data: options?.data,
+                response: data,
+              },
+              null,
+              2,
+            ),
+          );
+        } catch (e) {
+          console.error("JSON.stringify 失败:", e);
+          console.log({
+            url: options?.url,
+            method: options?.method,
+            header: options?.header,
+            data: options?.data,
+            response: data,
+          });
+        }
+        console.log("⬆️⬆️⬆️ 请求异常详情 ⬆️⬆️⬆️");
+
+        if (data.code === RESPONSE_CODE.UNAUTHORIZED) {
+          // 401 表示登录态失效：统一清理用户信息，确保 Pinia 与本地存储一致
+          const userStore = useUserStore();
+          try {
+            userStore.clearUserInfo();
+          } catch (e) {
+            console.warn("清理用户信息失败:", e);
+            // 兜底清理，避免状态不一致
+            uni.removeStorageSync("userInfo");
+            uni.removeStorageSync("token");
+            uni.removeStorageSync("refreshToken");
+          }
+          const privacyStore = usePrivacyStore();
+          privacyStore.refreshFromStorage();
+          const privacyAgreed = privacyStore.isAgreed;
+          const browsingMode = privacyStore.isBrowsing;
+          let currentRoute = "";
+          try {
+            const pages = getCurrentPages?.();
+            if (pages && pages.length) {
+              currentRoute = pages[pages.length - 1]?.route || "";
+            }
+          } catch (e) {
+            console.error("获取当前路由失败:", e);
+          }
+          const isPrivacyPage = currentRoute === "pages/privacy/privacy";
+          // 条件静默登录尝试（一次性）
+          if (
+            privacyAgreed &&
+            !browsingMode &&
+            !isPrivacyPage &&
+            !userStore.isLoggedIn &&
+            !userStore.loginPromise &&
+            !options.retryFrom401
+          ) {
+            try {
+              const { initAuth } = useAuth();
+              await initAuth();
+              if (userStore.isLoggedIn) {
+                // 单次重试原请求，避免循环
+                const retryOptions = { ...options, retryFrom401: true, abortOld: false };
+                return await request(retryOptions);
+              }
+            } catch (e) {
+              console.warn("401补偿静默登录失败", e);
+            }
+            showDebouncedToast("登录已过期,请重新登录");
+          }
+          // 跳转登录（已同意隐私且非浏览模式、且当前不在隐私页）
+          if (privacyAgreed && !browsingMode && !isPrivacyPage) {
+            if (!isRedirecting && !options.retryFrom401) {
+              isRedirecting = true;
+              setTimeout(() => {
+                uni.reLaunch({
+                  url: "/pages/login/index",
+                  complete: () => {
+                    isRedirecting = false;
+                  },
+                });
+              }, 1500);
+            }
+          } else {
+            if (!isPrivacyPage) {
+              showDebouncedToast("当前为浏览模式或未同意隐私，登录后可访问完整功能");
+            }
           }
           return Promise.reject({
             code: RESPONSE_CODE.UNAUTHORIZED,
@@ -128,6 +222,34 @@ const interceptors = {
           });
         }
       } else {
+        // 打印网络错误请求配置
+        console.log("⬇️⬇️⬇️ 网络错误详情 ⬇️⬇️⬇️");
+        try {
+          console.log(
+            JSON.stringify(
+              {
+                url: options?.url,
+                method: options?.method,
+                header: options?.header,
+                data: options?.data,
+                response: response,
+              },
+              null,
+              2,
+            ),
+          );
+        } catch (e) {
+          console.error("JSON.stringify 失败:", e);
+          console.log({
+            url: options?.url,
+            method: options?.method,
+            header: options?.header,
+            data: options?.data,
+            response: response,
+          });
+        }
+        console.log("⬆️⬆️⬆️ 网络错误详情 ⬆️⬆️⬆️");
+
         showDebouncedToast(`网络错误 ${statusCode}`);
         return Promise.reject({
           code: statusCode,
@@ -159,7 +281,7 @@ function request(options) {
       ...config.header,
       ...(options.header || {}),
     },
-    url: config.baseURL + options.url,
+    url: resolveUrl(config.baseURL, options.url),
   };
   const interceptedOptions = interceptors.request(finalOptions);
 
@@ -187,7 +309,7 @@ function request(options) {
       ...interceptedOptions,
       success: (res) => {
         if (abortKey) pendingRequests.delete(abortKey);
-        interceptors.response.success(res).then(resolve).catch(reject);
+        interceptors.response.success(res, interceptedOptions).then(resolve).catch(reject);
       },
       fail: (err) => {
         if (abortKey) pendingRequests.delete(abortKey);
