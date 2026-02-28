@@ -73,69 +73,33 @@ const orderItems = reactive([
 const serviceItems = reactive([
   {
     id: 1,
-    icon: "verify",
-    label: "实名认证",
-    path: "/settingPages/verify/verify",
-  },
-  {
-    id: 2,
-    icon: "join",
-    label: "师傅入驻",
-    path: "/moreServicePages/expert-join/expert-join",
-  },
-  {
-    id: 3,
     icon: "help",
     label: "帮助中心",
     path: "/settingPages/help-feedback/help-center",
   },
   {
-    id: 4,
+    id: 2,
     icon: "service",
     label: "客服中心",
     path: "/settingPages/help-feedback/customer-service",
   },
   {
-    id: 5,
+    id: 3,
     icon: "address",
     label: "地址管理",
     path: "/pages/address/address-select",
   },
   {
-    id: 6,
-    icon: "consult",
-    label: "合作咨询",
-    path: "/moreServicePages/regional-cooperation/regional-cooperation",
-  },
-  {
-    id: 7,
+    id: 4,
     icon: "feedback",
     label: "意见反馈",
     path: "/settingPages/help-feedback/feedback",
   },
   {
-    id: 8,
+    id: 5,
     icon: "about",
     label: "关于我们",
     path: "/settingPages/about/about",
-  },
-  {
-    id: 9,
-    icon: "master",
-    label: "师傅端",
-    path: "/pages/technician-portal/technician-portal",
-  },
-  {
-    id: 10,
-    icon: "favorite",
-    label: "收藏师傅",
-    path: "/pages/favorite-technicians/favorite-technicians",
-  },
-  {
-    id: 11,
-    icon: "message",
-    label: "消息中心",
-    path: "/settingPages/notifications/notifications",
   },
 ]);
 
