@@ -25,3 +25,13 @@ export const updateUserInfo = (data) => {
 export const sendSmsCode = (mobile) => {
   return request.get("/user/sendSMS", { mobile });
 };
+
+// 微信小程序静默登录 (code换session/token)
+export const silentLogin = (data) => {
+  return request.get("/user/silentLogin", data);
+};
+
+// 微信手机号登录
+export const phoneLogin = (data) => {
+  return request.get("/user/phoneLogin", data);
+};
