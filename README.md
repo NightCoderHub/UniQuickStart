@@ -1,23 +1,10 @@
 # UniQuickStart
 
-一个高效的 UniApp 模板，可快速启动跨平台应用程序。
+UniApp 模板。
 
 ## 📱 项目介绍
 
-UniQuickStart 是一个基于 UniApp 框架的跨平台应用开发模板，旨在帮助开发者快速构建高质量的移动应用。该模板集成了现代化的开发工具链和最佳实践，支持多平台部署。
-
-### ✨ 主要特性
-
-- 🚀 **快速启动**: 开箱即用的项目模板
-- 📱 **跨平台支持**: 支持 H5、微信小程序、Android
-- 🎨 **现代化 UI**: 集成 wot-design-uni 组件库
-- 📄 **分页组件**: 内置 z-paging 分页组件
-- 🔐 **用户认证**: 完整的登录注册流程
-- 🛡️ **隐私保护**: 内置隐私协议处理机制
-- 📦 **状态管理**: 基于 Pinia 的状态管理
-- 🌐 **网络请求**: 封装的 HTTP 请求工具
-- 🎯 **代码规范**: ESLint + Prettier + Stylelint 代码规范
-- 🔧 **开发工具**: 集成 Git Hooks 和代码格式化
+UniQuickStart 是一个基于 UniApp 框架的跨平台应用开发模板。
 
 ## 🛠️ 技术栈
 
@@ -198,31 +185,3 @@ export const APP_CONFIG = {
 
 - 微信小程序：配置 `mp-weixin.appid`
 - 地图服务：配置腾讯地图 API Key
-
-### 提交规范
-
-遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范：
-
-- `feat`: 新功能
-- `fix`: 修复 bug
-- `docs`: 文档更新
-- `style`: 代码格式调整
-- `refactor`: 代码重构
-- `test`: 测试相关
-- `chore`: 构建过程或辅助工具的变动
-
-## 📄 许可证
-
-本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
-
-## 🙏 致谢
-
-- [UniApp](https://uniapp.dcloud.io/) - 跨平台应用开发框架
-- [Vue.js](https://vuejs.org/) - 渐进式 JavaScript 框架
-- [wot-design-uni](https://wot-design-uni.netlify.app/) - UniApp 组件库
-- [z-paging](https://z-paging.zxlee.cn/) - 分页组件
-- [Pinia](https://pinia.vuejs.org/) - Vue 状态管理库
-
----
-
-⭐ 如果这个项目对你有帮助，请给它一个 Star！
