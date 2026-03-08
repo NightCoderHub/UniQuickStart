@@ -40,7 +40,7 @@ const props = defineProps({
   header: {
     type: Object,
     default: () => ({
-      authorization: uni.getStorageSync("token") || "",
+      authorization: `Bearer ${uni.getStorageSync("token") || ""}`,
     }),
   },
   // 最大允许上传个数
