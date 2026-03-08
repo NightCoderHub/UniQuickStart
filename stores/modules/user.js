@@ -6,6 +6,7 @@ export const useUserStore = defineStore("user", {
     // 从本地存储获取初始数据
     userInfo: uni.getStorageSync("userInfo") || null,
     token: uni.getStorageSync("token") || "",
+    tokenExpireTime: uni.getStorageSync("tokenExpireTime") || 0,
     refreshToken: uni.getStorageSync("refreshToken") || "",
     loginPromise: null, // 用于处理并发登录请求
   }),
@@ -14,20 +15,37 @@ export const useUserStore = defineStore("user", {
     isLoggedIn: (state) => !!state.token,
     // 获取用户姓名，如果未登录则显示默认文本
     userName: (state) => state.userInfo?.nickname || "您还未登录",
-    // 获取用户星级评分，如果未登录则显示默认文本
-    userRating: (state) => state.userInfo?.rating || "N/A",
-    // 获取用户完单率，如果未登录则显示默认文本
-    userCompletion: (state) => state.userInfo?.completion || "N/A",
     // 获取用户头像，如果未登录则显示默认头像
     userAvatar: (state) => state.userInfo?.avatar || "/static/default-avatar.jpg",
   },
   actions: {
-    parseTokenPayload(payload) {
-      if (!payload) return { token: "" };
-      if (typeof payload === "string") return { token: payload };
-      const token = payload.token || "";
-      const refreshToken = payload.refresh_token || payload.refreshToken || "";
-      return { token, refreshToken };
+    /**
+     * 核心持久化方法：同步更新 State 和 Storage
+     * @param {Object} data 需要更新的键值对
+     */
+    _persist(data) {
+      Object.keys(data).forEach((key) => {
+        this[key] = data[key];
+        if (data[key] === null || data[key] === "") {
+          uni.removeStorageSync(key);
+        } else {
+          uni.setStorageSync(key, data[key]);
+        }
+      });
+    },
+
+    /**
+     * 解析并转换时间戳为绝对毫秒数
+     */
+    _formatExpireTime(ts) {
+      const num = Number(ts);
+      if (num === 0) return 0;
+      // 如果数值很小（比如小于 1 年的秒数），判定为相对有效期，累加当前时间
+      if (num < 31536000) {
+        return Date.now() + num * 1000;
+      }
+      // 否则判定为绝对时间戳（秒级或毫秒级转换）
+      return num < 10000000000 ? num * 1000 : num;
     },
     async verifyToken() {
       if (!this.token) return false;
@@ -50,34 +68,42 @@ export const useUserStore = defineStore("user", {
         return false;
       }
     },
+
+    // 统一设置 Token 相关信息
+    setTokenInfo(payload) {
+      if (!payload) return;
+
+      // 兼容不同后端的字段名
+      const token = payload.token || payload.access_token || "";
+      const refreshToken = payload.refresh_token || payload.refreshToken || "";
+      const rawExpire = payload.expires_in || payload.expire_time || payload.expireTime || 0;
+
+      this._persist({
+        token,
+        refreshToken,
+        tokenExpireTime: this._formatExpireTime(rawExpire),
+      });
+    },
+
     // 设置用户信息（例如：登录成功后调用）
-    setUserInfo(data) {
-      this.userInfo = data;
-      uni.setStorageSync("userInfo", data);
+    setUserInfo(userInfo) {
+      this._persist({ userInfo });
     },
-    // 设置token
-    setToken(token) {
-      this.token = token;
-      uni.setStorageSync("token", token);
-    },
-    // 设置刷新token
-    setRefreshToken(refreshToken) {
-      this.refreshToken = refreshToken;
-      uni.setStorageSync("refreshToken", refreshToken);
-    },
+
     // 更新用户信息
-    updateProfile(userInfo) {
+    updateUserInfo(userInfo) {
       this.userInfo = { ...this.userInfo, ...userInfo };
       uni.setStorageSync("userInfo", this.userInfo);
     },
-    // 清除用户信息和token（例如：登出时调用）
+
+    // 清除登录状态
     clearUserInfo() {
-      this.userInfo = null;
-      this.token = "";
-      this.refreshToken = "";
-      uni.removeStorageSync("userInfo");
-      uni.removeStorageSync("token");
-      uni.removeStorageSync("refreshToken");
+      this._persist({
+        userInfo: null,
+        token: "",
+        tokenExpireTime: 0,
+        refreshToken: "",
+      });
     },
 
     // 静默登录 (wx.login)
@@ -100,9 +126,7 @@ export const useUserStore = defineStore("user", {
           const res = await silentLogin({ loginCode: code });
           // 3. 处理结果
           if (res && res.token) {
-            const { token, refreshToken } = this.parseTokenPayload(res);
-            this.setToken(token);
-            if (refreshToken) this.setRefreshToken(refreshToken);
+            this.setTokenInfo(res);
             try {
               const userInfo = await getUserInfo();
               this.setUserInfo(userInfo);
@@ -142,12 +166,14 @@ export const useUserStore = defineStore("user", {
           loginCode,
         });
 
-        if (res) {
-          const { token, refreshToken } = this.parseTokenPayload(res);
-          this.setToken(token);
-          if (refreshToken) this.setRefreshToken(refreshToken);
-          const userInfo = await getUserInfo();
-          this.setUserInfo(userInfo);
+        if (res && res.token) {
+          this.setTokenInfo(res);
+          try {
+            const userInfo = await getUserInfo();
+            this.setUserInfo(userInfo);
+          } catch (err) {
+            console.warn("获取用户信息失败", err);
+          }
           return { success: true };
         }
         return { success: false };
