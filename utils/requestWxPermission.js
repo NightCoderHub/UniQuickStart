@@ -52,10 +52,9 @@ export async function requestWxPermission(scope, authDesc) {
           return openSettingRes.authSetting[scope] === true;
         } catch (openSettingErr) {
           console.error("打开设置页失败：", openSettingErr);
-          // 抛出错误，指示打开设置页失败
-          throw new Error(
-            `Failed to open settings page for ${getPermissionName(scope)}: ${openSettingErr.errMsg || JSON.stringify(openSettingErr)}`,
-          );
+          throw new Error(`Failed to open settings page for ${getPermissionName(scope)}`, {
+            cause: openSettingErr,
+          });
         }
       } else {
         // 用户取消了弹窗
@@ -75,9 +74,8 @@ export async function requestWxPermission(scope, authDesc) {
     }
   } catch (getSettingErr) {
     console.error("获取设置失败：", getSettingErr);
-    // 抛出错误，指示获取设置失败
-    throw new Error(
-      `Failed to get settings for ${getPermissionName(scope)}: ${getSettingErr.errMsg || JSON.stringify(getSettingErr)}`,
-    );
+    throw new Error(`Failed to get settings for ${getPermissionName(scope)}`, {
+      cause: getSettingErr,
+    });
   }
 }
