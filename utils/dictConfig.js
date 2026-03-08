@@ -21,3 +21,9 @@ export const getStaticDictLabel = (type, value) => {
   const target = list.find((item) => String(item.value) === String(value));
   return target ? target.label : "";
 };
+
+export const getStaticDictValue = (type, label) => {
+  const list = getStaticDictOptions(type);
+  const target = list.find((item) => item.label === label);
+  return target ? target.value : "";
+};
