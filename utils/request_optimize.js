@@ -65,30 +65,40 @@ class HttpRequest {
   /** * 执行 Token 刷新
    * 包含：并发锁、请求队列、异常处理
    */
-  async _handleRefreshToken(options) {
+  _normalizePath(url = "") {
+    return String(url)
+      .replace(/^https?:\/\/[^/]+/i, "")
+      .split("?")[0];
+  }
+
+  _isRefreshRequest(url = "") {
+    return this._normalizePath(url) === this._normalizePath(REFRESH_TOKEN_URL);
+  }
+
+  _isWhiteListRequest(url = "") {
+    const path = this._normalizePath(url);
+    if (this._isRefreshRequest(path)) return true;
+    return /(^|\/)login(\/|$)/.test(path);
+  }
+
+  _setAuthorizationHeader(options, token) {
+    delete options.header.Authorization;
+    options.header.authorization = token.startsWith("Bearer ") ? token : `Bearer ${token}`;
+  }
+
+  async _refreshToken(options) {
     const userStore = useUserStore();
     const refreshToken = userStore.refreshToken;
 
-    const isRefreshPath = options.url.includes(REFRESH_TOKEN_URL);
+    const isRefreshPath = this._isRefreshRequest(options.url);
     if (isRefreshPath || !refreshToken) {
       this._handleLogout();
-      return Promise.reject({ code: RESPONSE_CODE.UNAUTHORIZED });
+      throw { code: RESPONSE_CODE.UNAUTHORIZED, message: "缺少刷新凭证" };
     }
 
     if (this.isRefreshing) {
-      return new Promise((resolve) => {
-        this.requestsQueue.push((newToken) => {
-          if (newToken) {
-            // 标记为重试，避免重复 loading 计数
-            options._isRetry = true;
-            // 统一转换 header，防止大小写冲突
-            delete options.header["Authorization"];
-            options.header["authorization"] = newToken.startsWith("Bearer ") ? newToken : `Bearer ${newToken}`;
-            resolve(this.request(options));
-          } else {
-            resolve(Promise.reject({ code: RESPONSE_CODE.UNAUTHORIZED }));
-          }
-        });
+      return new Promise((resolve, reject) => {
+        this.requestsQueue.push({ resolve, reject });
       });
     }
 
@@ -97,24 +107,29 @@ class HttpRequest {
       const refreshRes = await this._execRefreshTokenRequest(refreshToken);
       userStore.setTokenInfo(refreshRes);
       const newToken = userStore.token;
+      if (!newToken) {
+        throw { code: RESPONSE_CODE.UNAUTHORIZED, message: "刷新后令牌为空" };
+      }
       this.cachedToken = newToken;
 
-      // 批量唤醒并传入新 token
-      this.requestsQueue.forEach((cb) => cb(newToken));
+      this.requestsQueue.forEach(({ resolve }) => resolve(newToken));
       this.requestsQueue = [];
-
-      // 当前请求也标记为重试并更新 header
-      options._isRetry = true;
-      delete options.header["Authorization"];
-      options.header["authorization"] = newToken.startsWith("Bearer ") ? newToken : `Bearer ${newToken}`;
-      return this.request(options);
+      return newToken;
     } catch (err) {
+      this.requestsQueue.forEach(({ reject }) => reject(err));
       this.requestsQueue = [];
       this._handleLogout();
       throw err;
     } finally {
       this.isRefreshing = false;
     }
+  }
+
+  async _handleRefreshToken(options) {
+    const newToken = await this._refreshToken(options);
+    options._isRetry = true;
+    this._setAuthorizationHeader(options, newToken);
+    return this.request(options);
   }
 
   /** 原生刷新请求 */
@@ -193,20 +208,17 @@ class HttpRequest {
   async _requestInterceptor(options) {
     const userStore = useUserStore();
 
-    // 排除不需要 Token 的白名单
-    const whiteList = ["/login", REFRESH_TOKEN_URL];
-    const isWhiteList = whiteList.some((url) => options.url.includes(url));
+    const isWhiteList = this._isWhiteListRequest(options.url);
 
     if (!isWhiteList && userStore.token) {
-      // 1. 预检过期
       const BUFFER = 5 * 60 * 1000;
       if (userStore.tokenExpireTime && Date.now() + BUFFER > userStore.tokenExpireTime) {
-        return await this._handleRefreshToken(options);
+        const token = await this._refreshToken(options);
+        this._setAuthorizationHeader(options, token);
+      } else {
+        const token = this.cachedToken || userStore.token;
+        this._setAuthorizationHeader(options, token);
       }
-
-      // 2. 注入 Token (统一小写)
-      const token = this.cachedToken || userStore.token;
-      options.header["authorization"] = token.startsWith("Bearer ") ? token : `Bearer ${token}`;
     }
 
     if (options.showLoading) this._showLoading(options);
@@ -215,34 +227,38 @@ class HttpRequest {
 
   /** 响应拦截：处理业务 Code 和 401 */
   async _responseInterceptor(response, options) {
-    const { statusCode, data } = response;
+    const { statusCode, data } = response || {};
+    const responseCode = data && typeof data === "object" ? data.code : undefined;
 
-    // 业务成功直接返回
-    if (statusCode === 200 && REQUEST_CONFIG.successCodes.includes(data.code)) {
+    if (statusCode === 200 && REQUEST_CONFIG.successCodes.includes(responseCode)) {
       return data.data;
     }
 
-    // 被动刷新逻辑：仅在 code 为 401 且重试次数 < 1 时触发
-    if (data.code === RESPONSE_CODE.UNAUTHORIZED) {
+    if (responseCode === RESPONSE_CODE.UNAUTHORIZED) {
       options._retryCount = options._retryCount || 0;
       if (options._retryCount < 1) {
         options._retryCount++;
         return await this._handleRefreshToken(options);
       } else {
-        // 已重试过一次依然 401，说明 Token 刷新也救不了，强制登出
         this._handleLogout("登录状态失效，请重新登录");
-        throw { code: data.code, message: "授权失败" };
+        throw { code: responseCode, message: "授权失败" };
       }
     }
 
-    // 其他错误处理...
-    this._showToast(data.msg || "请求失败");
-    throw { code: data.code, message: data.msg };
+    if (statusCode !== 200) {
+      const message = `网络错误 ${statusCode || ""}`.trim();
+      this._showToast(message);
+      throw { code: statusCode || 0, message, originalError: response };
+    }
+
+    const message = (data && (data.msg || data.message)) || "请求失败";
+    this._showToast(message);
+    throw { code: responseCode || 0, message, originalError: data || response };
   }
 
   /** 错误拦截：处理取消请求和网络异常 */
   _errorInterceptor(error) {
-    const isAborted = error.errMsg?.includes("abort") || error.isAbort;
+    const isAborted = error.errMsg?.includes("abort") || error.errMsg?.includes("cancel") || error.isAbort;
     if (isAborted) {
       return Promise.reject({ code: -1, message: "Request aborted", isAbort: true });
     }
