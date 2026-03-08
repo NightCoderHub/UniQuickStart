@@ -23,13 +23,16 @@ class HttpRequest {
   // ================= UI 交互封装 =================
 
   /** 统一 Loading 显示逻辑 */
-  _showLoading() {
+  _showLoading(options = {}) {
+    // 如果是重试请求，不重复计数，防止 finally 块多次触发 hideLoading 导致计数错乱
+    if (options._isRetry) return;
+
     if (this.loadingCount === 0 && !this.loadingTimer) {
       this.loadingTimer = setTimeout(() => {
         uni.showLoading({ title: "加载中...", mask: true });
         this.isLoadingShowing = true;
         this.loadingTimer = null;
-      }, 300); // 300ms 延迟，防止闪烁
+      }, 300);
     }
     this.loadingCount++;
   }
@@ -206,7 +209,7 @@ class HttpRequest {
       options.header["authorization"] = token.startsWith("Bearer ") ? token : `Bearer ${token}`;
     }
 
-    if (options.showLoading) this._showLoading();
+    if (options.showLoading) this._showLoading(options);
     return options;
   }
 
