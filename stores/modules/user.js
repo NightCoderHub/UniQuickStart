@@ -81,7 +81,7 @@ export const useUserStore = defineStore("user", {
     },
 
     // 静默登录 (wx.login)
-    async silentLogin({ force = false } = {}) {
+    async wxSilentLogin({ force = false } = {}) {
       if (this.token && !force) {
         const valid = await this.verifyToken();
         if (valid) return { success: true };
