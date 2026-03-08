@@ -125,7 +125,6 @@ onLoad(async (options) => {
   // 注意：小程序启动时已尝试 silentLogin (见 App.vue)。
   // 这里不再重复调用，除非需要处理特殊逻辑（如 session 恢复）。
   // 如果进入了登录页，通常意味着静默登录失败或未注册。
-  // #endif
 });
 
 // 校验协议
