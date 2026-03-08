@@ -122,6 +122,7 @@ class HttpRequest {
         method: "POST",
         data: { refreshToken },
         header: { "content-type": "application/x-www-form-urlencoded" },
+        timeout: 15000, // 显式设置 15 秒超时，覆盖默认的 60 秒
         success: (res) => {
           const isSuccess = res.statusCode === 200 && REQUEST_CONFIG.successCodes.includes(res.data.code);
           isSuccess ? resolve(res.data.data) : reject(res);
