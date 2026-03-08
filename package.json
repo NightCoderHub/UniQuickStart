@@ -1,7 +1,7 @@
 {
   "name": "uni-quick-start",
   "version": "1.0.0",
-  "description": "一个高效的 UniApp 模板，可快速启动跨平台应用程序。",
+  "description": "UniApp 模板",
   "main": "index.js",
   "scripts": {
     "lint": "eslint . --ext .vue,.js,.jsx,.ts,.tsx --fix",
@@ -42,9 +42,15 @@
     "vite-plugin-vue-devtools": "^7.7.7"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,vue,json,css,scss,less,html,md}": "prettier --write",
-    "*.{js,jsx,ts,tsx,vue}": "pnpm lint",
-    "*.{css,scss,vue,html}": "stylelint --fix"
+    "*.{js,jsx,ts,tsx,vue}": [
+      "eslint --fix"
+    ],
+    "*.{css,scss,vue,html}": [
+      "stylelint --fix"
+    ],
+    "*.{js,jsx,ts,tsx,vue,json,css,scss,less,html,md}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "wot-design-uni": "^1.13.0",
