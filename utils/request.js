@@ -1,19 +1,17 @@
 // utils/request.js
 import { REQUEST_CONFIG as config, RESPONSE_CODE } from "./constants.js";
 
+import { useUserStore } from "@/stores";
+
 let loadingCount = 0; // 全局 Loading 计数器
 let toastTimer = null; // 用于防抖的计时器
 let isRedirecting = false; // 全局锁，防止重复跳转
 let loadingTimer = null; // 用于控制 loading 延迟显示的定时器
 let isLoadingShowing = false; // 标记 loading 是否已显示
 
-const isAbsoluteUrl = (url) => /^https?:\/\//i.test(url);
-const joinUrl = (base, path) => {
-  const b = String(base || "").replace(/\/+$/, "");
-  const p = String(path || "").replace(/^\/+/, "");
-  return `${b}/${p}`;
-};
-const resolveUrl = (base, url) => (isAbsoluteUrl(url) ? url : joinUrl(base, url));
+// 刷新Token相关变量
+let isRefreshing = false; // 是否正在刷新Token
+let requestsQueue = []; // 存储等待刷新的请求
 
 // 封装一个独立的函数，用于控制 Loading 的显示和隐藏
 const hideLoadingIfNeeded = (options) => {
@@ -48,17 +46,14 @@ const showDebouncedToast = (title) => {
   }, 200);
 };
 
-import { useUserStore } from "@/stores";
-import { usePrivacyStore } from "@/stores/modules/privacy.js";
-import { useAuth } from "@/composables/useAuth.js";
-
 const interceptors = {
   // 请求拦截器
   request: (options) => {
+    const userStore = useUserStore();
     // 1. 添加 Token
-    const token = uni.getStorageSync("token");
+    const token = userStore.token;
     if (token) {
-      options.header["e-token"] = `${token}`;
+      options.header["authorization"] = `${token}`;
     }
 
     // 2. 显示 Loading（使用计数器和定时器管理）
@@ -79,90 +74,17 @@ const interceptors = {
     // 响应成功
     success: async (response, options) => {
       const { statusCode, data } = response;
+      const userStore = useUserStore();
       if (statusCode === 200) {
         if (Array.isArray(config.successCodes) && config.successCodes.includes(data.code)) {
           return Promise.resolve(data.data);
-        }
-
-        // 打印请求配置，方便后端联调
-        console.log("⬇️⬇️⬇️ 请求异常详情 ⬇️⬇️⬇️");
-        try {
-          console.log(
-            JSON.stringify(
-              {
-                url: options?.url,
-                method: options?.method,
-                header: options?.header,
-                data: options?.data,
-                response: data,
-              },
-              null,
-              2,
-            ),
-          );
-        } catch (e) {
-          console.error("JSON.stringify 失败:", e);
-          console.log({
-            url: options?.url,
-            method: options?.method,
-            header: options?.header,
-            data: options?.data,
-            response: data,
-          });
-        }
-        console.log("⬆️⬆️⬆️ 请求异常详情 ⬆️⬆️⬆️");
-
-        if (data.code === RESPONSE_CODE.UNAUTHORIZED) {
-          // 401 表示登录态失效：统一清理用户信息，确保 Pinia 与本地存储一致
-          const userStore = useUserStore();
-          try {
+        } else if (data.code === RESPONSE_CODE.UNAUTHORIZED) {
+          // 如果当前请求就是刷新token的请求，或者没有refreshToken，直接退出登录
+          const refreshToken = userStore.refreshToken;
+          if (options.url.includes("/sys/auth/access-token") || !refreshToken) {
             userStore.clearUserInfo();
-          } catch (e) {
-            console.warn("清理用户信息失败:", e);
-            // 兜底清理，避免状态不一致
-            uni.removeStorageSync("userInfo");
-            uni.removeStorageSync("token");
-            uni.removeStorageSync("refreshToken");
-          }
-          const privacyStore = usePrivacyStore();
-          privacyStore.refreshFromStorage();
-          const privacyAgreed = privacyStore.isAgreed;
-          const browsingMode = privacyStore.isBrowsing;
-          let currentRoute = "";
-          try {
-            const pages = getCurrentPages?.();
-            if (pages && pages.length) {
-              currentRoute = pages[pages.length - 1]?.route || "";
-            }
-          } catch (e) {
-            console.error("获取当前路由失败:", e);
-          }
-          const isPrivacyPage = currentRoute === "pages/privacy/privacy";
-          // 条件静默登录尝试（一次性）
-          if (
-            privacyAgreed &&
-            !browsingMode &&
-            !isPrivacyPage &&
-            !userStore.isLoggedIn &&
-            !userStore.loginPromise &&
-            !options.retryFrom401
-          ) {
-            try {
-              const { initAuth } = useAuth();
-              await initAuth();
-              if (userStore.isLoggedIn) {
-                // 单次重试原请求，避免循环
-                const retryOptions = { ...options, retryFrom401: true, abortOld: false };
-                return await request(retryOptions);
-              }
-            } catch (e) {
-              console.warn("401补偿静默登录失败", e);
-            }
             showDebouncedToast("登录已过期,请重新登录");
-          }
-          // 跳转登录（已同意隐私且非浏览模式、且当前不在隐私页）
-          if (privacyAgreed && !browsingMode && !isPrivacyPage) {
-            if (!isRedirecting && !options.retryFrom401) {
+            if (!isRedirecting) {
               isRedirecting = true;
               setTimeout(() => {
                 uni.reLaunch({
@@ -173,16 +95,97 @@ const interceptors = {
                 });
               }, 1500);
             }
-          } else {
-            if (!isPrivacyPage) {
-              showDebouncedToast("当前为浏览模式或未同意隐私，登录后可访问完整功能");
-            }
+            return Promise.reject({
+              code: RESPONSE_CODE.UNAUTHORIZED,
+              message: "登录已过期,请重新登录",
+              originalError: data,
+            });
           }
-          return Promise.reject({
-            code: RESPONSE_CODE.UNAUTHORIZED,
-            message: "登录已过期,请重新登录",
-            originalError: data,
-          });
+
+          if (!isRefreshing) {
+            isRefreshing = true;
+            try {
+              // 调用刷新token接口
+              const refreshRes = await new Promise((resolve, reject) => {
+                uni.request({
+                  url: config.baseURL + "/sys/auth/access-token",
+                  method: "POST",
+                  data: { refreshToken },
+                  header: {
+                    "content-type": "application/x-www-form-urlencoded",
+                  },
+                  success: (res) => {
+                    if (
+                      res.statusCode === 200 &&
+                      Array.isArray(config.successCodes) &&
+                      config.successCodes.includes(res.data.code)
+                    ) {
+                      resolve(res.data.data);
+                    } else {
+                      reject(res);
+                    }
+                  },
+                  fail: reject,
+                });
+              });
+
+              // 刷新成功，更新token
+              const { access_token, refresh_token } = refreshRes;
+              userStore.setToken(access_token);
+              if (refresh_token) {
+                userStore.setRefreshToken(refresh_token);
+              }
+
+              // 处理队列中的请求
+              requestsQueue.forEach((cb) => cb(access_token));
+              requestsQueue = [];
+
+              // 重试当前请求
+              return request(options);
+            } catch {
+              // 刷新失败，清空队列并跳转登录
+              requestsQueue.forEach((cb) => cb(null));
+              requestsQueue = [];
+              userStore.clearUserInfo();
+              showDebouncedToast("登录已过期,请重新登录");
+              if (!isRedirecting) {
+                isRedirecting = true;
+                setTimeout(() => {
+                  uni.reLaunch({
+                    url: "/pages/login/index",
+                    complete: () => {
+                      isRedirecting = false;
+                    },
+                  });
+                }, 1500);
+              }
+              return Promise.reject({
+                code: RESPONSE_CODE.UNAUTHORIZED,
+                message: "登录已过期,请重新登录",
+                originalError: data,
+              });
+            } finally {
+              isRefreshing = false;
+            }
+          } else {
+            // 正在刷新，将请求加入队列
+            return new Promise((resolve) => {
+              requestsQueue.push((token) => {
+                if (token) {
+                  resolve(request(options));
+                } else {
+                  // token刷新失败，reject
+                  resolve(
+                    Promise.reject({
+                      code: RESPONSE_CODE.UNAUTHORIZED,
+                      message: "登录已过期,请重新登录",
+                      originalError: data,
+                    }),
+                  );
+                }
+              });
+            });
+          }
         } else {
           /* 暂时注释掉500错误码的特殊处理
         else if (data.code === 500) {
@@ -222,34 +225,6 @@ const interceptors = {
           });
         }
       } else {
-        // 打印网络错误请求配置
-        console.log("⬇️⬇️⬇️ 网络错误详情 ⬇️⬇️⬇️");
-        try {
-          console.log(
-            JSON.stringify(
-              {
-                url: options?.url,
-                method: options?.method,
-                header: options?.header,
-                data: options?.data,
-                response: response,
-              },
-              null,
-              2,
-            ),
-          );
-        } catch (e) {
-          console.error("JSON.stringify 失败:", e);
-          console.log({
-            url: options?.url,
-            method: options?.method,
-            header: options?.header,
-            data: options?.data,
-            response: response,
-          });
-        }
-        console.log("⬆️⬆️⬆️ 网络错误详情 ⬆️⬆️⬆️");
-
         showDebouncedToast(`网络错误 ${statusCode}`);
         return Promise.reject({
           code: statusCode,
@@ -273,6 +248,11 @@ const interceptors = {
 const pendingRequests = new Map();
 
 function request(options) {
+  let url = options.url;
+  if (url && !url.startsWith("http://") && !url.startsWith("https://")) {
+    url = config.baseURL + url;
+  }
+
   const finalOptions = {
     ...config,
     ...options,
@@ -281,7 +261,7 @@ function request(options) {
       ...config.header,
       ...(options.header || {}),
     },
-    url: resolveUrl(config.baseURL, options.url),
+    url,
   };
   const interceptedOptions = interceptors.request(finalOptions);
 
