@@ -182,6 +182,7 @@ const onTabbarChange = debounce(handleTabbarChange, 300);
 // 这里可以监听页面的 onShow 生命周期来获取当前路由
 let currentPageRoute = ref("");
 onShow(() => {
+  uni.hideTabBar();
   const pages = getCurrentPages();
   const currentRoute = pages[pages.length - 1].route;
   currentPageRoute.value = currentRoute;
