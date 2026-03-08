@@ -25,11 +25,13 @@ export const useUserStore = defineStore("user", {
      */
     _persist(data) {
       Object.keys(data).forEach((key) => {
-        this[key] = data[key];
-        if (data[key] === null || data[key] === "") {
+        const value = data[key];
+        this[key] = value;
+        // 显式处理 null/undefined/空字符串
+        if (value === null || value === undefined || value === "") {
           uni.removeStorageSync(key);
         } else {
-          uni.setStorageSync(key, data[key]);
+          uni.setStorageSync(key, value);
         }
       });
     },
