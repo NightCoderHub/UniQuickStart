@@ -12,12 +12,23 @@ export const useAuth = () => {
   const initAuth = async () => {
     // #ifdef MP-WEIXIN
     try {
-      // silentLogin 内部有并发锁，安全调用
-      const res = await userStore.silentLogin();
+      // wxSilentLogin 内部有并发锁，安全调用
+      const res = await userStore.wxSilentLogin();
       if (res && res.needPhone) {
         const from = encodeURIComponent(buildFromUrl());
         uni.navigateTo({
           url: `/pages/login/index?from=${from}`,
+        });
+      } else if (res && res.error) {
+        // 走到这里说明发生了异常（包括断网、500错误等）
+        // 记录日志供排查
+        console.warn("静默登录失败，服务器异常或网络不佳:", res.error);
+
+        // 给出轻提示，安抚用户，但不阻断页面停留
+        uni.showToast({
+          title: "服务器开小差了，请稍后再试", // 或者 '系统繁忙'
+          icon: "none",
+          duration: 2000,
         });
       }
     } catch (error) {
