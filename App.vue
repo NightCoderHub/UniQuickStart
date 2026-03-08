@@ -67,7 +67,6 @@ export default {
     // #endif
   },
   onShow: function () {
-    uni.hideTabBar();
     console.log("App Show");
     const privacyStore = usePrivacyStore();
     privacyStore.refreshFromStorage();
