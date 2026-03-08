@@ -107,10 +107,8 @@ export async function getLocationAndPermission() {
  */
 export function reverseGeocode(latitude, longitude) {
   const key = TENCENT_MAP_KEY;
-  let baseUrl = "https://apis.map.qq.com/ws/geocoder/v1/";
-  // #ifdef H5
-  baseUrl = "/tencent_map_api/ws/geocoder/v1/";
-  // #endif
+  const baseUrl =
+    process.env.UNI_PLATFORM === "h5" ? "/tencent_map_api/ws/geocoder/v1/" : "https://apis.map.qq.com/ws/geocoder/v1/";
   const url = `${baseUrl}?location=${latitude},${longitude}&key=${key}`;
 
   return new Promise((resolve, reject) => {
