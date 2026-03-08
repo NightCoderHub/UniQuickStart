@@ -274,7 +274,7 @@ const saveProfile = () => {
   };
   updateUserInfo(params)
     .then(() => {
-      userStore.updateProfile(params);
+      userStore.updateUserInfo(params);
       uni.showToast({
         title: "保存成功",
         icon: "none",
