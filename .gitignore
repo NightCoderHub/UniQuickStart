@@ -44,6 +44,6 @@ Desktop.ini # Windows
 .cache/
 .eslintcache
 
-.trae/
+.trae/documents
 docs/
 pnpm-lock.yaml
