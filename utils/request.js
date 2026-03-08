@@ -53,7 +53,7 @@ const interceptors = {
     // 1. 添加 Token
     const token = userStore.token;
     if (token) {
-      options.header["authorization"] = `${token}`;
+      options.header["authorization"] = `Bearer ${token}`;
     }
 
     // 2. 显示 Loading（使用计数器和定时器管理）

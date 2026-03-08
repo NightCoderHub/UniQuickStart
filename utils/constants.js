@@ -51,8 +51,11 @@ export const REQUEST_CONFIG = {
   showLoading: false,
 };
 
+// 刷新token的接口地址
+export const REFRESH_TOKEN_URL = `${REQUEST_CONFIG.baseURL}/auth/refresh-token`;
+
 // 上传文件接口地址
-export const uploadActionUrl = `${REQUEST_CONFIG.baseURL}/file/upload`;
+export const UPLOAD_ACTION_URL = `${REQUEST_CONFIG.baseURL}/file/upload`;
 
 // 腾讯地图key
 export const TENCENT_MAP_KEY = "AD7BZ-55HLM-72N6E-6ZXGL-MKOLS-D3BJN";

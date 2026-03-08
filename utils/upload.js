@@ -4,7 +4,7 @@
  * @param {String} filePath 文件临时路径
  * @param {Object} formData 额外表单数据
  */
-import { uploadActionUrl } from "./constants";
+import { UPLOAD_ACTION_URL } from "./constants";
 export const uploadFile = (url, filePath, formData = {}) => {
   // 获取存储的 token
   const token = uni.getStorageSync("token");
@@ -14,11 +14,11 @@ export const uploadFile = (url, filePath, formData = {}) => {
     uni.showLoading({ title: "上传中...", mask: true });
 
     uni.uploadFile({
-      url: url !== "" ? url : uploadActionUrl,
+      url: url !== "" ? url : UPLOAD_ACTION_URL,
       filePath: filePath,
       name: "file",
       header: {
-        authorization: `${token}`,
+        authorization: `Bearer ${token}`,
       },
       formData: formData,
       success: (res) => {
